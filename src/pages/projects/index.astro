@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { projects } from '../../data/projects';
+
+const title = 'Projects';
+const description =
+  'Case studies covering problem, architecture, trade-offs, and measured impact across high-scale backend systems.';
+---
+
+<BaseLayout title={title} description={description} path="/projects/">
+  <SiteHeader />
+  <main id="main">
+    <section class="section">
+      <div class="container">
+        <p class="section-kicker">Case Studies</p>
+        <h1 class="section-heading">Projects</h1>
+        <p class="section-intro">
+          Each case study covers the problem, the architecture decisions made, the trade-offs
+          accepted, and the measured impact — the full engineering story, not just a tech list.
+        </p>
+
+        <div class="grid grid--2">
+          {
+            projects.map((project) => (
+              <ProjectCard project={project} stackLimit={4} headingLevel="h2" />
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>

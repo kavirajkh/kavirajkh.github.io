@@ -1,0 +1,150 @@
+---
+const navItems = [
+  { href: '/', label: 'Home' },
+  { href: '/about/', label: 'About' },
+  { href: '/experience/', label: 'Experience' },
+  { href: '/projects/', label: 'Projects' },
+  { href: '/skills/', label: 'Skills' },
+  { href: '/contact/', label: 'Contact' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="site-header__brand" href="/">Kaviraj Haridasan</a>
+    <button
+      class="site-header__toggle"
+      id="nav-toggle"
+      aria-expanded="false"
+      aria-controls="site-nav"
+      aria-label="Toggle navigation menu"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <nav class="site-header__nav" id="site-nav" aria-label="Primary">
+      <ul>
+        {
+          navItems.map((item) => {
+            const isActive =
+              item.href === '/' ? currentPath === '/' : currentPath.startsWith(item.href);
+            return (
+              <li>
+                <a href={item.href} aria-current={isActive ? 'page' : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: var(--space-sm);
+  }
+
+  .site-header__brand {
+    font-weight: 700;
+    font-size: var(--fs-lg);
+    letter-spacing: -0.01em;
+  }
+
+  .site-header__nav ul {
+    display: flex;
+    gap: var(--space-lg);
+  }
+
+  .site-header__nav a {
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    padding-block: var(--space-2xs);
+    border-bottom: 2px solid transparent;
+  }
+
+  .site-header__nav a:hover,
+  .site-header__nav a[aria-current='page'] {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+  }
+
+  .site-header__toggle {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    background: none;
+    border: none;
+    padding: var(--space-xs);
+  }
+
+  .site-header__toggle span {
+    width: 22px;
+    height: 2px;
+    background: var(--color-text);
+    border-radius: 2px;
+  }
+
+  @media (max-width: 720px) {
+    .site-header__toggle {
+      display: flex;
+    }
+
+    .site-header__nav {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--color-bg);
+      border-bottom: 1px solid var(--color-border);
+      display: none;
+    }
+
+    .site-header__nav.is-open {
+      display: block;
+    }
+
+    .site-header__nav ul {
+      flex-direction: column;
+      gap: 0;
+      padding: var(--space-sm) var(--space-md) var(--space-md);
+    }
+
+    .site-header__nav li {
+      border-top: 1px solid var(--color-border);
+    }
+
+    .site-header__nav a {
+      display: block;
+      padding-block: var(--space-sm);
+    }
+  }
+</style>
+
+<script>
+  const toggle = document.getElementById('nav-toggle');
+  const nav = document.getElementById('site-nav');
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = nav?.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', String(Boolean(isOpen)));
+  });
+</script>

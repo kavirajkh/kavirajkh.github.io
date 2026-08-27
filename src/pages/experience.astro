@@ -1,0 +1,136 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { profile } from '../data/profile';
+import { experience } from '../data/experience';
+
+const title = 'Experience';
+const description = `${profile.yearsExperience} years of backend engineering experience across Apple and the California Student Aid Commission.`;
+---
+
+<BaseLayout title={title} description={description} path="/experience/">
+  <SiteHeader />
+  <main id="main">
+    <section class="section">
+      <div class="container">
+        <p class="section-kicker">Career</p>
+        <h1 class="section-heading">Experience</h1>
+        <p class="section-intro">
+          {profile.yearsExperience} years of backend engineering, {profile.yearsAtApple} of it supporting
+          Apple engineering initiatives as a contractor.
+        </p>
+
+        <ol class="timeline">
+          {
+            experience.map((role) => (
+              <li class="timeline__item">
+                <div class="timeline__marker" aria-hidden="true" />
+                <div class="timeline__content card">
+                  <div class="timeline__meta">
+                    <span class="timeline__dates">
+                      {role.start} – {role.end}
+                    </span>
+                    {role.current && <span class="tag">Current</span>}
+                  </div>
+                  <h2 class="timeline__title">{role.title}</h2>
+                  <p class="timeline__org">
+                    {role.company}
+                    {role.client && ` · Client: ${role.client}`}
+                  </p>
+                  <p class="timeline__summary">{role.summary}</p>
+                  <ul class="timeline__highlights">
+                    {role.highlights.map((highlight) => (
+                      <li>{highlight}</li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .timeline {
+    position: relative;
+    margin-top: var(--space-lg);
+  }
+
+  .timeline__item {
+    position: relative;
+    padding-left: var(--space-lg);
+    padding-bottom: var(--space-lg);
+    border-left: 2px solid var(--color-border);
+  }
+
+  .timeline__item:last-child {
+    border-left-color: transparent;
+    padding-bottom: 0;
+  }
+
+  .timeline__marker {
+    position: absolute;
+    left: -7px;
+    top: 0.4rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    border: 3px solid var(--color-bg);
+  }
+
+  .timeline__content {
+    margin-left: var(--space-md);
+  }
+
+  .timeline__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xs);
+  }
+
+  .timeline__dates {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--color-text-muted);
+  }
+
+  .timeline__title {
+    font-size: var(--fs-xl);
+  }
+
+  .timeline__org {
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    margin-bottom: var(--space-sm);
+  }
+
+  .timeline__summary {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .timeline__highlights li {
+    position: relative;
+    padding-left: var(--space-md);
+    padding-block: var(--space-2xs);
+    font-size: var(--fs-sm);
+  }
+
+  .timeline__highlights li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.75em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-border-strong);
+  }
+</style>

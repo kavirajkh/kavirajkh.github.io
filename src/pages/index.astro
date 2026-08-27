@@ -1,0 +1,284 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { profile } from '../data/profile';
+import { getFeaturedProjects } from '../data/projects';
+import { experience } from '../data/experience';
+
+const featuredProjects = getFeaturedProjects();
+const currentRole = experience.find((role) => role.current);
+---
+
+<BaseLayout title={profile.displayName} description={profile.headline}>
+  <SiteHeader />
+  <main id="main">
+    <section class="hero">
+      <div class="container hero__inner">
+        <div class="hero__intro">
+          <h1 class="hero__name">{profile.displayName}</h1>
+          <p class="hero__title">
+            {profile.heroTitle}
+            <span>{profile.heroSubtitle}</span>
+          </p>
+        </div>
+        <div class="hero__photo">
+          <picture>
+            <source
+              type="image/webp"
+              srcset={`${profile.photo.webp} 1x, ${profile.photo.webp2x} 2x`}
+            />
+            <img
+              src={profile.photo.src}
+              srcset={`${profile.photo.src} 1x, ${profile.photo.src2x} 2x`}
+              width={profile.photo.width}
+              height={profile.photo.height}
+              alt={profile.photo.alt}
+              loading="eager"
+              fetchpriority="high"
+            />
+          </picture>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero-details section">
+      <div class="container">
+        <p class="hero__summary">{profile.summary}</p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="/projects/">View Case Studies</a>
+          <a class="btn btn--secondary" href="/contact/">Get in Touch</a>
+        </div>
+        <dl class="hero__stats">
+          <div>
+            <dt>Years of experience</dt>
+            <dd>{profile.yearsExperience}</dd>
+          </div>
+          <div>
+            <dt>Years supporting Apple</dt>
+            <dd>{profile.yearsAtApple}</dd>
+          </div>
+          <div>
+            <dt>Students served (California Student Aid Commission platforms)</dt>
+            <dd>{profile.studentsServed}</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    {
+      currentRole && (
+        <section class="section section--subtle">
+          <div class="container">
+            <p class="section-kicker">Currently</p>
+            <h2 class="section-heading">
+              {currentRole.title} · {currentRole.company}
+            </h2>
+            <p class="section-intro">{currentRole.summary}</p>
+            <a class="btn btn--secondary" href="/experience/">
+              See full experience →
+            </a>
+          </div>
+        </section>
+      )
+    }
+
+    <section class="section">
+      <div class="container">
+        <p class="section-kicker">Selected Work</p>
+        <h2 class="section-heading">Featured Case Studies</h2>
+        <p class="section-intro">
+          Deep dives into problem, architecture, trade-offs, and measured impact — not just a list
+          of technologies.
+        </p>
+        <div class="grid grid--3">
+          {featuredProjects.map((project) => <ProjectCard project={project} stackLimit={4} />)}
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--subtle">
+      <div class="container">
+        <p class="section-kicker">Focus Right Now</p>
+        <h2 class="section-heading">Current Focus</h2>
+        <ul class="focus-list">
+          {profile.currentFocus.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .hero {
+    background: linear-gradient(to bottom, var(--color-border) 0%, var(--color-bg-subtle) 65%);
+    border-bottom: 1px solid var(--color-border);
+    overflow: hidden;
+  }
+
+  .hero__inner {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-xl);
+    min-height: 440px;
+  }
+
+  .hero__intro {
+    flex: 1;
+    min-width: 0;
+    padding-block: var(--space-2xl);
+  }
+
+  .hero__name {
+    font-size: var(--fs-3xl);
+    font-weight: 600;
+    letter-spacing: -0.022em;
+    margin-bottom: var(--space-sm);
+  }
+
+  .hero__title {
+    font-size: var(--fs-lg);
+    font-weight: 600;
+    letter-spacing: -0.012em;
+    color: var(--color-text);
+    max-width: 40ch;
+  }
+
+  .hero__title span {
+    display: block;
+    margin-top: var(--space-xs);
+    font-size: var(--fs-base);
+    font-weight: 400;
+    letter-spacing: -0.006em;
+    color: var(--color-text-secondary);
+  }
+
+  .hero__photo {
+    flex-shrink: 0;
+    align-self: flex-end;
+    line-height: 0;
+  }
+
+  .hero__photo img {
+    display: block;
+    height: 410px;
+    width: auto;
+    max-width: none;
+  }
+
+  @media (max-width: 1068px) {
+    .hero__inner {
+      min-height: 400px;
+    }
+
+    .hero__photo img {
+      height: 376px;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .hero__inner {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: var(--space-md);
+      min-height: 0;
+    }
+
+    .hero__intro {
+      padding-block: var(--space-xl) 0;
+      order: 2;
+    }
+
+    .hero__title {
+      max-width: none;
+    }
+
+    .hero__photo {
+      order: 1;
+      align-self: center;
+    }
+
+    .hero__photo img {
+      height: 200px;
+    }
+  }
+
+  .hero-details {
+    padding-top: var(--space-xl);
+  }
+
+  .hero__summary {
+    font-size: var(--fs-lg);
+    color: var(--color-text-secondary);
+    max-width: 65ch;
+    margin-bottom: var(--space-lg);
+  }
+
+  .hero__actions {
+    display: flex;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-xl);
+  }
+
+  .hero__stats {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: var(--space-lg);
+  }
+
+  .hero__stats dt {
+    font-size: var(--fs-xs);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: var(--space-2xs);
+  }
+
+  .hero__stats dd {
+    font-size: var(--fs-xl);
+    font-weight: 700;
+    margin: 0;
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 640px) {
+    .hero__stats {
+      grid-template-columns: 1fr;
+      gap: var(--space-sm);
+    }
+  }
+
+  .focus-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm) var(--space-lg);
+  }
+
+  .focus-list li {
+    padding-left: var(--space-md);
+    position: relative;
+    font-size: var(--fs-base);
+  }
+
+  .focus-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.65em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent);
+  }
+
+  @media (max-width: 640px) {
+    .focus-list {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

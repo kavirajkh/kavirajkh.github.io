@@ -1,0 +1,174 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import { projects } from '../../data/projects';
+
+export function getStaticPaths() {
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const description = project.summary;
+---
+
+<BaseLayout title={project.title} description={description} path={`/projects/${project.slug}/`}>
+  <SiteHeader />
+  <main id="main">
+    <article class="section">
+      <div class="container container--narrow">
+        <a class="back-link" href="/projects/">← All projects</a>
+        <span class="tag">{project.category}</span>
+        <h1 class="project__title">{project.title}</h1>
+        <p class="project__meta">
+          {project.client} · {project.timeframe}
+        </p>
+        <p class="project__summary">{project.summary}</p>
+
+        <ul class="project__stack">
+          {project.stack.map((tech) => <li class="tag">{tech}</li>)}
+        </ul>
+
+        <section class="project__section">
+          <h2>Problem</h2>
+          <p>{project.problem}</p>
+        </section>
+
+        <section class="project__section">
+          <h2>Architecture</h2>
+          <p>{project.architecture}</p>
+        </section>
+
+        <section class="project__section">
+          <h2>Trade-offs</h2>
+          <p>{project.tradeoffs}</p>
+        </section>
+
+        <section class="project__section">
+          <h2>Impact</h2>
+          <ul class="project__impact">
+            {project.impact.map((point) => <li>{point}</li>)}
+          </ul>
+        </section>
+
+        {
+          project.applications && (
+            <section class="project__section">
+              <h2>Applications Delivered</h2>
+              <ul class="project__applications">
+                {project.applications.map((app) => (
+                  <li>
+                    <a href={app.url} target="_blank" rel="noopener noreferrer">
+                      {app.name}
+                    </a>
+                    <p>{app.description}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
+        <a class="back-link back-link--footer" href="/projects/">← All projects</a>
+      </div>
+    </article>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .back-link {
+    display: inline-block;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+  }
+
+  .back-link--footer {
+    margin-top: var(--space-xl);
+    margin-bottom: 0;
+  }
+
+  .project__title {
+    font-size: var(--fs-2xl);
+    margin-top: var(--space-sm);
+  }
+
+  .project__meta {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+    margin-top: var(--space-xs);
+  }
+
+  .project__summary {
+    font-size: var(--fs-lg);
+    color: var(--color-text-secondary);
+    margin-top: var(--space-sm);
+  }
+
+  .project__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-top: var(--space-md);
+  }
+
+  .project__section {
+    margin-top: var(--space-xl);
+  }
+
+  .project__section h2 {
+    font-size: var(--fs-xl);
+    margin-bottom: var(--space-sm);
+  }
+
+  .project__section p {
+    color: var(--color-text-secondary);
+  }
+
+  .project__impact li {
+    position: relative;
+    padding-left: var(--space-md);
+    padding-block: var(--space-2xs);
+    color: var(--color-text-secondary);
+  }
+
+  .project__impact li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.75em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-success);
+  }
+
+  .project__applications {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .project__applications li {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .project__applications a {
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  .project__applications p {
+    margin-top: var(--space-2xs);
+    color: var(--color-text-secondary);
+    font-size: var(--fs-sm);
+  }
+</style>

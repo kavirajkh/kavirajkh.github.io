@@ -1,0 +1,67 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { skillGroups } from '../data/skills';
+
+const title = 'Skills';
+const description =
+  'Technical skills across Java backend development, distributed systems, cloud infrastructure, and performance engineering.';
+---
+
+<BaseLayout title={title} description={description} path="/skills/">
+  <SiteHeader />
+  <main id="main">
+    <section class="section">
+      <div class="container">
+        <p class="section-kicker">Toolbox</p>
+        <h1 class="section-heading">Technical Skills</h1>
+        <p class="section-intro">
+          Java backend API development is the core — everything else supports building, scaling, and
+          operating those services reliably.
+        </p>
+
+        <div class="skills-grid">
+          {
+            skillGroups.map((group) => (
+              <div class="card skills-card">
+                <h2>{group.category}</h2>
+                <ul>
+                  {group.skills.map((skill) => (
+                    <li class="tag">{skill}</li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+  }
+
+  .skills-card h2 {
+    font-size: var(--fs-lg);
+    margin-bottom: var(--space-sm);
+  }
+
+  .skills-card ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  @media (max-width: 720px) {
+    .skills-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

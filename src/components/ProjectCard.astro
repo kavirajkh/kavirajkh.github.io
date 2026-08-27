@@ -1,0 +1,74 @@
+---
+import type { Project } from '../data/projects';
+
+interface Props {
+  project: Project;
+  stackLimit?: number;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { project, stackLimit, headingLevel = 'h3' } = Astro.props;
+const stack = stackLimit ? project.stack.slice(0, stackLimit) : project.stack;
+const Heading = headingLevel;
+---
+
+<a class="card project-card" href={`/projects/${project.slug}/`}>
+  <span class="tag">{project.category}</span>
+  <Heading>{project.title}</Heading>
+  <p class="project-card__meta">
+    {project.client} · {project.timeframe}
+  </p>
+  <p>{project.summary}</p>
+  <ul class="project-card__stack">
+    {stack.map((tech) => <li>{tech}</li>)}
+  </ul>
+  <span class="project-card__link">Read case study →</span>
+</a>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .project-card h2,
+  .project-card h3 {
+    font-size: var(--fs-lg);
+    margin-top: var(--space-2xs);
+  }
+
+  .project-card__meta {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--color-text-muted);
+  }
+
+  .project-card p {
+    color: var(--color-text-secondary);
+    font-size: var(--fs-sm);
+  }
+
+  .project-card__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin-top: var(--space-xs);
+  }
+
+  .project-card__stack li {
+    font-size: var(--fs-xs);
+    color: var(--color-text-muted);
+    background: var(--color-bg-inset);
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+  }
+
+  .project-card__link {
+    margin-top: auto;
+    padding-top: var(--space-sm);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    color: var(--color-accent);
+  }
+</style>

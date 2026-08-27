@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { profile } from '../data/profile';
+import { certifications, education } from '../data/skills';
+
+const title = 'About';
+const description = `About ${profile.name} — ${profile.role} with ${profile.yearsExperience} years of experience, including ${profile.yearsAtApple} years supporting Apple engineering initiatives.`;
+---
+
+<BaseLayout title={title} description={description} path="/about/">
+  <SiteHeader />
+  <main id="main">
+    <section class="section">
+      <div class="container container--narrow">
+        <p class="section-kicker">About</p>
+        <h1 class="section-heading">{profile.name}</h1>
+        <p class="about__lede">{profile.summary}</p>
+
+        <h2 class="about__subheading">Background</h2>
+        <p>
+          I've spent {profile.yearsExperience} years as a backend engineer, with {' '}
+          {profile.yearsAtApple} years supporting Apple engineering initiatives as a contractor — first
+          through QuEST Global (2010–2019), and currently through Infosys (2023–present). In between,
+          I led the architecture and delivery of a statewide financial-aid modernization program for the
+          California Student Aid Commission, taking a legacy system serving 4 million students to a cloud-native
+          AWS platform.
+        </p>
+        <p>
+          My work centers on Java and Spring Boot services that have to hold up under real
+          production load — certificate issuance at 30 million requests a day, warranty sales
+          platforms tuned for 10 million queries per second, and financial-aid systems handling
+          sensitive data for millions of students. I care most about the parts of engineering that
+          don't show up in a feature list: concurrency correctness, tail latency, and designing
+          systems that the next engineer can actually extend.
+        </p>
+        <p>
+          Right now, I'm preparing for Staff-level engineering roles — going deeper on distributed
+          systems and large-scale system design, and using AI-assisted engineering workflows to work
+          faster without cutting corners on quality.
+        </p>
+
+        <h2 class="about__subheading">Education</h2>
+        <p>
+          {education.degree} — {education.honors}<br />
+          {education.school}, {education.location} · {education.years}
+        </p>
+
+        <h2 class="about__subheading">Certifications</h2>
+        <ul class="cert-list">
+          {certifications.map((cert) => <li>{cert}</li>)}
+        </ul>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .about__lede {
+    font-size: var(--fs-lg);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-lg);
+  }
+
+  .about__subheading {
+    font-size: var(--fs-xl);
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-sm);
+  }
+
+  p + p {
+    margin-top: var(--space-sm);
+  }
+
+  .cert-list li {
+    padding: var(--space-xs) 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .cert-list li:last-child {
+    border-bottom: none;
+  }
+</style>

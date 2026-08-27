@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+---
+
+<BaseLayout title="Page Not Found" description="Page not found." path="/404/">
+  <SiteHeader />
+  <main id="main">
+    <section class="section not-found">
+      <div class="container container--narrow">
+        <p class="section-kicker">404</p>
+        <h1 class="section-heading">Page not found</h1>
+        <p class="section-intro">The page you're looking for doesn't exist or has moved.</p>
+        <a class="btn btn--primary" href="/">Back to home</a>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .not-found {
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+  }
+</style>
