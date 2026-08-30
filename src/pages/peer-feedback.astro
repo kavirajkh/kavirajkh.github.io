@@ -1,0 +1,187 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import ChartCard from '../components/ChartCard.astro';
+import CommentsCard from '../components/CommentsCard.astro';
+
+const title = 'Peer Feedback Analytics';
+const description =
+  'Aggregated results from peer-run mock interview feedback, collected via Google Forms and visualized live from the response sheet.';
+---
+
+<BaseLayout title={title} description={description} path="/peer-feedback/">
+  <SiteHeader />
+  <main id="main">
+    <section class="section">
+      <div class="container">
+        <p class="section-kicker">Mock Interview Program</p>
+        <h1 class="section-heading">Peer Feedback Analytics</h1>
+        <p class="section-intro">
+          I run peer mock interviews across platforms and ask each reviewer to fill out a structured
+          feedback form. The charts below are generated live from those responses — no editing, no
+          cherry-picking.
+        </p>
+
+        <p id="feedback-status" role="status">Loading feedback data…</p>
+
+        <div id="feedback-empty" class="card is-hidden">
+          <p>No responses have come in yet — check back soon.</p>
+        </div>
+
+        <div id="feedback-content" class="is-hidden">
+          <dl class="grid grid--3 stat-row">
+            <div class="card stat-tile">
+              <dt>Total responses</dt>
+              <dd id="stat-total-responses">—</dd>
+            </div>
+            <div class="card stat-tile">
+              <dt>Average overall rating</dt>
+              <dd id="stat-overall-rating">—</dd>
+            </div>
+            <div class="card stat-tile">
+              <dt>Most common recommendation</dt>
+              <dd id="stat-top-recommendation">—</dd>
+            </div>
+          </dl>
+
+          <ChartCard
+            sectionId="skills-section"
+            title="Skill Ratings"
+            canvasId="skills-radar-canvas"
+            ariaLabel="Average rating per skill dimension, out of 5"
+            tableCaption="Average rating per skill dimension"
+            columns={['Skill', 'Average', 'Responses']}
+            tbodyId="skills-table-body"
+          >
+            <p id="skills-fallback-note" slot="note" class="chart-card__note is-hidden">
+              Not enough rated responses yet for a radar chart — showing the table view instead.
+            </p>
+          </ChartCard>
+
+          <ChartCard
+            sectionId="interview-type-section"
+            title="Interview Types Covered"
+            canvasId="interview-type-canvas"
+            ariaLabel="Number of mock interviews by interview type"
+            tableCaption="Response count by interview type"
+            columns={['Interview Type', 'Responses']}
+            tbodyId="interview-type-table-body"
+          />
+
+          <ChartCard
+            sectionId="recommendation-section"
+            title="Overall Mock Recommendation"
+            canvasId="recommendation-canvas"
+            ariaLabel="Response count by overall mock recommendation"
+            tableCaption="Response count by recommendation"
+            columns={['Recommendation', 'Responses']}
+            tbodyId="recommendation-table-body"
+          />
+
+          <ChartCard
+            sectionId="readiness-section"
+            title="Interview Readiness"
+            canvasId="readiness-canvas"
+            ariaLabel="Response count by assessed interview readiness"
+            tableCaption="Response count by readiness assessment"
+            columns={['Readiness', 'Responses']}
+            tbodyId="readiness-table-body"
+          />
+
+          <ChartCard
+            sectionId="confidence-section"
+            title="Reviewer Confidence in Recommendation"
+            canvasId="confidence-canvas"
+            ariaLabel="Response count by reviewer confidence level"
+            tableCaption="Response count by confidence level"
+            columns={['Confidence', 'Responses']}
+            tbodyId="confidence-table-body"
+          />
+
+          <ChartCard
+            sectionId="improvement-areas-section"
+            title="Most Cited Areas for Improvement"
+            canvasId="improvement-areas-canvas"
+            ariaLabel="Number of times each improvement area was mentioned"
+            tableCaption="Mentions per improvement area"
+            columns={['Area', 'Mentions']}
+            tbodyId="improvement-areas-table-body"
+          />
+
+          <CommentsCard
+            sectionId="highlights-section"
+            title="What Reviewers Said I Did Well"
+            listId="highlights-list"
+          />
+
+          <CommentsCard
+            sectionId="growth-areas-section"
+            title="Elaborated Growth Areas"
+            listId="growth-areas-list"
+          />
+
+          <CommentsCard
+            sectionId="additional-notes-section"
+            title="Additional Observations"
+            listId="additional-notes-list"
+          />
+
+          <p class="source-note">
+            Data source: reviewer responses to my
+            <a
+              href="https://docs.google.com/forms/d/1VNhtf325w8QnHsy1wtDkOcQ31Ng_63ksRLx-Bn_XAe0/viewform"
+              target="_blank"
+              rel="noopener noreferrer">Mock Interview Feedback Form</a
+            >, fetched live from the linked Google Sheet. Reviewer names are not published.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<script src="../scripts/peer-feedback-dashboard.ts"></script>
+
+<style>
+  #feedback-status {
+    color: var(--color-text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  .stat-row {
+    margin-bottom: var(--space-xl);
+  }
+
+  .stat-tile dt {
+    font-size: var(--fs-xs);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: var(--space-2xs);
+  }
+
+  .stat-tile dd {
+    font-size: var(--fs-xl);
+    font-weight: 700;
+    margin: 0;
+    color: var(--color-accent);
+  }
+
+  :global(.chart-card),
+  :global(.comments-card) {
+    margin-bottom: var(--space-lg);
+  }
+
+  .source-note {
+    color: var(--color-text-muted);
+    font-size: var(--fs-xs);
+    margin-top: var(--space-lg);
+  }
+
+  .source-note a {
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+</style>

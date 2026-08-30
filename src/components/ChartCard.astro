@@ -1,0 +1,107 @@
+---
+interface Props {
+  sectionId: string;
+  title: string;
+  canvasId: string;
+  ariaLabel: string;
+  tableCaption: string;
+  columns: string[];
+  tbodyId: string;
+}
+
+const { sectionId, title, canvasId, ariaLabel, tableCaption, columns, tbodyId } = Astro.props;
+---
+
+<section id={sectionId} class="card chart-card">
+  <div class="chart-card__header">
+    <h2>{title}</h2>
+    <button type="button" class="tag chart-card__toggle" data-toggle-table aria-pressed="false">
+      View as table
+    </button>
+  </div>
+  <slot name="note" />
+  <div class="chart-card__canvas-wrap">
+    <canvas id={canvasId} role="img" aria-label={ariaLabel}></canvas>
+  </div>
+  <div class="chart-card__table-wrap is-hidden">
+    <table class="chart-table">
+      <caption class="visually-hidden">{tableCaption}</caption>
+      <thead>
+        <tr>
+          {columns.map((column) => <th scope="col">{column}</th>)}
+        </tr>
+      </thead>
+      <tbody id={tbodyId}></tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+  .chart-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .chart-card__header h2 {
+    font-size: var(--fs-lg);
+  }
+
+  .chart-card__toggle {
+    font-weight: 600;
+    padding: 0.35rem 0.85rem;
+    border: none;
+    white-space: nowrap;
+  }
+
+  .chart-card__toggle:hover {
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+  }
+
+  .chart-card :global(.chart-card__note) {
+    color: var(--color-text-muted);
+    font-size: var(--fs-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .chart-card__canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: 340px;
+  }
+
+  .chart-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-sm);
+  }
+
+  .chart-table th,
+  .chart-table td {
+    text-align: left;
+    padding: var(--space-xs) var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .chart-table th {
+    color: var(--color-text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.04em;
+  }
+
+  .chart-table :global(.chart-table__note) {
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  @media (max-width: 720px) {
+    .chart-card__canvas-wrap {
+      height: 280px;
+    }
+  }
+</style>
