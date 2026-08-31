@@ -60,9 +60,9 @@ export const projects: Project[] = [
     timeframe: '2017 – 2019',
     category: 'Performance Engineering',
     summary:
-      'A high-throughput x509 certificate-issuance service for hardware-bound device keys, modernized and tuned to run at 30M+ requests/day.',
+      'A high-throughput x509 certificate-issuance service for hardware-bound device keys, modernized and tuned to run at tens of millions of requests/day.',
     problem:
-      'The service issues x509 certificates for hardware-bound keys so that on-device applications can sign messages through a secure hardware API. It ran on an aging Java stack, and at an average of 30 million requests a day, both correctness under concurrency and tail latency were business-critical: any regression translates directly into failed device operations at global scale.',
+      'The service issues x509 certificates for hardware-bound keys so that on-device applications can sign messages through a secure hardware API. It ran on an aging Java stack, and at an average of tens of millions of requests a day, both correctness under concurrency and tail latency were business-critical: any regression translates directly into failed device operations at global scale.',
     architecture:
       'Migrated the service to a current Java and Spring Boot stack while preserving its integration with hardware security modules (HSMs) for key operations. Redesigned how the service fetched data from dependent systems — moving from synchronous, per-request lookups toward a model that reduced redundant round-trips — and implemented certificate-based authentication for service-to-service calls. Re-architected the concurrency model after profiling under 5x production load surfaced a race condition that only appeared under sustained high concurrency.',
     tradeoffs:
@@ -193,7 +193,7 @@ export const projects: Project[] = [
     problem:
       "Apple's global workforce leave process spans accruals, adjustments, carry-forward, and banking rules, with approximately 4,000 leave-type configurations worldwide, each carrying its own accrual rules. Balances needed to be recalculated reliably for the entire global workforce on a tight, repeating schedule without drifting out of sync with source HR data.",
     architecture:
-      'Built a Kronos-interface timekeeper module and designed an eventing model on Apache Kafka so that leave-relevant changes propagate as events rather than through direct batch coupling to the HR system of record. Modularized the engine around Accrual, Adjustment, Carry-Forward, and Banking concerns, each independently configurable per leave-type rule set, with a batch scheduler recalculating balances for the global workforce every hour.',
+      'Built an interface module to the enterprise timekeeping system and designed an eventing model on Apache Kafka so that leave-relevant changes propagate as events rather than through direct batch coupling to the HR system of record. Modularized the engine around Accrual, Adjustment, Carry-Forward, and Banking concerns, each independently configurable per leave-type rule set, with a batch scheduler recalculating balances for the global workforce every hour.',
     tradeoffs:
       'An hourly global recalculation cycle is expensive at scale; the alternative — recalculating only on-demand per employee query — would have been cheaper computationally but risked serving stale balances during high-traffic HR events (open enrollment, policy changes). The batch-plus-eventing hybrid traded some compute cost for consistently fresh, globally correct balances.',
     impact: [
@@ -210,7 +210,7 @@ export const projects: Project[] = [
     timeframe: '2010 – 2012',
     category: 'Performance Engineering',
     summary:
-      'A highly available, active-active platform supporting AppleCare warranty and protection-plan sales for resellers worldwide, tuned to support 10M queries per second.',
+      'A highly available, active-active platform supporting AppleCare warranty and protection-plan sales for resellers worldwide, tuned to support millions of queries per second.',
     problem:
       'Resellers worldwide need to sell AppleCare Protection Plan and AppleCare+ at point of sale, which meant the platform had to stay available across regions with no single point of failure, while handling complex validation rules and generating sales documentation in real time.',
     architecture:
@@ -218,7 +218,7 @@ export const projects: Project[] = [
     tradeoffs:
       'Active-active availability adds real complexity — data consistency across regions is harder to reason about than a single active node with failover. That complexity was accepted because for a global point-of-sale system, even brief unavailability directly blocks reseller transactions worldwide.',
     impact: [
-      'Supported up to 10M queries per second worldwide with an active-active architecture.',
+      'Supported millions of queries per second worldwide with an active-active architecture.',
       '30% (~200ms average) latency improvement through load testing and CPU/memory profiling with JMeter and YourKit.',
       'All releases and production moves delivered on schedule with no milestone slippage.',
     ],

@@ -25,7 +25,7 @@ export const experience: Role[] = [
       'Led end-to-end performance testing across multiple application releases, ensuring stability and response-time targets under load.',
       'Built a custom Java annotation processor and companion IntelliJ plugin that auto-generates audit-parameter documentation at build time, eliminating manual documentation work for the identity platform team.',
       'Designed graph data models and case-insensitive Solr search APIs for a B2B partner-integration platform, and automated secure secret retrieval in CI/CD pipelines.',
-      'Improved search relevance and latency for an internal Bug Tracking System used by 150,000+ engineers, QA, and support staff.',
+      'Improved search relevance and latency for an internal Bug Tracking System used broadly across engineering, QA, and support teams.',
     ],
   },
   {
@@ -54,16 +54,16 @@ export const experience: Role[] = [
     summary:
       'Nine years building high-throughput backend services across Apple HR systems, certificate infrastructure, retail support tooling, and enterprise integration platforms.',
     highlights: [
-      'Modernized a certificate-issuance service handling an average of 30 million requests/day, migrating it to current Java and Spring Boot while integrating with hardware security modules (HSMs).',
+      'Modernized a certificate-issuance service handling tens of millions of requests/day, migrating it to current Java and Spring Boot while integrating with hardware security modules (HSMs).',
       'Reduced attestation-service response time by 30% (27ms) under 5x load through profiling, concurrency tuning, and modernizing legacy services onto current Java and Spring Boot.',
       'Cut service response time by 45.3% through a redesign of how the application retrieved data from dependent systems, and implemented certificate-based authentication.',
       'Identified and fixed a critical concurrency bug found during performance testing, ahead of production impact.',
       'Designed and built an enterprise HR data-integration platform (SOA/microservices) connecting identity, travel, timekeeping, and HR systems, replacing legacy PL/SQL extract-transform-load processes with reusable services.',
       'Built the eventing model for a global leave-management engine handling ~4,000 leave-type configurations, using Apache Kafka for accrual and balance processing across an hourly batch cycle.',
       'Designed Solr-based hierarchical search APIs for an enterprise workforce directory serving call-center staff across multiple business units.',
-      'Delivered 15+ services for a contact-center email management platform, including schema-based request validation and multi-queue workbin views.',
+      'Delivered 15+ services for a contact-center email management platform, including schema-based request validation and multi-queue case-handling views.',
       'Built the Device Enrollment Program platform enabling businesses and schools to deploy and manage fleets of iPad, iPhone, and Mac devices.',
-      'Developed a highly available, active-active warranty and protection-plan sales platform supporting 10M QPS worldwide, including validation and PDF-generation modules, and tuned average response time by 30% (~200ms) through load testing and CPU/memory profiling.',
+      'Developed a highly available, active-active warranty and protection-plan sales platform supporting millions of queries per second worldwide, including validation and PDF-generation modules, and tuned average response time by 30% (~200ms) through load testing and CPU/memory profiling.',
       'Designed an event-driven payroll-integration engine (loader/extractor/transformer pipeline) that generates payroll extract files from HR system changes with 100% data-accuracy requirements.',
     ],
   },

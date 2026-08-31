@@ -17,7 +17,7 @@ export const profile = {
     alt: 'Portrait of Kaviraj Haridasan',
   },
   summary:
-    'Backend engineer with 15+ years of experience, including 10+ years supporting Apple engineering initiatives. Specializes in Java, Spring Boot, and microservice architecture for systems that run at Apple scale — from certificate-issuance services handling 30 million requests a day to a $3B statewide financial-aid platform serving 4 million students. Currently deepening expertise in distributed systems and system design while preparing for Staff-level engineering roles.',
+    'Backend engineer with 15+ years of experience, including 10+ years supporting Apple engineering initiatives. Specializes in Java, Spring Boot, and microservice architecture for systems that run at Apple scale — from certificate-issuance services handling tens of millions of requests a day to a $3B statewide financial-aid platform serving 4 million students. Currently deepening expertise in distributed systems and system design while preparing for Staff-level engineering roles.',
   location: 'California, USA',
   yearsExperience: '15+',
   yearsAtApple: '10+',
