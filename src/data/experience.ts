@@ -18,7 +18,7 @@ export const experience: Role[] = [
     end: 'Present',
     current: true,
     summary:
-      'Backend engineering for Apple retail, identity, and B2B integration platforms — API design, performance tuning, and developer-productivity tooling.',
+      'Backend engineering for Apple retail, identity, and B2B integration platforms, covering API design, performance tuning, and developer-productivity tooling.',
     highlights: [
       'Designed and implemented scalable API services for a retail employee-engagement platform, including peer recognition, coaching, and goal-tracking features.',
       'Built Postgres and mock-server sidecars for a component test pipeline, and wrote Scala-based performance scripts to benchmark and validate API scalability.',
@@ -38,7 +38,7 @@ export const experience: Role[] = [
       'Architected the modernization of a $3B statewide financial-aid platform serving 4 million students, from legacy systems to a cloud-native AWS architecture.',
     highlights: [
       'Modernized the top five applications for the Grant Delivery System (GDS), the platform California uses to administer state-funded financial aid to over 4 million students across every high school and college in the state.',
-      'Delivered the modernized GDS suite — five interconnected applications — within a two-year window, on a program covering roughly $3B in annual student aid.',
+      'Delivered the modernized GDS suite, five interconnected applications, within a two-year window, on a program covering roughly $3B in annual student aid.',
       'Built secure, PII/FTI-compliant data-sharing APIs for CaliforniaColleges.edu, cutting the student school-change process from three weeks to seconds.',
       'Designed a metadata import engine for ingesting data from diverse RDBMS sources, standardizing integration across the platform.',
       'Improved application performance by 45% through code optimization, SQL/AWR-based query tuning, and resolution of a production memory leak found via heap-dump analysis.',

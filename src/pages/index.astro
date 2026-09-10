@@ -6,18 +6,26 @@ import ProjectCard from '../components/ProjectCard.astro';
 import { profile } from '../data/profile';
 import { getFeaturedProjects } from '../data/projects';
 import { experience } from '../data/experience';
+import { skillGroups } from '../data/skills';
 
 const featuredProjects = getFeaturedProjects();
 const currentRole = experience.find((role) => role.current);
+const SKILLS_VISIBLE_COUNT = 4;
 ---
 
 <BaseLayout title={profile.displayName} description={profile.headline}>
   <SiteHeader />
   <main id="main">
     <section class="hero">
+      <div id="hero-graph-bg" class="hero__graph-bg" aria-hidden="true"></div>
       <div class="container hero__inner">
         <div class="hero__intro">
           <h1 class="hero__name">{profile.displayName}</h1>
+          <p class="hero__role" aria-hidden="true" data-roles={JSON.stringify(profile.roleTitles)}>
+            <span id="hero-role-text">{profile.roleTitles[0]}</span><span class="hero__role-cursor"
+            ></span>
+          </p>
+          <p class="visually-hidden">{profile.roleTitles.join(', ')}</p>
           <p class="hero__title">
             {profile.heroTitle}
             <span>{profile.heroSubtitle}</span>
@@ -47,7 +55,7 @@ const currentRole = experience.find((role) => role.current);
       <div class="container">
         <p class="hero__summary">{profile.summary}</p>
         <div class="hero__actions">
-          <a class="btn btn--primary" href="/projects/">View Case Studies</a>
+          <a class="btn btn--primary" href="/projects/">View All Projects</a>
           <a class="btn btn--secondary" href="/contact/">Get in Touch</a>
         </div>
         <dl class="hero__stats">
@@ -73,7 +81,7 @@ const currentRole = experience.find((role) => role.current);
           <div class="container">
             <p class="section-kicker">Currently</p>
             <h2 class="section-heading">
-              {currentRole.title} · {currentRole.company}
+              {currentRole.title} @ {currentRole.company}
             </h2>
             <p class="section-intro">{currentRole.summary}</p>
             <a class="btn btn--secondary" href="/experience/">
@@ -87,14 +95,63 @@ const currentRole = experience.find((role) => role.current);
     <section class="section">
       <div class="container">
         <p class="section-kicker">Selected Work</p>
-        <h2 class="section-heading">Featured Case Studies</h2>
+        <h2 class="section-heading">Featured Projects</h2>
         <p class="section-intro">
-          Deep dives into problem, architecture, trade-offs, and measured impact — not just a list
-          of technologies.
+          Deep dives into problem, architecture, trade-offs, and measured impact, not just a list of
+          technologies.
         </p>
         <div class="grid grid--3">
           {featuredProjects.map((project) => <ProjectCard project={project} stackLimit={4} />)}
         </div>
+      </div>
+    </section>
+
+    <section class="section skills-area">
+      <div class="container">
+        <p class="section-kicker">Toolbox</p>
+        <h2 class="section-heading">Core Competencies</h2>
+        <p class="section-intro">
+          {profile.yearsExperience} years across languages, data platforms, cloud infrastructure, and
+          the engineering practices that keep high-scale systems reliable.
+        </p>
+        <div class="skills-area__grid">
+          {
+            skillGroups.map((group, index) => (
+              <div
+                class:list={[
+                  'card',
+                  'skills-area__card',
+                  { 'is-hidden': index >= SKILLS_VISIBLE_COUNT },
+                ]}
+                data-skills-extra={index >= SKILLS_VISIBLE_COUNT ? 'true' : undefined}
+              >
+                <h3 class="skills-area__title">{group.category}</h3>
+                <ul class="skills-area__list">
+                  {group.skills.map((skill) => (
+                    <li>{skill}</li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </div>
+        {
+          skillGroups.length > SKILLS_VISIBLE_COUNT && (
+            <button
+              type="button"
+              id="skills-area-toggle"
+              class="skills-area__toggle"
+              aria-expanded="false"
+            >
+              <span class="skills-area__toggle-chevron" aria-hidden="true">
+                ▾
+              </span>
+              <span class="skills-area__toggle-label">
+                View {skillGroups.length - SKILLS_VISIBLE_COUNT} More Skill Areas
+              </span>
+            </button>
+          )
+        }
       </div>
     </section>
 
@@ -107,18 +164,46 @@ const currentRole = experience.find((role) => role.current);
         </ul>
       </div>
     </section>
+
+    <section class="section closing">
+      <div class="container container--narrow closing__inner">
+        <p class="closing__tagline">Engineered with the same precision I bring to every project.</p>
+        <p class="closing__message">
+          Thanks for taking the time to check out my page! I'm always excited to connect with fellow
+          engineers and explore new opportunities in the right places.
+        </p>
+        <a class="btn btn--primary" href="/contact/">Get in Touch</a>
+      </div>
+    </section>
   </main>
   <SiteFooter />
 </BaseLayout>
 
 <style>
   .hero {
+    position: relative;
     background: linear-gradient(to bottom, var(--color-border) 0%, var(--color-bg-subtle) 65%);
     border-bottom: 1px solid var(--color-border);
     overflow: hidden;
   }
 
+  .hero__graph-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .hero__graph-bg :global(svg) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
   .hero__inner {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
@@ -139,21 +224,50 @@ const currentRole = experience.find((role) => role.current);
     margin-bottom: var(--space-sm);
   }
 
+  .hero__role {
+    display: inline-block;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--color-accent);
+    background: var(--color-accent-subtle);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    margin-bottom: var(--space-md);
+  }
+
+  .hero__role-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    margin-left: 3px;
+    vertical-align: -0.15em;
+    background: currentColor;
+    animation: hero-role-blink 1s steps(1) infinite;
+  }
+
+  @keyframes hero-role-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
   .hero__title {
     font-size: var(--fs-lg);
     font-weight: 600;
     letter-spacing: -0.012em;
     color: var(--color-text);
-    max-width: 40ch;
+    max-width: 52ch;
   }
 
   .hero__title span {
     display: block;
     margin-top: var(--space-xs);
-    font-size: var(--fs-base);
+    font-size: var(--fs-sm);
     font-weight: 400;
     letter-spacing: -0.006em;
     color: var(--color-text-secondary);
+    white-space: nowrap;
   }
 
   .hero__photo {
@@ -195,6 +309,10 @@ const currentRole = experience.find((role) => role.current);
 
     .hero__title {
       max-width: none;
+    }
+
+    .hero__title span {
+      white-space: normal;
     }
 
     .hero__photo {
@@ -281,4 +399,162 @@ const currentRole = experience.find((role) => role.current);
       grid-template-columns: 1fr;
     }
   }
+
+  .skills-area__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+
+  .skills-area__card {
+    padding: var(--space-md);
+  }
+
+  .skills-area__title {
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+  }
+
+  .skills-area__list li {
+    position: relative;
+    padding-left: var(--space-md);
+    padding-block: var(--space-2xs);
+    font-size: var(--fs-sm);
+    color: var(--color-text-secondary);
+  }
+
+  .skills-area__list li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--color-accent);
+    font-size: var(--fs-xs);
+  }
+
+  .skills-area__toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    margin-inline: auto;
+    padding: 0.6rem 1.25rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-accent);
+    background: var(--color-accent-subtle);
+    color: var(--color-accent);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+  }
+
+  .skills-area__toggle:hover {
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+  }
+
+  .skills-area__toggle-chevron {
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+
+  .skills-area__toggle[aria-expanded='true'] .skills-area__toggle-chevron {
+    transform: rotate(180deg);
+  }
+
+  @media (max-width: 960px) {
+    .skills-area__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .skills-area__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .closing__inner {
+    text-align: center;
+  }
+
+  .closing__tagline {
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-sm);
+  }
+
+  .closing__message {
+    font-size: var(--fs-lg);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-lg);
+  }
 </style>
+
+<script>
+  const el = document.getElementById('hero-role-text');
+  const container = el?.closest<HTMLElement>('.hero__role');
+  const roles = JSON.parse(container?.dataset.roles ?? '[]') as string[];
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (el && roles.length > 1 && !prefersReducedMotion) {
+    const TYPE_MS = 55;
+    const DELETE_MS = 30;
+    const PAUSE_MS = 1800;
+    const GAP_MS = 300;
+
+    let roleIndex = 0;
+    let charIndex = roles[0].length;
+    let deleting = true;
+
+    function tick() {
+      const current = roles[roleIndex];
+
+      if (deleting) {
+        charIndex--;
+        el!.textContent = current.slice(0, charIndex);
+        if (charIndex === 0) {
+          deleting = false;
+          roleIndex = (roleIndex + 1) % roles.length;
+          setTimeout(tick, GAP_MS);
+          return;
+        }
+        setTimeout(tick, DELETE_MS);
+      } else {
+        const next = roles[roleIndex];
+        charIndex++;
+        el!.textContent = next.slice(0, charIndex);
+        if (charIndex === next.length) {
+          deleting = true;
+          setTimeout(tick, PAUSE_MS);
+          return;
+        }
+        setTimeout(tick, TYPE_MS);
+      }
+    }
+
+    setTimeout(tick, PAUSE_MS);
+  }
+</script>
+
+<script>
+  const toggle = document.getElementById('skills-area-toggle');
+  const extraCards = document.querySelectorAll<HTMLElement>('[data-skills-extra]');
+  const extraCount = extraCards.length;
+  const label = toggle?.querySelector('.skills-area__toggle-label');
+
+  toggle?.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    extraCards.forEach((card) => card.classList.toggle('is-hidden', expanded));
+    toggle.setAttribute('aria-expanded', String(!expanded));
+    if (label) {
+      label.textContent = expanded
+        ? `View ${extraCount} More Skill Areas`
+        : 'Show Fewer Skill Areas';
+    }
+  });
+</script>
+
+<script src="../scripts/hero-graph-background.ts"></script>

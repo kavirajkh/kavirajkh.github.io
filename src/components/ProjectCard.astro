@@ -22,7 +22,7 @@ const Heading = headingLevel;
   <ul class="project-card__stack">
     {stack.map((tech) => <li>{tech}</li>)}
   </ul>
-  <span class="project-card__link">Read case study →</span>
+  <span class="project-card__link">View project →</span>
 </a>
 
 <style>
@@ -57,9 +57,11 @@ const Heading = headingLevel;
   }
 
   .project-card__stack li {
+    font-family: var(--font-mono);
     font-size: var(--fs-xs);
-    color: var(--color-text-muted);
-    background: var(--color-bg-inset);
+    font-weight: 500;
+    color: var(--color-accent);
+    background: var(--color-accent-subtle);
     padding: 0.15rem 0.5rem;
     border-radius: 999px;
   }

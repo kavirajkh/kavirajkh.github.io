@@ -1,9 +1,15 @@
 export const profile = {
   name: 'Kaviraj Kuzhikkattu Haridasan',
-  displayName: 'Kaviraj Haridasan',
-  role: 'Senior Software Engineer',
+  displayName: 'Kaviraj Kuzhikkattu Haridasan',
+  role: 'Senior Java Backend Engineer',
+  roleTitles: [
+    'Senior Java Backend Engineer',
+    'Software Architect',
+    'Team Leader & Mentor',
+    '15+ Years of Innovation',
+  ],
   headline:
-    'Senior Software Engineer building high-scale Java backend systems for Apple — 10+ years turning complex distributed-systems problems into resilient, production-grade APIs.',
+    'Senior Software Engineer building high-scale Java backend systems for Apple, with 10+ years turning complex distributed-systems problems into resilient, production-grade APIs.',
   heroTitle: 'Engineering backend systems that scale with Apple.',
   heroSubtitle:
     'Designing resilient, high-throughput Java services powering millions of requests every day.',
@@ -14,10 +20,10 @@ export const profile = {
     webp2x: '/images/kaviraj-profile@2x.webp',
     width: 640,
     height: 561,
-    alt: 'Portrait of Kaviraj Haridasan',
+    alt: 'Portrait of Kaviraj Kuzhikkattu Haridasan',
   },
   summary:
-    'Backend engineer with 15+ years of experience, including 10+ years supporting Apple engineering initiatives. Specializes in Java, Spring Boot, and microservice architecture for systems that run at Apple scale — from certificate-issuance services handling tens of millions of requests a day to a $3B statewide financial-aid platform serving 4 million students. Currently deepening expertise in distributed systems and system design while preparing for Staff-level engineering roles.',
+    'Backend engineer with 15+ years of experience, including 10+ years supporting Apple engineering initiatives. Specializes in Java, Spring Boot, and microservice architecture for systems that run at Apple scale, from certificate-issuance services handling tens of millions of requests a day to a $3B statewide financial-aid platform serving 4 million students. Currently deepening expertise in distributed systems and system design while preparing for Staff-level engineering roles.',
   location: 'California, USA',
   yearsExperience: '15+',
   yearsAtApple: '10+',

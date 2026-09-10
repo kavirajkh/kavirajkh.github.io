@@ -1,0 +1,83 @@
+---
+import { profile } from '../data/profile';
+---
+
+<div class="floating-contact">
+  <a
+    class="floating-contact__button"
+    href={profile.linkedin}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Connect on LinkedIn"
+    title="Connect on LinkedIn"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.61 0 4.28 2.38 4.28 5.47v6.27zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"
+      ></path>
+    </svg>
+  </a>
+  <a
+    class="floating-contact__button"
+    href={`mailto:${profile.email}`}
+    aria-label="Send an email"
+    title="Send an email"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"
+      ></path>
+    </svg>
+  </a>
+</div>
+
+<style>
+  .floating-contact {
+    position: fixed;
+    right: var(--space-md);
+    bottom: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    z-index: 500;
+  }
+
+  .floating-contact__button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+    box-shadow: var(--shadow-md);
+    transition:
+      transform 0.15s ease,
+      background 0.15s ease;
+  }
+
+  .floating-contact__button svg {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+  }
+
+  .floating-contact__button:hover,
+  .floating-contact__button:focus-visible {
+    background: var(--color-accent-hover);
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 640px) {
+    .floating-contact {
+      right: var(--space-sm);
+      bottom: var(--space-sm);
+    }
+
+    .floating-contact__button {
+      width: 44px;
+      height: 44px;
+    }
+  }
+</style>

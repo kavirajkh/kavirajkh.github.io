@@ -6,7 +6,17 @@ import { profile } from '../data/profile';
 import { certifications, education } from '../data/skills';
 
 const title = 'About';
-const description = `About ${profile.name} — ${profile.role} with ${profile.yearsExperience} years of experience, including ${profile.yearsAtApple} years supporting Apple engineering initiatives.`;
+const description = `About ${profile.name}, ${profile.role} with ${profile.yearsExperience} years of experience, including ${profile.yearsAtApple} years supporting Apple engineering initiatives.`;
+
+function initials(issuer: string): string {
+  const words = issuer.split(' ').filter(Boolean);
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return words
+    .slice(0, 3)
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase();
+}
 ---
 
 <BaseLayout title={title} description={description} path="/about/">
@@ -21,7 +31,7 @@ const description = `About ${profile.name} — ${profile.role} with ${profile.ye
         <h2 class="about__subheading">Background</h2>
         <p>
           I've spent {profile.yearsExperience} years as a backend engineer, with {' '}
-          {profile.yearsAtApple} years supporting Apple engineering initiatives as a contractor — first
+          {profile.yearsAtApple} years supporting Apple engineering initiatives as a contractor, first
           through QuEST Global (2010–2019), and currently through Infosys (2023–present). In between,
           I led the architecture and delivery of a statewide financial-aid modernization program for the
           California Student Aid Commission, taking a legacy system serving 4 million students to a cloud-native
@@ -29,28 +39,36 @@ const description = `About ${profile.name} — ${profile.role} with ${profile.ye
         </p>
         <p>
           My work centers on Java and Spring Boot services that have to hold up under real
-          production load — certificate issuance at tens of millions of requests a day, warranty
+          production load: certificate issuance at tens of millions of requests a day, warranty
           sales platforms tuned for millions of queries per second, and financial-aid systems
           handling sensitive data for millions of students. I care most about the parts of
           engineering that don't show up in a feature list: concurrency correctness, tail latency,
           and designing systems that the next engineer can actually extend.
         </p>
         <p>
-          Right now, I'm preparing for Staff-level engineering roles — going deeper on distributed
+          Right now, I'm preparing for Staff-level engineering roles, going deeper on distributed
           systems and large-scale system design, and using AI-assisted engineering workflows to work
           faster without cutting corners on quality.
         </p>
 
         <h2 class="about__subheading">Education</h2>
         <p>
-          {education.degree} — {education.honors}<br />
+          {education.degree}, {education.honors}<br />
           {education.school}, {education.location} · {education.years}
         </p>
 
         <h2 class="about__subheading">Certifications</h2>
-        <ul class="cert-list">
-          {certifications.map((cert) => <li>{cert}</li>)}
-        </ul>
+        <div class="cert-grid">
+          {
+            certifications.map((cert) => (
+              <div class="card cert-card">
+                <span class="cert-card__badge">{initials(cert.issuer)}</span>
+                <span class="cert-card__name">{cert.name}</span>
+                <span class="cert-card__issuer">{cert.issuer}</span>
+              </div>
+            ))
+          }
+        </div>
       </div>
     </section>
   </main>
@@ -74,12 +92,78 @@ const description = `About ${profile.name} — ${profile.role} with ${profile.ye
     margin-top: var(--space-sm);
   }
 
-  .cert-list li {
-    padding: var(--space-xs) 0;
-    border-bottom: 1px solid var(--color-border);
+  .cert-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
   }
 
-  .cert-list li:last-child {
-    border-bottom: none;
+  .cert-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    padding: var(--space-md);
+  }
+
+  .cert-card__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    background: var(--color-accent-subtle);
+    color: var(--color-accent);
+    margin-bottom: var(--space-2xs);
+  }
+
+  .cert-card:nth-of-type(4n + 2) .cert-card__badge {
+    background: rgba(52, 211, 153, 0.18);
+    color: #0f7a3d;
+  }
+
+  .cert-card:nth-of-type(4n + 3) .cert-card__badge {
+    background: rgba(245, 158, 11, 0.18);
+    color: #b45309;
+  }
+
+  .cert-card:nth-of-type(4n + 4) .cert-card__badge {
+    background: rgba(167, 139, 250, 0.2);
+    color: #6d28d9;
+  }
+
+  :global(:root[data-theme='dark']) .cert-card:nth-of-type(4n + 2) .cert-card__badge {
+    background: rgba(52, 211, 153, 0.22);
+    color: #6ee7b7;
+  }
+
+  :global(:root[data-theme='dark']) .cert-card:nth-of-type(4n + 3) .cert-card__badge {
+    background: rgba(245, 158, 11, 0.22);
+    color: #fbbf24;
+  }
+
+  :global(:root[data-theme='dark']) .cert-card:nth-of-type(4n + 4) .cert-card__badge {
+    background: rgba(167, 139, 250, 0.24);
+    color: #c4b5fd;
+  }
+
+  .cert-card__name {
+    font-weight: 600;
+    line-height: var(--lh-tight);
+  }
+
+  .cert-card__issuer {
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 640px) {
+    .cert-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

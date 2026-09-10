@@ -1,0 +1,115 @@
+---
+
+---
+
+<button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode">
+  <svg
+    class="theme-toggle__icon theme-toggle__icon--light"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <circle cx="12" cy="12" r="5"></circle>
+    <line x1="12" y1="1" x2="12" y2="3"></line>
+    <line x1="12" y1="21" x2="12" y2="23"></line>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+    <line x1="1" y1="12" x2="3" y2="12"></line>
+    <line x1="21" y1="12" x2="23" y2="12"></line>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+  </svg>
+  <svg
+    class="theme-toggle__icon theme-toggle__icon--dark"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-bg);
+    color: var(--color-text-secondary);
+    transition:
+      border-color 0.15s ease,
+      color 0.15s ease,
+      background-color 0.15s ease;
+  }
+
+  .theme-toggle:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .theme-toggle__icon {
+    display: none;
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Show the icon for the mode a click will switch TO, i.e. the opposite
+     of the currently active theme, so one click always does the obvious thing. */
+  :global(:root[data-theme='light']) .theme-toggle__icon--dark,
+  :global(:root[data-theme='dark']) .theme-toggle__icon--light {
+    display: block;
+  }
+</style>
+
+<script>
+  const STORAGE_KEY = 'theme-preference';
+
+  const root = document.documentElement;
+  const media = window.matchMedia('(prefers-color-scheme: dark)');
+  const button = document.getElementById('theme-toggle');
+
+  function currentTheme(): 'light' | 'dark' {
+    return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  }
+
+  function updateLabel(theme: 'light' | 'dark') {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    button?.setAttribute('aria-label', `Switch to ${next} mode`);
+  }
+
+  function apply(theme: 'light' | 'dark', preference: 'light' | 'dark' | 'system') {
+    root.setAttribute('data-theme-preference', preference);
+    root.setAttribute('data-theme', theme);
+    updateLabel(theme);
+    window.dispatchEvent(new CustomEvent('themechange'));
+  }
+
+  media.addEventListener('change', () => {
+    if (root.getAttribute('data-theme-preference') === 'system') {
+      apply(media.matches ? 'dark' : 'light', 'system');
+    }
+  });
+
+  updateLabel(currentTheme());
+
+  button?.addEventListener('click', () => {
+    const next = currentTheme() === 'dark' ? 'light' : 'dark';
+    localStorage.setItem(STORAGE_KEY, next);
+    apply(next, next);
+  });
+</script>

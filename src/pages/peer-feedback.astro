@@ -19,14 +19,14 @@ const description =
         <h1 class="section-heading">Peer Feedback Analytics</h1>
         <p class="section-intro">
           I run peer mock interviews across platforms and ask each reviewer to fill out a structured
-          feedback form. The charts below are generated live from those responses — no editing, no
-          cherry-picking.
+          feedback form. The charts below are generated live from those responses, with no editing
+          and no cherry-picking.
         </p>
 
         <p id="feedback-status" role="status">Loading feedback data…</p>
 
         <div id="feedback-empty" class="card is-hidden">
-          <p>No responses have come in yet — check back soon.</p>
+          <p>No responses have come in yet. Check back soon.</p>
         </div>
 
         <div id="feedback-content" class="is-hidden">
@@ -55,7 +55,7 @@ const description =
             tbodyId="skills-table-body"
           >
             <p id="skills-fallback-note" slot="note" class="chart-card__note is-hidden">
-              Not enough rated responses yet for a radar chart — showing the table view instead.
+              Not enough rated responses yet for a radar chart, so showing the table view instead.
             </p>
           </ChartCard>
 

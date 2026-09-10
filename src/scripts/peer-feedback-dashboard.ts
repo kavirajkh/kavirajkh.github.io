@@ -9,15 +9,69 @@ import {
 
 Chart.register(...registerables);
 
-const ACCENT = '#1d4ed8';
-const ACCENT_WASH = 'rgba(29, 78, 216, 0.12)';
-const TOOLTIP_BG = '#14181f';
-const GRID = '#e2e5eb';
-const TICK_MUTED = '#6b7280';
-const TICK_SECONDARY = '#4b5563';
-
 const MIN_SKILLS_FOR_RADAR = 3;
 const MAX_BAR_ROWS = 10;
+
+const chartInstances: Chart[] = [];
+
+function cssVar(name: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function themeColors() {
+  return {
+    accent: cssVar('--color-accent'),
+    accentWash: cssVar('--chart-accent-wash'),
+    pointBorder: cssVar('--chart-point-border'),
+    grid: cssVar('--color-border'),
+    tickMuted: cssVar('--color-text-muted'),
+    tickSecondary: cssVar('--color-text-secondary'),
+    tooltipBg: cssVar('--color-text'),
+    tooltipText: cssVar('--color-bg'),
+  };
+}
+
+function applyThemeToCharts() {
+  const colors = themeColors();
+
+  for (const chart of chartInstances) {
+    const dataset = chart.data.datasets[0] as Record<string, unknown>;
+    const scales = chart.options.scales as Record<string, any> | undefined;
+    const tooltip = chart.options.plugins?.tooltip as Record<string, unknown> | undefined;
+
+    if (chart.config.type === 'bar') {
+      dataset.backgroundColor = colors.accent;
+      if (scales?.x) {
+        scales.x.ticks.color = colors.tickMuted;
+        scales.x.grid.color = colors.grid;
+      }
+      if (scales?.y) {
+        scales.y.ticks.color = colors.tickSecondary;
+      }
+    } else if (chart.config.type === 'radar') {
+      dataset.backgroundColor = colors.accentWash;
+      dataset.borderColor = colors.accent;
+      dataset.pointBackgroundColor = colors.accent;
+      dataset.pointBorderColor = colors.pointBorder;
+      if (scales?.r) {
+        scales.r.ticks.color = colors.tickMuted;
+        scales.r.grid.color = colors.grid;
+        scales.r.angleLines.color = colors.grid;
+        scales.r.pointLabels.color = colors.tickSecondary;
+      }
+    }
+
+    if (tooltip) {
+      tooltip.backgroundColor = colors.tooltipBg;
+      tooltip.titleColor = colors.tooltipText;
+      tooltip.bodyColor = colors.tooltipText;
+    }
+
+    chart.update();
+  }
+}
+
+window.addEventListener('themechange', applyThemeToCharts);
 
 function byId<T extends HTMLElement>(id: string): T | null {
   return document.getElementById(id) as T | null;
@@ -54,11 +108,11 @@ function wireTableToggle(refs: ChartSectionRefs) {
   });
 }
 
-function tooltipBase() {
+function tooltipBase(colors: ReturnType<typeof themeColors>) {
   return {
-    backgroundColor: TOOLTIP_BG,
-    titleColor: '#ffffff',
-    bodyColor: '#ffffff',
+    backgroundColor: colors.tooltipBg,
+    titleColor: colors.tooltipText,
+    bodyColor: colors.tooltipText,
     displayColors: false,
     padding: 10,
     cornerRadius: 6,
@@ -68,17 +122,18 @@ function tooltipBase() {
 function renderBarChart(canvas: HTMLCanvasElement, tallies: Tally[]) {
   const labels = tallies.map((t) => t.label);
   const data = tallies.map((t) => t.count);
+  const colors = themeColors();
 
   canvas.parentElement!.style.height = `${Math.min(420, Math.max(160, tallies.length * 44 + 40))}px`;
 
-  return new Chart(canvas, {
+  const chart = new Chart(canvas, {
     type: 'bar',
     data: {
       labels,
       datasets: [
         {
           data,
-          backgroundColor: ACCENT,
+          backgroundColor: colors.accent,
           borderRadius: 4,
           borderSkipped: false,
           maxBarThickness: 24,
@@ -92,7 +147,7 @@ function renderBarChart(canvas: HTMLCanvasElement, tallies: Tally[]) {
       plugins: {
         legend: { display: false },
         tooltip: {
-          ...tooltipBase(),
+          ...tooltipBase(colors),
           callbacks: {
             label: (ctx) => ` ${ctx.parsed.x} response${ctx.parsed.x === 1 ? '' : 's'}`,
           },
@@ -101,31 +156,35 @@ function renderBarChart(canvas: HTMLCanvasElement, tallies: Tally[]) {
       scales: {
         x: {
           beginAtZero: true,
-          ticks: { precision: 0, color: TICK_MUTED },
-          grid: { color: GRID },
+          ticks: { precision: 0, color: colors.tickMuted },
+          grid: { color: colors.grid },
         },
         y: {
-          ticks: { color: TICK_SECONDARY },
+          ticks: { color: colors.tickSecondary },
           grid: { display: false },
         },
       },
     },
   });
+  chartInstances.push(chart);
+  return chart;
 }
 
 function renderRadarChart(canvas: HTMLCanvasElement, labels: string[], data: number[]) {
-  return new Chart(canvas, {
+  const colors = themeColors();
+
+  const chart = new Chart(canvas, {
     type: 'radar',
     data: {
       labels,
       datasets: [
         {
           data,
-          backgroundColor: ACCENT_WASH,
-          borderColor: ACCENT,
+          backgroundColor: colors.accentWash,
+          borderColor: colors.accent,
           borderWidth: 2,
-          pointBackgroundColor: ACCENT,
-          pointBorderColor: '#ffffff',
+          pointBackgroundColor: colors.accent,
+          pointBorderColor: colors.pointBorder,
           pointBorderWidth: 2,
           pointRadius: 4,
           pointHoverRadius: 6,
@@ -138,7 +197,7 @@ function renderRadarChart(canvas: HTMLCanvasElement, labels: string[], data: num
       plugins: {
         legend: { display: false },
         tooltip: {
-          ...tooltipBase(),
+          ...tooltipBase(colors),
           callbacks: {
             label: (ctx) => ` ${ctx.formattedValue} / 5`,
           },
@@ -148,14 +207,16 @@ function renderRadarChart(canvas: HTMLCanvasElement, labels: string[], data: num
         r: {
           suggestedMin: 0,
           suggestedMax: 5,
-          ticks: { stepSize: 1, showLabelBackdrop: false, color: '#898781' },
-          grid: { color: GRID },
-          angleLines: { color: GRID },
-          pointLabels: { color: TICK_SECONDARY, font: { size: 11 } },
+          ticks: { stepSize: 1, showLabelBackdrop: false, color: colors.tickMuted },
+          grid: { color: colors.grid },
+          angleLines: { color: colors.grid },
+          pointLabels: { color: colors.tickSecondary, font: { size: 11 } },
         },
       },
     },
   });
+  chartInstances.push(chart);
+  return chart;
 }
 
 function fillTallyTable(tbodyId: string, tallies: Tally[], truncatedCount: number) {
@@ -378,7 +439,7 @@ async function init() {
   } catch (error) {
     console.error('Failed to load peer feedback data', error);
     if (statusEl)
-      statusEl.textContent = "Couldn't load feedback data right now — please check back later.";
+      statusEl.textContent = "Couldn't load feedback data right now. Please check back later.";
     setHidden(contentEl, true);
   }
 }
