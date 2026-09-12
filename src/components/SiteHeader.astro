@@ -16,7 +16,14 @@ const currentPath = Astro.url.pathname;
 
 <header class="site-header">
   <div class="container site-header__inner">
-    <a class="site-header__brand" href="/">Kaviraj Kuzhikkattu Haridasan</a>
+    <a class="site-header__brand" href="/" aria-label="Kaviraj Kuzhikkattu Haridasan">
+      <span class="site-header__badge" aria-hidden="true">KK</span>
+      <span class="site-header__brand-name site-header__brand-name--full"
+        >Kaviraj Kuzhikkattu Haridasan</span
+      >
+      <span class="site-header__brand-name site-header__brand-name--short">Kaviraj Kuzhikkattu</span
+      >
+    </a>
     <nav class="site-header__nav" id="site-nav" aria-label="Primary">
       <ul>
         {
@@ -67,10 +74,48 @@ const currentPath = Astro.url.pathname;
   }
 
   .site-header__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-width: 0;
     margin-right: auto;
     font-weight: 700;
     font-size: var(--fs-lg);
     letter-spacing: -0.01em;
+  }
+
+  .site-header__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, var(--color-accent), var(--color-accent-hover));
+    color: var(--color-accent-contrast);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+  }
+
+  .site-header__brand-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .site-header__brand-name--short {
+    display: none;
+  }
+
+  @media (max-width: 480px) {
+    .site-header__brand-name--full {
+      display: none;
+    }
+
+    .site-header__brand-name--short {
+      display: inline;
+    }
   }
 
   .site-header__nav ul {

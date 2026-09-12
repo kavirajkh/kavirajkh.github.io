@@ -24,15 +24,15 @@ interface GraphLink {
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-function buildGraph(): { nodes: GraphNode[]; links: GraphLink[] } {
-  const HUB_COUNT = 6;
-  const LEAVES_PER_HUB = 3;
+function buildGraph(compact: boolean): { nodes: GraphNode[]; links: GraphLink[] } {
+  const HUB_COUNT = compact ? 6 : 9;
+  const LEAVES_PER_HUB = compact ? 3 : 4;
 
   const nodes: GraphNode[] = [];
   const links: GraphLink[] = [];
 
   for (let i = 0; i < HUB_COUNT; i++) {
-    nodes.push({ id: i, radius: 6 });
+    nodes.push({ id: i, radius: compact ? 5 : 6 });
   }
 
   // Ring-connect the hubs so the core reads as a small backbone network.
@@ -44,7 +44,7 @@ function buildGraph(): { nodes: GraphNode[]; links: GraphLink[] } {
   for (let hub = 0; hub < HUB_COUNT; hub++) {
     for (let leaf = 0; leaf < LEAVES_PER_HUB; leaf++) {
       const id = nextId++;
-      nodes.push({ id, radius: 3 });
+      nodes.push({ id, radius: compact ? 2.5 : 3 });
       links.push({ source: hub, target: id });
     }
   }
@@ -68,19 +68,19 @@ function cssVar(name: string, fallback: string): string {
 function init() {
   const container = document.getElementById('hero-graph-bg');
   if (!container) return;
-  if (window.innerWidth < 640) return;
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const width = container.clientWidth || window.innerWidth;
   const height = container.clientHeight || 440;
+  const compact = width < 640;
 
   const svg = document.createElementNS(SVG_NS, 'svg');
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
   svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
   container.appendChild(svg);
 
-  const { nodes, links } = buildGraph();
+  const { nodes, links } = buildGraph(compact);
 
   const linkEls = links.map(() => {
     const line = document.createElementNS(SVG_NS, 'line');
@@ -125,7 +125,7 @@ function init() {
   const xForce = forceX<GraphNode>(width / 2).strength(0.012);
   const yForce = forceY<GraphNode>(height / 2).strength(0.012);
 
-  const linkDistance = Math.max(110, Math.min(width, height) / 4);
+  const linkDistance = Math.max(compact ? 55 : 110, Math.min(width, height) / 4);
 
   const simulation = forceSimulation(nodes)
     .force(
@@ -135,7 +135,12 @@ function init() {
         .distance(linkDistance)
         .strength(0.12),
     )
-    .force('charge', forceManyBody().strength(-170).distanceMax(Math.max(width, height)))
+    .force(
+      'charge',
+      forceManyBody()
+        .strength(compact ? -110 : -210)
+        .distanceMax(Math.max(width, height)),
+    )
     .force('center', forceCenter(width / 2, height / 2))
     .force('x', xForce)
     .force('y', yForce)

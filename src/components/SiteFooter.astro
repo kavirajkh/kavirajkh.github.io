@@ -6,10 +6,7 @@ const year = new Date().getFullYear();
 <footer class="site-footer">
   <div class="container site-footer__inner">
     <p>&copy; {year} {profile.name}</p>
-    <ul class="site-footer__links">
-      <li><a href={`mailto:${profile.email}`}>Email</a></li>
-      <li><a href={profile.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
-    </ul>
+    <p class="site-footer__tagline">Engineered with the same precision I bring to every project.</p>
   </div>
 </footer>
 
@@ -23,19 +20,14 @@ const year = new Date().getFullYear();
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-sm);
+    justify-content: center;
+    gap: var(--space-sm) var(--space-md);
     padding-block: var(--space-lg);
     font-size: var(--fs-sm);
     color: var(--color-text-muted);
   }
 
-  .site-footer__links {
-    display: flex;
-    gap: var(--space-md);
-  }
-
-  .site-footer__links a:hover {
-    color: var(--color-accent);
+  .site-footer__tagline {
+    font-style: italic;
   }
 </style>

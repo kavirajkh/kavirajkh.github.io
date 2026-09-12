@@ -167,14 +167,64 @@ const SKILLS_VISIBLE_COUNT = 4;
 
     <section class="section closing">
       <div class="container container--narrow closing__inner">
-        <p class="closing__tagline">Engineered with the same precision I bring to every project.</p>
         <p class="closing__message">
           Thanks for taking the time to check out my page! I'm always excited to connect with fellow
           engineers and explore new opportunities in the right places.
         </p>
-        <a class="btn btn--primary" href="/contact/">Get in Touch</a>
+        <button type="button" id="easter-egg-hint" class="easter-egg-hint">
+          <span aria-hidden="true">🎮</span>
+          <span
+            >Gamers &amp; curious minds: There's an easter <span class="easter-egg-hint__egg"
+              >🥚</span
+            > here. Try the classic code, or tap me 7 times!</span
+          >
+        </button>
       </div>
     </section>
+
+    <dialog id="easter-egg-dialog" class="easter-egg-dialog" aria-labelledby="easter-egg-title">
+      <div class="easter-egg-dialog__form">
+        <div class="easter-egg-dialog__close-row">
+          <button
+            type="button"
+            class="easter-egg-dialog__close"
+            aria-label="Close"
+            data-easter-egg-close
+          >
+            ✕
+          </button>
+        </div>
+        <p class="easter-egg-dialog__emoji" aria-hidden="true">🎉🎮🏆</p>
+        <h2 id="easter-egg-title" class="easter-egg-dialog__title">
+          <span class="easter-egg-dialog__title-emoji" aria-hidden="true">🎊</span>
+          CONGRATULATIONS!
+          <span class="easter-egg-dialog__title-emoji" aria-hidden="true">🎊</span>
+        </h2>
+        <p id="easter-egg-method" class="easter-egg-dialog__subtitle">
+          You discovered the secret with 7 secret taps!
+        </p>
+        <p class="easter-egg-dialog__body">
+          🔍 You're clearly someone who pays attention to details. That's exactly the kind of
+          curiosity and thoroughness I bring to my engineering work.
+        </p>
+        <p class="easter-egg-dialog__body">
+          Finding this easter egg shows you have the mindset I value: exploration, persistence, and
+          attention to detail.
+        </p>
+        <p class="easter-egg-dialog__connect-heading">💬 Let's Connect!</p>
+        <p class="easter-egg-dialog__body">
+          I'd enjoy talking system design, distributed architecture, performance testing,
+          AI-assisted engineering workflows, or just share your favorite easter eggs?
+        </p>
+        <a class="btn btn--primary" href={`mailto:${profile.email}`}>{profile.email}</a>
+        <p class="easter-egg-dialog__achievement">
+          Achievement unlocked: Code Breaker. Welcome to the secret developer club.
+        </p>
+        <button type="button" class="btn btn--secondary" data-easter-egg-close>
+          Close and back to home
+        </button>
+      </div>
+    </dialog>
   </main>
   <SiteFooter />
 </BaseLayout>
@@ -480,16 +530,200 @@ const SKILLS_VISIBLE_COUNT = 4;
     text-align: center;
   }
 
-  .closing__tagline {
-    font-style: italic;
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-sm);
-  }
-
   .closing__message {
     font-size: var(--fs-lg);
     color: var(--color-text-secondary);
     margin-bottom: var(--space-lg);
+  }
+
+  .easter-egg-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-inline: auto;
+    padding: 0.6rem 1.25rem;
+    border-radius: 999px;
+    border: 1px dashed var(--color-border-strong);
+    background: none;
+    color: var(--color-text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  .easter-egg-hint:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .easter-egg-hint__egg {
+    display: inline-block;
+    animation: easter-egg-hint-egg-color 4s ease-in-out infinite;
+  }
+
+  @keyframes easter-egg-hint-egg-color {
+    0%,
+    100% {
+      filter: drop-shadow(0 0 6px #ff3b3b) saturate(2.5) brightness(1.1);
+    }
+    16% {
+      filter: drop-shadow(0 0 6px #ff9f1c) saturate(2.5) brightness(1.1);
+    }
+    33% {
+      filter: drop-shadow(0 0 6px #ffe135) saturate(2.5) brightness(1.1);
+    }
+    50% {
+      filter: drop-shadow(0 0 6px #39ff14) saturate(2.5) brightness(1.1);
+    }
+    66% {
+      filter: drop-shadow(0 0 6px #1d9bf0) saturate(2.5) brightness(1.1);
+    }
+    83% {
+      filter: drop-shadow(0 0 6px #a78bfa) saturate(2.5) brightness(1.1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .easter-egg-hint__egg {
+      animation: none;
+    }
+  }
+
+  .easter-egg-dialog {
+    max-width: min(90vw, 480px);
+    max-height: 85vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: var(--space-xl);
+    border: none;
+    border-radius: var(--radius-lg);
+    background: var(--color-bg);
+    color: var(--color-text);
+    box-shadow: var(--shadow-md);
+  }
+
+  @media (max-width: 480px) {
+    .easter-egg-dialog {
+      padding: var(--space-lg) var(--space-sm);
+    }
+  }
+
+  .easter-egg-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  .easter-egg-dialog__form {
+    text-align: center;
+  }
+
+  .easter-egg-dialog__close-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: var(--space-xs);
+  }
+
+  .easter-egg-dialog__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: var(--fs-lg);
+    line-height: 1;
+  }
+
+  .easter-egg-dialog__close:hover {
+    color: var(--color-text);
+  }
+
+  .easter-egg-dialog__emoji {
+    font-size: clamp(2.75rem, 6vw, 3.5rem);
+    margin-bottom: var(--space-sm);
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+  }
+
+  .easter-egg-dialog__title {
+    font-size: var(--fs-lg);
+    margin-bottom: var(--space-xs);
+  }
+
+  .easter-egg-dialog__title-emoji {
+    font-size: 1.15em;
+    vertical-align: middle;
+  }
+
+  .easter-egg-dialog__subtitle {
+    font-weight: 600;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+  }
+
+  .easter-egg-dialog__body {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .easter-egg-dialog__connect-heading {
+    font-weight: 600;
+    margin-top: var(--space-md);
+    margin-bottom: var(--space-xs);
+  }
+
+  .easter-egg-dialog__form .btn {
+    margin-block: var(--space-sm);
+  }
+
+  .easter-egg-dialog__achievement {
+    margin-top: var(--space-md);
+    font-size: var(--fs-xs);
+    font-style: italic;
+    color: var(--color-text-muted);
+  }
+
+  :global(.easter-egg-confetti) {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  :global(.easter-egg-confetti__piece) {
+    position: absolute;
+    top: -12px;
+    width: 8px;
+    height: 14px;
+    opacity: 0.9;
+    animation: easter-egg-confetti-fall linear forwards;
+  }
+
+  @keyframes easter-egg-confetti-fall {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(105vh) rotate(540deg);
+      opacity: 0;
+    }
+  }
+
+  :global(.easter-egg-glow) :global(.card),
+  :global(.easter-egg-glow) :global(.btn) {
+    animation: easter-egg-border-glow 2.2s ease-in-out;
+  }
+
+  @keyframes easter-egg-border-glow {
+    0%,
+    100% {
+      box-shadow: var(--shadow-sm);
+    }
+    50% {
+      box-shadow:
+        0 0 0 2px var(--color-accent),
+        0 0 24px 6px var(--color-accent);
+    }
   }
 </style>
 
@@ -553,6 +787,153 @@ const SKILLS_VISIBLE_COUNT = 4;
       label.textContent = expanded
         ? `View ${extraCount} More Skill Areas`
         : 'Show Fewer Skill Areas';
+    }
+  });
+</script>
+
+<script>
+  const KONAMI_CODE = [
+    'ArrowUp',
+    'ArrowUp',
+    'ArrowDown',
+    'ArrowDown',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowLeft',
+    'ArrowRight',
+    'b',
+    'a',
+  ];
+  const TAP_COUNT_TARGET = 7;
+  const TAP_RESET_DELAY_MS = 2000;
+  const CONFETTI_COLORS = ['#1d4ed8', '#34d399', '#f59e0b', '#a78bfa', '#f472b6'];
+  const CONFETTI_COUNT = 60;
+  const CONFETTI_WAVES = 4;
+  const CONFETTI_WAVE_INTERVAL_MS = 500;
+  const GLOW_MS = 2200;
+
+  const dialog = document.getElementById('easter-egg-dialog') as HTMLDialogElement | null;
+  const methodLabel = document.getElementById('easter-egg-method');
+  const hint = document.getElementById('easter-egg-hint');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function fillWithConfettiPieces(container: HTMLElement, count: number) {
+    for (let i = 0; i < count; i++) {
+      const piece = document.createElement('span');
+      piece.className = 'easter-egg-confetti__piece';
+      piece.style.left = `${Math.random() * 100}%`;
+      piece.style.backgroundColor = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+      piece.style.animationDelay = `${Math.random() * 0.4}s`;
+      piece.style.animationDuration = `${2 + Math.random() * 1.5}s`;
+      container.append(piece);
+    }
+  }
+
+  function spawnConfettiWave() {
+    const container = document.createElement('div');
+    container.className = 'easter-egg-confetti';
+    container.setAttribute('aria-hidden', 'true');
+    fillWithConfettiPieces(container, CONFETTI_COUNT);
+
+    // Append to document.body (not the dialog): an open <dialog> can act as
+    // the containing block for its own fixed-position descendants in some
+    // browsers, which constrained this to the dialog's box instead of the
+    // full viewport. Appending to body guarantees true full-page coverage;
+    // the dialog's backdrop is kept nearly transparent (see ::backdrop) so
+    // it no longer dims the confetti sitting beneath the dialog's top layer.
+    document.body.append(container);
+    setTimeout(() => container.remove(), 4000);
+  }
+
+  function launchConfetti() {
+    // Fire several waves instead of dumping everything at once, so it reads
+    // like a confetti cannon firing repeatedly over ~1.5s, with each wave's
+    // pieces continuing to fall and fade for a few seconds afterward.
+    spawnConfettiWave();
+    for (let wave = 1; wave < CONFETTI_WAVES; wave++) {
+      setTimeout(spawnConfettiWave, wave * CONFETTI_WAVE_INTERVAL_MS);
+    }
+  }
+
+  function launchGlow() {
+    document.body.classList.add('easter-egg-glow');
+    setTimeout(() => document.body.classList.remove('easter-egg-glow'), GLOW_MS);
+  }
+
+  const root = document.documentElement;
+  let themeBeforeEasterEgg: string | null = null;
+
+  function activateMatrixTheme() {
+    themeBeforeEasterEgg = root.getAttribute('data-theme');
+    root.setAttribute('data-theme', 'matrix');
+  }
+
+  function restoreTheme() {
+    if (themeBeforeEasterEgg) {
+      root.setAttribute('data-theme', themeBeforeEasterEgg);
+    } else {
+      root.removeAttribute('data-theme');
+    }
+    themeBeforeEasterEgg = null;
+  }
+
+  function openEasterEgg(method: string) {
+    if (!dialog || typeof dialog.showModal !== 'function') return;
+    if (methodLabel) methodLabel.textContent = `You discovered the secret with ${method}!`;
+    dialog.showModal();
+    if (!prefersReducedMotion) {
+      launchConfetti();
+      launchGlow();
+      activateMatrixTheme();
+    }
+  }
+
+  // Close via backdrop click (clicking the dialog element outside its own
+  // content box targets the dialog itself), or via either explicit close
+  // button. Using explicit dialog.close() calls here instead of relying on
+  // a <form method="dialog"> submit button avoids known cross-browser
+  // quirks with that implicit-close behavior, particularly on mobile Safari.
+  dialog?.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  // Delegate from document rather than binding to each button directly, so
+  // this keeps working even if a close button gets re-rendered or covered
+  // by another element's stacking context.
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (target instanceof Element && target.closest('[data-easter-egg-close]')) {
+      dialog?.close();
+    }
+  });
+
+  dialog?.addEventListener('close', restoreTheme);
+
+  let konamiIndex = 0;
+  document.addEventListener('keydown', (event) => {
+    if (event.key === KONAMI_CODE[konamiIndex]) {
+      konamiIndex++;
+      if (konamiIndex === KONAMI_CODE.length) {
+        konamiIndex = 0;
+        openEasterEgg('the Konami code');
+      }
+    } else {
+      konamiIndex = event.key === KONAMI_CODE[0] ? 1 : 0;
+    }
+  });
+
+  let tapCount = 0;
+  let tapResetTimer: ReturnType<typeof setTimeout> | undefined;
+  hint?.addEventListener('click', () => {
+    tapCount++;
+    clearTimeout(tapResetTimer);
+    if (tapCount >= TAP_COUNT_TARGET) {
+      tapCount = 0;
+      openEasterEgg('7 secret taps');
+    } else {
+      tapResetTimer = setTimeout(() => {
+        tapCount = 0;
+      }, TAP_RESET_DELAY_MS);
     }
   });
 </script>

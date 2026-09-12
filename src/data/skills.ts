@@ -10,7 +10,16 @@ export const skillGroups: SkillGroup[] = [
   },
   {
     category: 'Databases & Data Stores',
-    skills: ['PostgreSQL', 'MySQL', 'Oracle', 'MongoDB', 'Neo4j', 'Cassandra', 'NoSQL'],
+    skills: [
+      'TigerGraph',
+      'PostgreSQL',
+      'MySQL',
+      'Oracle',
+      'MongoDB',
+      'Neo4j',
+      'Cassandra',
+      'NoSQL',
+    ],
   },
   {
     category: 'Search, Messaging & Stream Processing',

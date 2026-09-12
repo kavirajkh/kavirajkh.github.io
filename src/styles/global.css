@@ -124,6 +124,39 @@
   }
 }
 
+/* Temporary "Matrix" theme, toggled on by the homepage easter egg while its
+   celebration dialog is open, and reverted automatically when it closes. */
+:root[data-theme='matrix'] {
+  --color-bg: #000000;
+  --color-bg-subtle: #030a03;
+  --color-bg-inset: #061206;
+  --color-border: #0f3d0f;
+  --color-border-strong: #1a6b1a;
+
+  --color-text: #39ff14;
+  --color-text-secondary: #2fe010;
+  --color-text-muted: #1f9c0c;
+
+  --color-accent: #39ff14;
+  --color-accent-hover: #58ff3d;
+  --color-accent-subtle: rgba(57, 255, 20, 0.16);
+  --color-accent-contrast: #000000;
+
+  --color-success: #39ff14;
+  --color-focus-ring: #39ff14;
+
+  --color-surface-translucent: rgba(0, 0, 0, 0.85);
+  --chart-accent-wash: rgba(57, 255, 20, 0.18);
+  --chart-point-border: #000000;
+
+  --shadow-sm: 0 0 8px rgba(57, 255, 20, 0.35);
+  --shadow-md: 0 0 24px rgba(57, 255, 20, 0.45);
+
+  --font-sans: var(--font-mono);
+
+  color-scheme: dark;
+}
+
 /* ==========================================================================
    Reset
    ========================================================================== */
