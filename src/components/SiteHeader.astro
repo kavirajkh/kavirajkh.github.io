@@ -140,10 +140,15 @@ const currentPath = Astro.url.pathname;
   .site-header__toggle {
     display: none;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: 4px;
+    /* 44x44 is Apple's HIG minimum recommended tap target size. */
+    width: 44px;
+    height: 44px;
     background: none;
     border: none;
-    padding: var(--space-xs);
+    padding: 0;
   }
 
   .site-header__toggle span {

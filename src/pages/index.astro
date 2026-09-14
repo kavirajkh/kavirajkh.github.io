@@ -183,19 +183,10 @@ const SKILLS_VISIBLE_COUNT = 4;
     </section>
 
     <dialog id="easter-egg-dialog" class="easter-egg-dialog" aria-labelledby="easter-egg-title">
+      <div id="easter-egg-confetti" class="easter-egg-dialog__confetti" aria-hidden="true"></div>
       <div class="easter-egg-dialog__form">
-        <div class="easter-egg-dialog__close-row">
-          <button
-            type="button"
-            class="easter-egg-dialog__close"
-            aria-label="Close"
-            data-easter-egg-close
-          >
-            ✕
-          </button>
-        </div>
         <p class="easter-egg-dialog__emoji" aria-hidden="true">🎉🎮🏆</p>
-        <h2 id="easter-egg-title" class="easter-egg-dialog__title">
+        <h2 id="easter-egg-title" class="easter-egg-dialog__title" tabindex="-1">
           <span class="easter-egg-dialog__title-emoji" aria-hidden="true">🎊</span>
           CONGRATULATIONS!
           <span class="easter-egg-dialog__title-emoji" aria-hidden="true">🎊</span>
@@ -588,11 +579,11 @@ const SKILLS_VISIBLE_COUNT = 4;
   }
 
   .easter-egg-dialog {
-    max-width: min(90vw, 480px);
-    max-height: 85vh;
+    max-width: min(88vw, 420px);
+    max-height: 80vh;
     overflow-x: hidden;
     overflow-y: auto;
-    padding: var(--space-xl);
+    padding: var(--space-lg);
     border: none;
     border-radius: var(--radius-lg);
     background: var(--color-bg);
@@ -602,43 +593,47 @@ const SKILLS_VISIBLE_COUNT = 4;
 
   @media (max-width: 480px) {
     .easter-egg-dialog {
-      padding: var(--space-lg) var(--space-sm);
+      padding: var(--space-md) var(--space-sm);
     }
   }
 
+  /* The title is focused programmatically on open purely to give it a
+     sensible initial focus target (see the script below), not as something
+     users tab to. It has tabindex="-1" so it's never keyboard-tabbable,
+     which makes it safe to always hide its ring with a plain :focus rule
+     rather than :focus-visible — older Safari (e.g. iOS <15.4) doesn't
+     support :focus-visible at all, silently dropping that rule and leaving
+     the UA's default outline in place around the full-width heading. */
+  .easter-egg-dialog__title:focus {
+    outline: none;
+  }
+
   .easter-egg-dialog::backdrop {
-    background: rgba(0, 0, 0, 0.15);
+    /* No longer needs to stay near-transparent: confetti now renders inside
+       the dialog itself (see .easter-egg-dialog__confetti below) instead of
+       on document.body, so it's unaffected by how dark the backdrop is. */
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .easter-egg-dialog__confetti {
+    /* The dialog is the nearest positioned ancestor (browsers give a modal
+       <dialog> an implicit centering position), so inset: 0 sizes this to
+       exactly the dialog's own visible box rather than its scrollable
+       content height, and the dialog's own overflow clips it to that box's
+       rounded corners. */
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
   }
 
   .easter-egg-dialog__form {
     text-align: center;
   }
 
-  .easter-egg-dialog__close-row {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: var(--space-xs);
-  }
-
-  .easter-egg-dialog__close {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    background: none;
-    border: none;
-    color: var(--color-text-muted);
-    font-size: var(--fs-lg);
-    line-height: 1;
-  }
-
-  .easter-egg-dialog__close:hover {
-    color: var(--color-text);
-  }
-
   .easter-egg-dialog__emoji {
-    font-size: clamp(2.75rem, 6vw, 3.5rem);
+    font-size: clamp(2.25rem, 5vw, 2.9rem);
     margin-bottom: var(--space-sm);
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
   }
@@ -681,30 +676,24 @@ const SKILLS_VISIBLE_COUNT = 4;
     color: var(--color-text-muted);
   }
 
-  :global(.easter-egg-confetti) {
-    position: fixed;
-    inset: 0;
-    z-index: 999;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
   :global(.easter-egg-confetti__piece) {
     position: absolute;
-    top: -12px;
-    width: 8px;
-    height: 14px;
+    top: -6%;
+    width: 6px;
+    height: 11px;
     opacity: 0.9;
     animation: easter-egg-confetti-fall linear forwards;
   }
 
   @keyframes easter-egg-confetti-fall {
     0% {
-      transform: translateY(0) rotate(0deg);
+      top: -6%;
+      transform: rotate(0deg);
       opacity: 1;
     }
     100% {
-      transform: translateY(105vh) rotate(540deg);
+      top: 105%;
+      transform: rotate(540deg);
       opacity: 0;
     }
   }
@@ -807,42 +796,33 @@ const SKILLS_VISIBLE_COUNT = 4;
   const TAP_COUNT_TARGET = 7;
   const TAP_RESET_DELAY_MS = 2000;
   const CONFETTI_COLORS = ['#1d4ed8', '#34d399', '#f59e0b', '#a78bfa', '#f472b6'];
-  const CONFETTI_COUNT = 60;
-  const CONFETTI_WAVES = 4;
-  const CONFETTI_WAVE_INTERVAL_MS = 500;
+  const CONFETTI_COUNT = 26;
+  const CONFETTI_WAVES = 3;
+  const CONFETTI_WAVE_INTERVAL_MS = 450;
   const GLOW_MS = 2200;
 
   const dialog = document.getElementById('easter-egg-dialog') as HTMLDialogElement | null;
+  const title = document.getElementById('easter-egg-title');
   const methodLabel = document.getElementById('easter-egg-method');
   const hint = document.getElementById('easter-egg-hint');
+  const confettiLayer = document.getElementById('easter-egg-confetti');
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  function fillWithConfettiPieces(container: HTMLElement, count: number) {
-    for (let i = 0; i < count; i++) {
+  function spawnConfettiWave() {
+    if (!confettiLayer) return;
+    for (let i = 0; i < CONFETTI_COUNT; i++) {
       const piece = document.createElement('span');
       piece.className = 'easter-egg-confetti__piece';
       piece.style.left = `${Math.random() * 100}%`;
       piece.style.backgroundColor = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
       piece.style.animationDelay = `${Math.random() * 0.4}s`;
-      piece.style.animationDuration = `${2 + Math.random() * 1.5}s`;
-      container.append(piece);
+      piece.style.animationDuration = `${1.6 + Math.random() * 1.2}s`;
+      // Each piece removes itself once its own fall finishes, rather than
+      // the wave discarding a shared container on a fixed timer, so pieces
+      // with staggered delays/durations don't get cut off early or linger.
+      piece.addEventListener('animationend', () => piece.remove());
+      confettiLayer.append(piece);
     }
-  }
-
-  function spawnConfettiWave() {
-    const container = document.createElement('div');
-    container.className = 'easter-egg-confetti';
-    container.setAttribute('aria-hidden', 'true');
-    fillWithConfettiPieces(container, CONFETTI_COUNT);
-
-    // Append to document.body (not the dialog): an open <dialog> can act as
-    // the containing block for its own fixed-position descendants in some
-    // browsers, which constrained this to the dialog's box instead of the
-    // full viewport. Appending to body guarantees true full-page coverage;
-    // the dialog's backdrop is kept nearly transparent (see ::backdrop) so
-    // it no longer dims the confetti sitting beneath the dialog's top layer.
-    document.body.append(container);
-    setTimeout(() => container.remove(), 4000);
   }
 
   function launchConfetti() {
@@ -880,7 +860,26 @@ const SKILLS_VISIBLE_COUNT = 4;
   function openEasterEgg(method: string) {
     if (!dialog || typeof dialog.showModal !== 'function') return;
     if (methodLabel) methodLabel.textContent = `You discovered the secret with ${method}!`;
+    // Clear any confetti pieces left over from a celebration that was
+    // closed before its animations finished (their animationend never
+    // fired while the dialog was hidden), so re-triggering the egg doesn't
+    // pile old pieces on top of the new wave.
+    confettiLayer?.replaceChildren();
     dialog.showModal();
+    // showModal() auto-focuses the first focusable descendant (the mailto
+    // link, partway down the content) when nothing else has autofocus, which
+    // drags the scroll position with it on short mobile screens where the
+    // dialog itself scrolls. Focus the title (via its own tabindex="-1")
+    // instead, and reset scroll as a belt-and-suspenders safety net, so the
+    // celebration header is what's actually visible and focused. Focusing the
+    // title rather than the dialog also keeps the focus ring scoped to that
+    // text instead of the whole popup, so the dialog's rounded corners never
+    // get clobbered by the focus-visible outline/radius reset.
+    title?.focus();
+    dialog.scrollTop = 0;
+    requestAnimationFrame(() => {
+      dialog.scrollTop = 0;
+    });
     if (!prefersReducedMotion) {
       launchConfetti();
       launchGlow();

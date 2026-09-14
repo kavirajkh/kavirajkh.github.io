@@ -51,7 +51,9 @@ const { sectionId, title, canvasId, ariaLabel, tableCaption, columns, tbodyId } 
 
   .chart-card__toggle {
     font-weight: 600;
-    padding: 0.35rem 0.85rem;
+    /* Vertical padding brings the tap target close to Apple's HIG 44px
+       minimum, without changing the visual size of the pill on desktop. */
+    padding: 0.65rem 0.85rem;
     border: none;
     white-space: nowrap;
   }
