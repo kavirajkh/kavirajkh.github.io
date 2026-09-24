@@ -1,0 +1,62 @@
+---
+interface Props {
+  steps: string[];
+}
+
+const { steps } = Astro.props;
+---
+
+<div class="arch-diagram" role="img" aria-label={`Architecture flow: ${steps.join(' to ')}`}>
+  {
+    steps.map((step, index) => (
+      <>
+        <div class="arch-diagram__step">{step}</div>
+        {index < steps.length - 1 && (
+          <div class="arch-diagram__arrow" aria-hidden="true">
+            →
+          </div>
+        )}
+      </>
+    ))
+  }
+</div>
+
+<style>
+  .arch-diagram {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+  }
+
+  .arch-diagram__step {
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-subtle);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--color-text);
+    text-align: center;
+  }
+
+  .arch-diagram__arrow {
+    color: var(--color-accent);
+    font-weight: 700;
+    font-size: var(--fs-lg);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 640px) {
+    .arch-diagram {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .arch-diagram__arrow {
+      transform: rotate(90deg);
+      align-self: center;
+    }
+  }
+</style>

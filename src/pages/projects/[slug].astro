@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
+import ArchitectureDiagram from '../../components/ArchitectureDiagram.astro';
 import { projects } from '../../data/projects';
 
 export function getStaticPaths() {
@@ -40,6 +41,7 @@ const description = project.summary;
         <section class="project__section">
           <h2>Architecture</h2>
           <p>{project.architecture}</p>
+          {project.diagramSteps && <ArchitectureDiagram steps={project.diagramSteps} />}
         </section>
 
         <section class="project__section">

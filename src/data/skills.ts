@@ -33,6 +33,10 @@ export const skillGroups: SkillGroup[] = [
     ],
   },
   {
+    category: 'Caching',
+    skills: ['Infinispan', 'JBoss Cache', 'Distributed In-Memory Caching'],
+  },
+  {
     category: 'Backend Frameworks & APIs',
     skills: [
       'Spring Framework / Spring Boot',
@@ -86,11 +90,21 @@ export const skillGroups: SkillGroup[] = [
       'Authentication & Authorization',
       'JWT (Auth0 java-jwt)',
       'Spring Security',
+      'AES-256 / RSA Field-Level Encryption',
       'OWASP Dependency-Check',
       'Snyk',
       'SonarQube',
       'Unit Testing (TDD)',
       'Code Review & Mentoring',
+    ],
+  },
+  {
+    category: 'AI-Assisted Engineering',
+    skills: [
+      'Claude API Integration',
+      'GenAI-Assisted SDLC (Claude, Gemini Pro)',
+      'LLM-Assisted Code Generation',
+      'Prompt Engineering for Dev Workflows',
     ],
   },
 ];

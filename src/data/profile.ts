@@ -3,7 +3,7 @@ export const profile = {
   displayName: 'Kaviraj Kuzhikkattu Haridasan',
   role: 'Senior Java Backend Engineer',
   roleTitles: [
-    'Java Backend Engineer',
+    'Senior Java Backend Engineer',
     'Software Architect',
     'Team Leader & Mentor',
     '15+ Years of Innovation',

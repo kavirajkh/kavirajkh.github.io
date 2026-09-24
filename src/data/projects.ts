@@ -13,6 +13,7 @@ export type Project = {
   stack: string[];
   featured: boolean;
   applications?: { name: string; url: string; description: string }[];
+  diagramSteps?: string[];
 };
 
 export const projects: Project[] = [
@@ -29,11 +30,13 @@ export const projects: Project[] = [
     architecture:
       'Designed and built the core lifecycle APIs for three platform features (coaching-conversation workflows, peer-to-peer recognition, and development-goal tracking), each with full CRUD, status-transition rules, filtering, pagination, and audit trails. Built component-test infrastructure using containerized database instances and stub servers so integration bugs surface in CI, not shared environments. Coordinated scheduled background jobs (expiration, badge issuance, archival) across multiple service instances via distributed locking. Separately evaluated a PostgreSQL-native full-text search extension against a dedicated distributed search engine, building working proofs of concept, including write-time text normalization via database-computed columns, for both.',
     tradeoffs:
-      'The search decision traded operational simplicity against scale headroom: a PostgreSQL-native extension avoids running a separate search cluster and gives immediate read-after-write consistency, while a dedicated engine scales further and supports semantic search. Given current data volume was comfortably within the simpler option’s range, the lower-overhead approach was recommended, with both proofs of concept documented for revisiting later. Precomputing normalized text at write time added minor write-path cost for consistently fast reads, the right trade for a read-heavy workload.',
+      'The search decision traded operational simplicity against scale headroom: PGroonga, a PostgreSQL extension, avoids running a separate search cluster and gives immediate read-after-write consistency within the same transaction, while a dedicated distributed search engine scales further and supports semantic search at the cost of operating a cluster. The decision framework centered on dataset size and search requirements: proof-of-concept load testing at 5M, 10M, and 50M document scales showed PGroonga comfortably handling the lower end of that range with weighted relevance scoring (title matches weighted above content matches) and typo-tolerant fuzzy matching via edit-distance ratio, while the dedicated engine became the right call past that scale or when semantic/vector search is required. The lower-overhead approach was recommended, with both proof-of-concept implementations documented for revisiting later. Precomputing normalized text at write time via generated columns added minor write-path cost for consistently fast reads, the right trade for a read-heavy workload.',
     impact: [
       'Delivered production APIs for three core platform features with full lifecycle, filtering, and audit support.',
       'Component-test infrastructure eliminated a class of flaky integration tests before they reached shared environments.',
-      'Led performance and endurance testing across all major releases, validating latency targets under load and surfacing gradual degradation patterns, including connection-pool exhaustion and scheduled-job drift, that short load tests missed.',
+      'Ran Gatling-based load and multi-hour endurance tests across dozens of API transactions to validate per-pod throughput and latency targets, and root-caused a P95 latency regression introduced by added downstream calls before it reached production.',
+      'Validated horizontal autoscaling through dedicated capacity testing, confirming that scaling out to additional pods restored headroom once a single pod approached CPU saturation under peak synthetic load.',
+      'Used database latency monitoring to justify a database instance-class upgrade and apply targeted PostgreSQL write-ahead-log and checkpoint tuning, resolving a class of database-level bottlenecks.',
       'Delivered a documented technical evaluation, with working proofs of concept, comparing two search approaches, replacing a default technology choice with an evidence-backed recommendation.',
     ],
     stack: [
@@ -49,9 +52,10 @@ export const projects: Project[] = [
       'KMS-based Encryption',
       'Gatling (Scala)',
       'PGroonga',
+      'Bruno',
       'Distributed Locking',
     ],
-    featured: false,
+    featured: true,
   },
   {
     slug: 'certificate-attestation-service',
@@ -74,6 +78,14 @@ export const projects: Project[] = [
     ],
     stack: ['Java', 'Spring Boot', 'HSM Integration', 'x509 / PKI', 'Concurrency Tuning'],
     featured: true,
+    diagramSteps: [
+      'On-device app requests attestation',
+      'Attestation Service (Java / Spring Boot)',
+      'Batched dependent-system lookups',
+      'HSM key operations',
+      'x509 certificate issued',
+      'Device signs messages via the secure hardware key store',
+    ],
   },
   {
     slug: 'b2b-partner-data-graph-platform',
@@ -96,7 +108,7 @@ export const projects: Project[] = [
       'Presented as a featured case study to engineering and business stakeholders as a scalable pattern for partner-transaction visibility.',
     ],
     stack: ['TigerGraph', 'Graph Data Modeling', 'Apache Solr', 'REST APIs', 'Java'],
-    featured: false,
+    featured: true,
   },
   {
     slug: 'grant-delivery-system-modernization',
@@ -163,7 +175,7 @@ export const projects: Project[] = [
     problem:
       'The internal HR system needed to reliably synchronize employee data (payroll, benefits, contracts, and leave) with numerous internal and third-party systems. The legacy approach used bespoke PL/SQL scripts per integration, so every new interface meant duplicated logic, and changes to one interface risked breaking unrelated processes.',
     architecture:
-      'Designed a common Extract-Transform-Load platform that models every integration as a configuration over shared services, rather than a bespoke script. Built internal and external interfaces using SOA and microservice patterns to connect the HR system with identity, travel, timekeeping, and other downstream systems. For the payroll extract pipeline specifically, built a loader/extractor/transformer engine on an event-driven architecture backed by a distributed cache, so payroll files could be generated from HR change events with strict accuracy guarantees. Layered in email notification services for cross-team alerts on the same platform.',
+      'Designed a common Extract-Transform-Load platform that models every integration as a configuration over shared services, rather than a bespoke script. Built internal and external interfaces using SOA and microservice patterns to connect the HR system with identity, travel, timekeeping, and other downstream systems. For the payroll extract pipeline specifically, built a loader/extractor/transformer engine on an event-driven architecture backed by Infinispan and JBoss Cache for distributed, in-memory caching, so payroll files could be generated from HR change events with strict accuracy guarantees. Layered in email notification services for cross-team alerts on the same platform.',
     tradeoffs:
       'Building a generic platform took longer up front than writing another one-off script for the immediate integration request. The bet was that amortizing that cost across dozens of future interfaces, each needing only configuration, not new code, would pay for itself; it did, becoming the standard onboarding path for new HR interfaces going forward.',
     impact: [
@@ -178,7 +190,8 @@ export const projects: Project[] = [
       'Apache Kafka',
       'Oracle',
       'MongoDB',
-      'Distributed Caching',
+      'Infinispan',
+      'JBoss Cache',
     ],
     featured: true,
   },
@@ -267,6 +280,28 @@ export const projects: Project[] = [
       'IntelliJ plugin reduced friction for correct annotation usage across the team.',
     ],
     stack: ['Java', 'Annotation Processing', 'IntelliJ Plugin SDK', 'Markdown Generation'],
+    featured: false,
+  },
+  {
+    slug: 'ai-test-coverage-insight',
+    title: 'AI-Assisted Test Coverage Insight',
+    client: 'Apple Inc.',
+    timeframe: '2025',
+    category: 'Developer Tooling',
+    summary:
+      'An opt-in AI feature that reverse-engineers a class’s public API surface to auto-draft missing test-case descriptions, giving engineers a fast starting point for closing coverage gaps without an always-on report competing for attention.',
+    problem:
+      'Teams often know test-coverage gaps exist but rarely have time to manually enumerate every untested code path per class, and manually drafting test-case descriptions for each gap is tedious enough that it usually just doesn’t happen. An always-on coverage report risks becoming noise engineers learn to ignore, which defeats the point of having one.',
+    architecture:
+      'Built a tool that statically analyzes a class’s public API surface, reverse-engineering its callable methods and signatures, then uses an LLM to describe plausible test cases for the code paths existing tests don’t cover. Shipped as a manually-triggered, opt-in feature rather than a default-on report generated on every build, so teams pull it deliberately when they want to drive a testing push rather than receiving a report they eventually stop reading.',
+    tradeoffs:
+      'The alternative, running coverage-gap analysis automatically on every build, was rejected specifically because of alert fatigue: a report nobody reads is worse than no report, since it creates a false sense that coverage is being actively tracked. Trading always-on automation for a deliberate, manually-triggered workflow means lower ambient visibility but a higher signal-to-noise ratio each time it’s actually used.',
+    impact: [
+      'Gave engineers a fast, AI-assisted starting point for closing test-coverage gaps instead of manually enumerating untested paths by hand.',
+      'Avoided report fatigue by design: usage is opt-in and manually triggered, not a mandatory build-time gate.',
+      'Team-wide adoption contributed to combined branch code coverage rising from 65% to 83% across release cycles, with an active push toward an 85% target.',
+    ],
+    stack: ['Java', 'Static Analysis', 'LLM-Assisted Code Generation', 'JUnit'],
     featured: false,
   },
 ];

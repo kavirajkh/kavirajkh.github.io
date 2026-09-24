@@ -26,6 +26,8 @@ export const experience: Role[] = [
       'Built a custom Java annotation processor and companion IntelliJ plugin that auto-generates audit-parameter documentation at build time, eliminating manual documentation work for the identity platform team.',
       'Designed graph data models and case-insensitive Solr search APIs for a B2B partner-integration platform, and automated secure secret retrieval in CI/CD pipelines.',
       'Improved search relevance and latency for an internal Bug Tracking System used broadly across engineering, QA, and support teams.',
+      'Led a cross-functional engineering pod of 10+ engineers, including an offshore team, mentoring developers through hands-on code and design review (7 mentees to date, 2 promoted into senior roles) and grew the backend team from 5 to 12 engineers through direct hiring involvement.',
+      "Provided NPI (New Product Introduction) launch-readiness support, helping ensure platform stability and performance at thousands of requests per second during Apple's highest-traffic product launch events.",
     ],
   },
   {
