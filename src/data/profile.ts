@@ -9,10 +9,10 @@ export const profile = {
     '15+ Years of Innovation',
   ],
   headline:
-    'Senior Software Engineer building high-scale Java backend systems for Apple, with 10+ years turning complex distributed-systems problems into resilient, production-grade APIs.',
+    'Senior Software Engineer building high-scale Java backend systems for Apple, with 10+ years on services where a regression means failed device operations at global scale, not a support ticket.',
   heroTitle: 'Engineering backend systems that scale with Apple.',
   heroSubtitle:
-    'Designing resilient, high-throughput Java services powering millions of requests every day.',
+    'Designing resilient, low-latency Java platforms powering millions of requests every day.',
   photo: {
     src: '/images/kaviraj-profile.png',
     src2x: '/images/kaviraj-profile@2x.png',
