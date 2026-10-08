@@ -219,7 +219,7 @@ const SKILLS_VISIBLE_COUNT = 4;
 <style>
   .hero {
     position: relative;
-    background: linear-gradient(to bottom, var(--color-border) 0%, var(--color-bg-subtle) 65%);
+    background: linear-gradient(to bottom, var(--color-hero-wash) 0%, var(--color-bg-subtle) 65%);
     border-bottom: 1px solid var(--color-border);
     overflow: hidden;
   }
@@ -259,6 +259,11 @@ const SKILLS_VISIBLE_COUNT = 4;
     font-weight: 600;
     letter-spacing: -0.022em;
     margin-bottom: var(--space-sm);
+    padding-bottom: 0.08em;
+    background: linear-gradient(160deg, var(--headline-from) 30%, var(--headline-to));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   .hero__role {
