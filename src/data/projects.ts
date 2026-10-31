@@ -28,7 +28,7 @@ export const projects: Project[] = [
     problem:
       'Store employees lacked real-time visibility into their own performance, limiting self-directed improvement. Managers lacked a structured way to run coaching conversations and cascade priorities across a large, distributed retail workforce. The platform needed lifecycle-managed, auditable backend services and a search strategy that would scale with content volume without adding unnecessary operational overhead.',
     architecture:
-      'Designed and built the core lifecycle APIs for three platform features (coaching-conversation workflows, peer-to-peer recognition, and development-goal tracking), each with full CRUD, status-transition rules, filtering, pagination, and audit trails. Built component-test infrastructure using containerized database instances and stub servers so integration bugs surface in CI, not shared environments. Coordinated scheduled background jobs (expiration, badge issuance, archival) across multiple service instances via distributed locking. Separately evaluated a PostgreSQL-native full-text search extension against a dedicated distributed search engine, building working proofs of concept, including write-time text normalization via database-computed columns, for both.',
+      'Designed and built the core lifecycle APIs for three platform features (coaching-conversation workflows, peer-to-peer recognition, and development-goal tracking), each with full CRUD, status-transition rules, filtering, pagination, and audit trails, with notes and badges built on the same lifecycle patterns. Built a fork-and-join aggregation layer across upstream services that returns partial results on a partial failure instead of failing the whole request, and used optimistic locking to prevent lost updates across concurrent clients without pessimistic locks. Applied field-level encryption to sensitive coaching and development data using a managed key service. Built component-test infrastructure using containerized database instances and stub servers alongside the messaging layer, giving CI a hermetic, reproducible environment so integration bugs surface there, not in shared environments. Coordinated scheduled background jobs (expiration, badge issuance, archival) across multiple service instances via distributed locking. Separately evaluated a PostgreSQL-native full-text search extension against a dedicated distributed search engine, building working proofs of concept, including write-time text normalization via database-computed columns, for both.',
     tradeoffs:
       'The search decision traded operational simplicity against scale headroom: PGroonga, a PostgreSQL extension, avoids running a separate search cluster and gives immediate read-after-write consistency within the same transaction, while a dedicated distributed search engine scales further and supports semantic search at the cost of operating a cluster. The decision framework centered on dataset size and search requirements: proof-of-concept load testing at 5M, 10M, and 50M document scales showed PGroonga comfortably handling the lower end of that range with weighted relevance scoring (title matches weighted above content matches) and typo-tolerant fuzzy matching via edit-distance ratio, while the dedicated engine became the right call past that scale or when semantic/vector search is required. The lower-overhead approach was recommended, with both proof-of-concept implementations documented for revisiting later. Precomputing normalized text at write time via generated columns added minor write-path cost for consistently fast reads, the right trade for a read-heavy workload.',
     impact: [
@@ -37,7 +37,11 @@ export const projects: Project[] = [
       'Ran Gatling-based load and multi-hour endurance tests across dozens of API transactions to validate per-pod throughput and latency targets, and root-caused a P95 latency regression introduced by added downstream calls before it reached production.',
       'Validated horizontal autoscaling through dedicated capacity testing, confirming that scaling out to additional pods restored headroom once a single pod approached CPU saturation under peak synthetic load.',
       'Used database latency monitoring to justify a database instance-class upgrade and apply targeted PostgreSQL write-ahead-log and checkpoint tuning, resolving a class of database-level bottlenecks.',
+      'Established the performance baseline and regression process for the platform, so each release was compared against known numbers instead of intuition.',
       'Delivered a documented technical evaluation, with working proofs of concept, comparing two search approaches, replacing a default technology choice with an evidence-backed recommendation.',
+      'Integrated an MCP server with Claude Code to query application logs in Splunk in natural language across the DEV, QA, and performance environments, shortening triage of gateway and API errors.',
+      'Encoded the codebase’s engineering standards into a detailed CLAUDE.md of enforceable rules (logging, authorization, test conventions, data-access boundaries), so AI-generated changes followed team patterns and needed fewer review rounds.',
+      'Built reusable Claude Code skills for repeatable workflows (OpenAPI sample generation and validation, PR description generation, local test-environment setup, and spec generation from business requirements), reducing the effort per story on routine tasks.',
     ],
     stack: [
       'Java 21',
@@ -50,10 +54,16 @@ export const projects: Project[] = [
       'JaCoCo / Checkstyle / Spotless',
       'Swagger / OpenAPI',
       'KMS-based Encryption',
+      'AES-256',
       'Gatling (Scala)',
+      'Grafana',
+      'Splunk',
+      'Argo CD',
       'PGroonga',
       'Bruno',
       'Distributed Locking',
+      'Optimistic Locking',
+      'Claude Code / MCP / Skills',
     ],
     featured: true,
   },
