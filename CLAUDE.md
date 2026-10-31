@@ -14,6 +14,10 @@ Steps:
 
 Ask Claude to review/edit code as usual — just start/stop the dev server yourself in your own terminal.
 
+## Project skills
+
+Skills live in `.claude/skills/` and are checked into git (the rest of `.claude/`, such as `settings.local.json`, stays ignored). **Whenever a skill is created or edited, stage and commit the change along with the work that prompted it**, using the `commit-message-format` skill. Never leave a skill edit uncommitted.
+
 ## Commands
 
 - `npm run dev` — start local dev server

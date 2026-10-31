@@ -28,4 +28,6 @@ pnpm-debug.log*
 .idea/
 
 # Claude Code local settings (contains local permission history, may reference internal names/paths)
-.claude/
+# Project skills are the exception: they are shared and versioned with the repo.
+.claude/*
+!.claude/skills/
