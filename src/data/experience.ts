@@ -11,7 +11,7 @@ export type Role = {
 
 export const experience: Role[] = [
   {
-    title: 'Architecture Consultant',
+    title: 'Senior Software Engineer / Architecture Consultant',
     company: 'Infosys Limited',
     client: 'Apple Inc.',
     start: 'Oct 2023',
@@ -31,7 +31,7 @@ export const experience: Role[] = [
     ],
   },
   {
-    title: 'Software Developer II',
+    title: 'Software Architect / Software Developer II',
     company: 'SynergyQuad Inc.',
     client: 'California Student Aid Commission',
     start: 'Jul 2019',
@@ -48,7 +48,7 @@ export const experience: Role[] = [
     ],
   },
   {
-    title: 'Systems Analyst II',
+    title: 'Senior Software Engineer / Systems Analyst II',
     company: 'QuEST Global Engineering Services',
     client: 'Apple Inc.',
     start: 'Jul 2010',

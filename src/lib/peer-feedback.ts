@@ -101,10 +101,31 @@ interface SkillDimension {
   key: string;
   label: string;
   match: (header: string) => boolean;
+  // Exact radio-option labels from the form (lowercased) -> score. Checked before
+  // keyword matching, which can't score options that lack a generic rating word.
+  scale?: Record<string, number>;
+}
+
+const PROBLEM_SOLVING_SCALE: Record<string, number> = {
+  'unable to solve even with hints': 1,
+  'rough solution, needed significant help': 2,
+  'solved with moderate guidance': 3,
+  'optimal solution with minimal hints': 4,
+  'optimal solution with no guidance, proactively identified edge cases': 5,
+};
+
+function scoreForDimension(dimension: SkillDimension, raw: string | undefined): number | null {
+  const exact = raw ? dimension.scale?.[raw.replace(/\s+/g, ' ').trim().toLowerCase()] : undefined;
+  return exact ?? mapToScore(raw);
 }
 
 const SKILL_DIMENSIONS: SkillDimension[] = [
-  { key: 'problem-solving', label: 'Problem Solving', match: (h) => h === 'Problem Solving' },
+  {
+    key: 'problem-solving',
+    label: 'Problem Solving',
+    match: (h) => h === 'Problem Solving',
+    scale: PROBLEM_SOLVING_SCALE,
+  },
   { key: 'coding-skills', label: 'Coding Skills', match: (h) => h === 'Coding Skills' },
   {
     key: 'algorithm-knowledge',
@@ -198,7 +219,7 @@ export function aggregateFeedback(rows: Record<string, string>[]): FeedbackAggre
     }
 
     const scores = rows
-      .map((row) => mapToScore(row[header]))
+      .map((row) => scoreForDimension(dimension, row[header]))
       .filter((score): score is number => score !== null);
 
     const average =
