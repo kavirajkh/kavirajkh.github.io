@@ -7,8 +7,29 @@ const year = new Date().getFullYear();
   <div class="container site-footer__inner">
     <p>&copy; {year} {profile.name}</p>
     <p class="site-footer__tagline">Engineered with the same precision I bring to every project.</p>
+    <p class="site-footer__visitors" id="visitor-count" hidden>
+      <span id="visitor-count-value"></span> visitors
+    </p>
   </div>
 </footer>
+
+<script is:inline>
+  (function () {
+    var wrap = document.getElementById('visitor-count');
+    var out = document.getElementById('visitor-count-value');
+    if (!wrap || !out) return;
+    fetch('https://kavirajkh.goatcounter.com/counter/TOTAL.json')
+      .then(function (r) {
+        return r.ok ? r.json() : Promise.reject();
+      })
+      .then(function (d) {
+        if (!d || !d.count_unique) return;
+        out.textContent = d.count_unique;
+        wrap.hidden = false;
+      })
+      .catch(function () {});
+  })();
+</script>
 
 <style>
   .site-footer {
