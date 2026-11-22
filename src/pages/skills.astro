@@ -35,6 +35,18 @@ const description =
             ))
           }
         </div>
+
+        <h2 class="resources-heading">Resources</h2>
+        <div class="card resources-card">
+          <h3>DS &amp; Algorithms Cheat Sheet (Java)</h3>
+          <p>
+            A quick-reference I keep for coding-interview patterns: data structures, common
+            algorithms, and how to recognize which technique a question needs.
+          </p>
+          <a class="btn btn--primary" href="/resources/ds-algorithms-cheat-sheet.html">
+            Open the cheat sheet →
+          </a>
+        </div>
       </div>
     </section>
   </main>
@@ -57,6 +69,21 @@ const description =
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-xs);
+  }
+
+  .resources-heading {
+    font-size: var(--fs-lg);
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-sm);
+  }
+
+  .resources-card h3 {
+    font-size: var(--fs-base);
+    margin-bottom: var(--space-xs);
+  }
+
+  .resources-card p {
+    margin-bottom: var(--space-md);
   }
 
   @media (max-width: 720px) {
