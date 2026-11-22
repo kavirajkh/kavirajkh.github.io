@@ -6,9 +6,10 @@ interface Props {
   title: string;
   description: string;
   path?: string;
+  noindex?: boolean;
 }
 
-const { title, description, path = '' } = Astro.props;
+const { title, description, path = '', noindex = false } = Astro.props;
 const siteUrl = 'https://kavirajkh.github.io';
 const canonicalUrl = `${siteUrl}${path}`;
 const pageTitle = title === profile.displayName ? title : `${title} | ${profile.displayName}`;
@@ -65,7 +66,7 @@ const personJsonLd = {
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <meta name="author" content={profile.name} />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
     <meta name="google-site-verification" content="hoCjqoLoxfTlX4JnqPZxUjAoxs7CcWb3g_se7G_ITVI" />
     <meta name="theme-color" content="#eef1fa" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#06070d" media="(prefers-color-scheme: dark)" />

@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import { quizzes } from '../../data/quizzes';
+
+const title = 'Resources';
+const description =
+  'Interview-prep reference material and interactive quizzes: a Java DS and algorithms cheat sheet and recall quizzes.';
+---
+
+<BaseLayout title={title} description={description} path="/resources/" noindex>
+  <SiteHeader />
+  <main id="main">
+    <section class="section">
+      <div class="container">
+        <a class="resources-back" href="/skills/">← Skills</a>
+        <p class="section-kicker">Interview prep</p>
+        <h1 class="section-heading">Resources</h1>
+        <p class="section-intro">
+          Reference material I use to stay sharp, and quizzes that test what I can actually recall
+          without looking.
+        </p>
+
+        <h2 class="resources-group">Reference</h2>
+        <div class="grid grid--2">
+          <article class="card resources-item">
+            <span class="tag">Cheat sheet</span>
+            <h3>DS &amp; Algorithms Cheat Sheet (Java)</h3>
+            <p>
+              Data structures, common algorithms, and how to recognize which technique a question
+              needs. Opens as a standalone page.
+            </p>
+            <a class="btn btn--primary" href="/resources/ds-algorithms-cheat-sheet.html"
+              >Open the cheat sheet →</a
+            >
+          </article>
+        </div>
+
+        <h2 class="resources-group">Quizzes</h2>
+        <div class="grid grid--2">
+          {
+            quizzes.map((quiz) => (
+              <article class="card resources-item">
+                <span class="tag">{quiz.questions.length} questions</span>
+                <h3>{quiz.title}</h3>
+                <p>{quiz.description}</p>
+                <a class="btn btn--primary" href={`/resources/quiz/${quiz.slug}/`}>
+                  Start quiz →
+                </a>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .resources-back {
+    display: block;
+    width: fit-content;
+    margin-bottom: var(--space-md);
+    font-size: var(--fs-sm);
+    color: var(--color-text-secondary);
+  }
+
+  .resources-group {
+    font-size: var(--fs-lg);
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-md);
+  }
+
+  .resources-item h3 {
+    font-size: var(--fs-base);
+    margin-block: var(--space-sm) var(--space-xs);
+  }
+
+  .resources-item p {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-md);
+  }
+</style>

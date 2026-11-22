@@ -1,0 +1,332 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import SiteFooter from '../../../components/SiteFooter.astro';
+import { quizzes } from '../../../data/quizzes';
+
+export function getStaticPaths() {
+  return quizzes.map((quiz) => ({
+    params: { slug: quiz.slug },
+    props: { quiz },
+  }));
+}
+
+const { quiz } = Astro.props;
+const data = JSON.stringify({ slug: quiz.slug, questions: quiz.questions }).replace(
+  /</g,
+  '\\u003c',
+);
+---
+
+<BaseLayout
+  title={`${quiz.title} Quiz`}
+  description={quiz.description}
+  path={`/resources/quiz/${quiz.slug}/`}
+  noindex
+>
+  <SiteHeader />
+  <main id="main">
+    <section class="section">
+      <div class="container container--narrow quiz">
+        <a class="quiz-back" href="/resources/">← All resources</a>
+        <p class="section-kicker">Quiz</p>
+        <h1 class="section-heading">{quiz.title}</h1>
+        <p class="section-intro">{quiz.description}</p>
+
+        <script type="application/json" id="quiz-data" set:html={data} />
+
+        <noscript>
+          <p class="card">This quiz needs JavaScript to run.</p>
+        </noscript>
+
+        <div id="quiz-start" class="card quiz-card">
+          <p id="quiz-stats" class="quiz-stats">Loading…</p>
+          <div class="quiz-actions">
+            <button type="button" class="btn btn--primary" id="quiz-mode-random">
+              Random 10
+            </button>
+            <button type="button" class="btn btn--secondary" id="quiz-mode-full">
+              Full set ({quiz.questions.length})
+            </button>
+            <button type="button" class="btn btn--secondary" id="quiz-mode-missed">
+              Missed only
+            </button>
+          </div>
+          <p class="quiz-hint">
+            Random 10 starts with questions you missed or have not tried yet. Progress is saved only
+            in this browser.
+          </p>
+          <p class="quiz-hint">
+            Reference: <a href={quiz.source.href}>{quiz.source.label}</a> ·
+            <button type="button" class="quiz-link" id="quiz-reset">Reset progress</button>
+          </p>
+        </div>
+
+        <div id="quiz-play" hidden>
+          <div class="quiz-progress" aria-hidden="true">
+            <div id="quiz-bar" class="quiz-progress__bar"></div>
+          </div>
+          <div class="card quiz-card">
+            <div class="quiz-meta">
+              <span id="quiz-counter" class="quiz-counter"></span>
+              <span id="quiz-section" class="tag"></span>
+            </div>
+            <p id="quiz-prompt" class="quiz-prompt"></p>
+            <pre id="quiz-context" class="quiz-code quiz-code--context" hidden><code /></pre>
+            <label class="quiz-label" for="quiz-answer">Your Java</label>
+            <textarea
+              id="quiz-answer"
+              class="quiz-input"
+              rows="3"
+              spellcheck="false"
+              autocomplete="off"
+              autocapitalize="off"
+              autocorrect="off"></textarea>
+            <div class="quiz-actions">
+              <button type="button" class="btn btn--primary" id="quiz-check">Check</button>
+              <button type="button" class="btn btn--secondary" id="quiz-show">Show answer</button>
+              <button type="button" class="btn btn--primary" id="quiz-next" hidden
+                >Next question</button
+              >
+            </div>
+            <p class="quiz-hint">Ctrl or Cmd + Enter checks, then moves on.</p>
+            <div id="quiz-result" class="quiz-result" role="status" aria-live="polite"></div>
+            <p class="quiz-hint">
+              <button type="button" class="quiz-link" id="quiz-quit">End round</button>
+            </p>
+          </div>
+        </div>
+
+        <div id="quiz-summary" class="card quiz-card" hidden>
+          <h2 class="quiz-summary__title">Round complete</h2>
+          <p class="quiz-summary__score" id="quiz-score"></p>
+          <div id="quiz-missed-wrap">
+            <h3>To review</h3>
+            <ol id="quiz-missed-list" class="quiz-missed"></ol>
+          </div>
+          <div class="quiz-actions">
+            <button type="button" class="btn btn--primary" id="quiz-retry">Retry missed</button>
+            <button type="button" class="btn btn--secondary" id="quiz-again">New round</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<script src="../../../scripts/quiz.ts"></script>
+
+<style is:global>
+  :root {
+    --quiz-bad: #b42318;
+  }
+  :root[data-theme='dark'] {
+    --quiz-bad: #ff8a80;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --quiz-bad: #ff8a80;
+    }
+  }
+
+  .quiz [hidden] {
+    display: none !important;
+  }
+
+  .quiz-back {
+    display: block;
+    width: fit-content;
+    margin-bottom: var(--space-md);
+    font-size: var(--fs-sm);
+    color: var(--color-text-secondary);
+  }
+
+  .quiz-card {
+    margin-bottom: var(--space-lg);
+  }
+
+  .quiz-card:hover {
+    transform: none;
+  }
+
+  .quiz-stats {
+    font-weight: 600;
+    margin-bottom: var(--space-md);
+  }
+
+  .quiz-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-block: var(--space-md);
+  }
+
+  .quiz-actions .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .quiz-hint {
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-xs);
+  }
+
+  .quiz-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-accent);
+    text-decoration: underline;
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .quiz-progress {
+    height: 6px;
+    border-radius: 999px;
+    background: var(--color-bg-inset);
+    margin-bottom: var(--space-md);
+    overflow: hidden;
+  }
+
+  .quiz-progress__bar {
+    height: 100%;
+    width: 0;
+    background: var(--color-accent);
+    transition: width 0.25s ease;
+  }
+
+  .quiz-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .quiz-counter {
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+  }
+
+  .quiz-prompt {
+    font-size: var(--fs-lg);
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+  }
+
+  .quiz-label {
+    display: block;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+  }
+
+  .quiz-code {
+    margin: 0 0 var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-inset);
+    border: 1px solid var(--color-border);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .quiz-code--context {
+    opacity: 0.9;
+  }
+
+  .quiz-input {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-bg-inset);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+    resize: vertical;
+  }
+
+  .quiz-input:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .quiz-result {
+    margin-top: var(--space-sm);
+  }
+
+  .quiz-result:not(:empty) {
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-strong);
+    border-left-width: 4px;
+  }
+
+  .quiz-result--correct {
+    border-color: var(--color-success);
+  }
+
+  .quiz-result--wrong,
+  .quiz-result--revealed {
+    border-color: var(--quiz-bad);
+  }
+
+  .quiz-result--close {
+    border-color: var(--color-accent);
+  }
+
+  .quiz-result__title {
+    font-weight: 700;
+    margin-bottom: var(--space-xs);
+  }
+
+  .quiz-result--correct .quiz-result__title {
+    color: var(--color-success);
+  }
+
+  .quiz-result--wrong .quiz-result__title,
+  .quiz-result--revealed .quiz-result__title {
+    color: var(--quiz-bad);
+  }
+
+  .quiz-result__label {
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    margin-block: var(--space-xs);
+  }
+
+  .quiz-result__note {
+    font-size: var(--fs-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .quiz-result .btn {
+    margin: var(--space-xs) var(--space-xs) 0 0;
+  }
+
+  .quiz-summary__score {
+    font-size: var(--fs-2xl);
+    font-weight: 700;
+    margin-bottom: var(--space-md);
+  }
+
+  .quiz-missed {
+    padding-left: var(--space-lg);
+    margin-bottom: var(--space-md);
+  }
+
+  .quiz-missed li {
+    margin-bottom: var(--space-md);
+  }
+</style>
