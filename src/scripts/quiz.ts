@@ -11,8 +11,6 @@ type Question = {
 
 type Progress = Record<string, { right: number; wrong: number; last: number; missed: boolean }>;
 
-const ROUND_SIZE = 10;
-
 function el<T extends HTMLElement>(id: string): T {
   const node = document.getElementById(id);
   if (!node) throw new Error(`Missing element #${id}`);
@@ -97,14 +95,9 @@ function init() {
     show(startScreen);
   }
 
-  function pickRandom(): string[] {
-    const missed = shuffle(missedIds());
-    const unseen = shuffle(questions.filter((q) => !progress[q.id]).map((q) => q.id));
-    const rest = questions
-      .filter((q) => progress[q.id] && !progress[q.id].missed)
-      .sort((a, b) => progress[a.id].last - progress[b.id].last)
-      .map((q) => q.id);
-    return [...missed, ...unseen, ...rest].slice(0, ROUND_SIZE);
+  // questions arrive ordered by importance, so a round of N is the N most useful, shuffled
+  function pickRandom(size: number): string[] {
+    return shuffle(questions.slice(0, size).map((q) => q.id));
   }
 
   function startRound(ids: string[]) {
@@ -292,7 +285,9 @@ function init() {
     show(summaryScreen);
   }
 
-  el('quiz-mode-random').addEventListener('click', () => startRound(pickRandom()));
+  document.querySelectorAll<HTMLButtonElement>('[data-quiz-size]').forEach((btn) => {
+    btn.addEventListener('click', () => startRound(pickRandom(Number(btn.dataset.quizSize))));
+  });
   el('quiz-mode-full').addEventListener('click', () =>
     startRound(shuffle(questions.map((q) => q.id))),
   );

@@ -42,9 +42,19 @@ const data = JSON.stringify({ slug: quiz.slug, questions: quiz.questions }).repl
         <div id="quiz-start" class="card quiz-card">
           <p id="quiz-stats" class="quiz-stats">Loading…</p>
           <div class="quiz-actions">
-            <button type="button" class="btn btn--primary" id="quiz-mode-random">
-              Random 10
-            </button>
+            {
+              [10, 25, 50, 100]
+                .filter((n) => quiz.questions.length >= n)
+                .map((n) => (
+                  <button
+                    type="button"
+                    class={`btn ${n === 10 ? 'btn--primary' : 'btn--secondary'}`}
+                    data-quiz-size={n}
+                  >
+                    Random {n}
+                  </button>
+                ))
+            }
             <button type="button" class="btn btn--secondary" id="quiz-mode-full">
               Full set ({quiz.questions.length})
             </button>
@@ -53,8 +63,8 @@ const data = JSON.stringify({ slug: quiz.slug, questions: quiz.questions }).repl
             </button>
           </div>
           <p class="quiz-hint">
-            Random 10 starts with questions you missed or have not tried yet. Progress is saved only
-            in this browser.
+            Random rounds draw from the most important syntax first: 10 is the must-knows, 25 adds
+            the next tier, and so on. Progress is saved only in this browser.
           </p>
           <p class="quiz-hint">
             Reference: <a href={quiz.source.href}>{quiz.source.label}</a> ·
