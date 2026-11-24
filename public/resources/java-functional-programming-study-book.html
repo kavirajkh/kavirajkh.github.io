@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Java Functional Programming Study Book (Java 8 to 25) for Spring Boot Developers</title>
+<style>
+:root{--bg:#f6f8fb;--card:#fff;--ink:#17202a;--mut:#5d6b7a;--line:#dde3ea;--code:#0f172a;--codeink:#e2e8f0}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.55 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+nav#side{position:fixed;top:0;left:0;bottom:0;width:250px;overflow:auto;background:#0f172a;color:#cbd5e1;padding:14px 10px;font-size:13px}
+nav#side h3{margin:0 0 8px;color:#fff;font-size:14px}
+nav#side a{display:flex;justify-content:space-between;gap:6px;color:#cbd5e1;text-decoration:none;padding:4px 8px;border-radius:6px;border-left:3px solid var(--c,#64748b)}
+nav#side a:hover{background:#1e293b;color:#fff}
+nav#side a small{color:#94a3b8;white-space:nowrap}
+main{margin-left:250px;padding:20px 32px 80px;max-width:1100px}
+header.hero{background:linear-gradient(135deg,#1e3a8a,#7c3aed 60%,#db2777);color:#fff;border-radius:16px;padding:28px 32px;margin-bottom:18px}
+.hero h1{margin:0 0 6px;font-size:30px}.hero p{margin:4px 0;opacity:.95}
+#bar{position:sticky;top:0;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 14px;margin:0 0 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;box-shadow:0 2px 8px #0001}
+#bar .track{flex:1;min-width:140px;height:10px;background:#e5e9f0;border-radius:6px;overflow:hidden}
+#bar .fill{height:100%;width:0;background:linear-gradient(90deg,#22c55e,#06b6d4);transition:width .3s}
+button{font:inherit;font-size:13px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 10px;cursor:pointer}button:hover{background:#eef2ff}
+section.sec{background:var(--card);border:1px solid var(--line);border-top:6px solid var(--c);border-radius:14px;padding:6px 24px 18px;margin:22px 0;box-shadow:0 1px 4px #0001}
+section.sec h2{color:var(--c);font-size:23px;margin:16px 0 4px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+section.sec h2 .cnt{font-size:12px;color:var(--mut);background:#f1f5f9;border-radius:20px;padding:2px 10px;font-weight:600}
+h3{font-size:16px;margin:18px 0 6px;color:var(--c)} h4{margin:12px 0 4px}
+.goal{color:var(--mut);font-style:italic;margin:0 0 10px}
+code{font:12.5px Menlo,Consolas,monospace;background:#eef2f7;padding:1px 5px;border-radius:4px;color:#be185d}
+pre.code{background:var(--code);color:var(--codeink);border-radius:10px;padding:12px 14px;overflow:auto;font:12.6px/1.5 Menlo,Consolas,monospace;margin:8px 0;border-left:4px solid var(--c)}
+pre.code code{background:none;color:inherit;padding:0;font-size:inherit}
+.k{color:#c4b5fd;font-weight:600}.s{color:#86efac}.c{color:#64748b;font-style:italic}.a{color:#fda4af}.t{color:#7dd3fc}.n{color:#fcd34d}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13.5px}th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}th{background:var(--c);color:#fff}tr:nth-child(even) td{background:#f8fafc}
+.box{border-radius:10px;padding:9px 14px;margin:10px 0;border-left:6px solid;font-size:14px}
+.box b.h{display:block;margin-bottom:2px}
+.tip{background:#fffbe6;border-color:#f59e0b}.tip b.h{color:#b45309}
+.warn{background:#fef2f2;border-color:#ef4444}.warn b.h{color:#b91c1c}
+.key{background:#eff6ff;border-color:#3b82f6}.key b.h{color:#1d4ed8}
+.mem{background:#f0fdf4;border-color:#22c55e}.mem b.h{color:#15803d}
+.box.glance{background:linear-gradient(135deg,#eef2ff,#fdf2f8);border-left-color:#6366f1}.box.glance b.h{color:#4338ca}
+.spring{background:#ecfdf5;border-color:#10b981}.spring b.h{color:#047857}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin:10px 0}
+.card{border:1px solid var(--line);border-top:4px solid var(--cc,#3b82f6);border-radius:10px;padding:8px 12px;background:#fff}
+.card b{color:var(--cc,#3b82f6)}.card code{display:block;margin-top:3px;background:#f1f5f9}
+svg{max-width:100%;height:auto;display:block;margin:10px auto;background:#fcfdff;border:1px solid var(--line);border-radius:10px}
+svg text{font-family:-apple-system,Segoe UI,Arial,sans-serif;font-size:13px}
+.q{border:1px solid var(--line);border-left:6px solid var(--c);border-radius:10px;padding:8px 14px;margin:12px 0;background:#fcfdff}
+.q.done{background:#f0fdf4;border-left-color:#22c55e}
+.qt{display:flex;gap:8px;align-items:flex-start}
+.qt .qn{background:var(--c);color:#fff;border-radius:6px;padding:0 8px;font-weight:700;font-size:13px;white-space:nowrap}
+.lv{font-size:11px;border-radius:10px;padding:1px 8px;color:#fff;font-weight:700;align-self:center;white-space:nowrap}
+.e .lv{background:#22c55e}.m .lv{background:#f59e0b}.h .lv{background:#ef4444}
+.qt .body{flex:1}.qt label{font-size:12px;color:var(--mut);white-space:nowrap;cursor:pointer}
+details{margin-top:6px}summary{cursor:pointer;color:var(--c);font-weight:600;font-size:13.5px}
+.ans{background:#f8fafc;border-radius:8px;padding:6px 12px;margin-top:6px;border:1px dashed #cbd5e1}
+.ans p{margin:5px 0}
+.pill{display:inline-block;border-radius:20px;padding:0 9px;font-size:12px;font-weight:700;color:#fff;background:var(--c,#64748b)}
+@media(max-width:900px){nav#side{display:none}main{margin-left:0;padding:12px}}
+@media print{nav#side,#bar{display:none}main{margin:0}section.sec{break-inside:auto;box-shadow:none}pre.code{white-space:pre-wrap}}
+</style></head><body>
+<nav id="side"><h3>📘 Contents</h3></nav>
+<main>
+<header class="hero">
+<p><a href="/resources/" style="color:#fff;font-weight:600;text-decoration:none">&larr; Back to resources</a></p>
+<h1>Java Functional Programming Study Book</h1>
+<p>Lambdas · Streams · Optional · Collectors · Records · Pattern Matching · CompletableFuture · Gatherers — Java 8 to Java 25</p>
+<p>Written for Spring Boot developers. Every topic: concept → picture → runnable example on sample data → tips → worksheet with answers.</p>
+</header>
+
+<div id="bar">
+<b>Progress:</b><span id="pt">0 / 0</span><div class="track"><div class="fill" id="pf"></div></div>
+<button onclick="toggleAll(true)">Reveal all answers</button><button onclick="toggleAll(false)">Hide all</button><button onclick="resetP()">Reset progress</button>
+</div>
+
+<section class="sec" id="start" style="--c:#7c3aed">
+<h2>0 · How to use this book</h2>
+<p class="goal">Goal: after finishing, you can read, write and review functional-style Java in a Spring Boot codebase without hesitation.</p>
+<div class="grid">
+<div class="card" style="--cc:#22c55e"><b>1. Read</b> the concept, look at the diagram, and type the example by hand in a scratch project or <code>jshell</code>.</div>
+<div class="card" style="--cc:#f59e0b"><b>2. Predict</b> the output of each snippet <i>before</i> running it. Wrong predictions are where learning happens.</div>
+<div class="card" style="--cc:#ef4444"><b>3. Worksheet</b> answer on paper first, then click <i>Answer</i>. Tick “got it” only if you were fully right. Progress is saved in your browser.</div>
+<div class="card" style="--cc:#3b82f6"><b>4. Repeat</b> the questions you did not tick after 2 days. Aim for 90%+ before the capstone.</div>
+</div>
+<div class="box key"><b class="h">Colour legend</b>
+<span class="pill" style="--c:#f59e0b">💡 Tip</span> practical advice &nbsp;
+<span class="pill" style="--c:#ef4444">⚠ Pitfall</span> common bug / gotcha &nbsp;
+<span class="pill" style="--c:#3b82f6">🔑 Key idea</span> core concept &nbsp;
+<span class="pill" style="--c:#22c55e">🧠 Remember</span> mnemonic &nbsp;
+<span class="pill" style="--c:#10b981">🌱 Spring</span> Spring Boot usage &nbsp;
+<br>Question levels: <span class="pill" style="--c:#22c55e">easy</span> <span class="pill" style="--c:#f59e0b">medium</span> <span class="pill" style="--c:#ef4444">hard</span></div>
+
+<h3>Suggested 4-week plan (about 45 minutes a day)</h3>
+<table><tr><th>Week</th><th>Sections</th><th>Outcome</th></tr>
+<tr><td>1</td><td>1 – 5: mindset, lambdas, functional interfaces, method refs, composition</td><td>You can write and combine small functions</td></tr>
+<tr><td>2</td><td>6 – 10: stream pipeline, operations, reduce, collectors, primitive streams</td><td>You can solve any collection-processing task in one pipeline</td></tr>
+<tr><td>3</td><td>11 – 16: Optional, Comparator, collection APIs, parallel, Java 9–16 additions, records</td><td>You write idiomatic modern Java</td></tr>
+<tr><td>4</td><td>17 – 23: pattern matching, Gatherers, async, Spring usage, patterns, capstone</td><td>You apply FP style in real services</td></tr></table>
+
+<h3>Sample data used throughout</h3>
+<p>Almost every example uses this data, so you can compute answers by hand. Keep it in view:</p>
+<script type="text/plain" class="code">
+record Employee(int id, String name, String dept, double salary, int age, List<String> skills) {}
+
+List<Employee> emps = List.of(
+    new Employee(1, "Asha",   "ENG", 125_000, 29, List.of("Java", "Spring")),
+    new Employee(2, "Ben",    "ENG",  98_000, 35, List.of("Java", "Kafka")),
+    new Employee(3, "Chen",   "OPS",  72_000, 41, List.of("Linux", "Bash")),
+    new Employee(4, "Divya",  "ENG", 145_000, 38, List.of("Java", "AWS", "Spring")),
+    new Employee(5, "Eli",    "HR",   65_000, 27, List.of("Recruiting")),
+    new Employee(6, "Fatima", "OPS",  81_000, 33, List.of("AWS", "Terraform")));
+// total salary = 586,000   ·   total age = 203   ·   ENG total = 368,000   ·   OPS total = 153,000
+</script>
+<table><tr><th>Dept</th><th>People</th><th>Salaries</th><th>Average</th></tr>
+<tr><td>ENG</td><td>Asha, Ben, Divya</td><td>125k, 98k, 145k</td><td>122,666.67</td></tr>
+<tr><td>OPS</td><td>Chen, Fatima</td><td>72k, 81k</td><td>76,500</td></tr>
+<tr><td>HR</td><td>Eli</td><td>65k</td><td>65,000</td></tr></table>
+
+<h3>Java 8 → 25 at a glance (what matters for functional style)</h3>
+<svg viewBox="0 0 1000 250" role="img" aria-label="Java version timeline">
+<line x1="30" y1="120" x2="975" y2="120" stroke="#94a3b8" stroke-width="4"/>
+<g font-size="12">
+<circle cx="70" cy="120" r="11" fill="#ef4444"/><text x="70" y="96" text-anchor="middle" font-weight="700" fill="#ef4444">8 LTS</text><text x="70" y="150" text-anchor="middle">Lambdas</text><text x="70" y="166" text-anchor="middle">Streams</text><text x="70" y="182" text-anchor="middle">Optional</text><text x="70" y="198" text-anchor="middle">CompletableFuture</text>
+<circle cx="205" cy="120" r="9" fill="#f59e0b"/><text x="205" y="96" text-anchor="middle" font-weight="700" fill="#b45309">9 – 11 LTS</text><text x="205" y="150" text-anchor="middle">List.of / Map.of</text><text x="205" y="166" text-anchor="middle">takeWhile, var</text><text x="205" y="182" text-anchor="middle">Optional.or/stream</text><text x="205" y="198" text-anchor="middle">Predicate.not</text>
+<circle cx="345" cy="120" r="9" fill="#84cc16"/><text x="345" y="96" text-anchor="middle" font-weight="700" fill="#4d7c0f">12 – 15</text><text x="345" y="150" text-anchor="middle">teeing</text><text x="345" y="166" text-anchor="middle">switch expr</text><text x="345" y="182" text-anchor="middle">text blocks</text>
+<circle cx="480" cy="120" r="9" fill="#10b981"/><text x="480" y="96" text-anchor="middle" font-weight="700" fill="#047857">16 – 17 LTS</text><text x="480" y="150" text-anchor="middle">Records</text><text x="480" y="166" text-anchor="middle">Stream.toList()</text><text x="480" y="182" text-anchor="middle">instanceof pattern</text><text x="480" y="198" text-anchor="middle">Sealed, mapMulti</text>
+<circle cx="640" cy="120" r="11" fill="#3b82f6"/><text x="640" y="96" text-anchor="middle" font-weight="700" fill="#1d4ed8">21 LTS</text><text x="640" y="150" text-anchor="middle">Pattern switch</text><text x="640" y="166" text-anchor="middle">Record patterns</text><text x="640" y="182" text-anchor="middle">Virtual threads</text><text x="640" y="198" text-anchor="middle">Sequenced collections</text>
+<circle cx="790" cy="120" r="9" fill="#8b5cf6"/><text x="790" y="96" text-anchor="middle" font-weight="700" fill="#6d28d9">22 – 24</text><text x="790" y="150" text-anchor="middle">Unnamed _ vars</text><text x="790" y="166" text-anchor="middle">Stream Gatherers</text><text x="790" y="182" text-anchor="middle">No pinning on sync</text>
+<circle cx="930" cy="120" r="11" fill="#db2777"/><text x="930" y="96" text-anchor="middle" font-weight="700" fill="#be185d">25 LTS</text><text x="930" y="150" text-anchor="middle">Scoped values</text><text x="930" y="166" text-anchor="middle">Flexible ctor bodies</text><text x="930" y="182" text-anchor="middle">Compact main</text>
+</g></svg>
+<div class="box tip"><b class="h">💡 Which Java should I target?</b>Spring Boot 3.x needs Java 17 minimum. Use <b>Java 21</b> in production today (virtual threads, pattern switch, sequenced collections); Java 25 LTS adds Gatherers (24) and scoped values. Everything from Java 8 to 17 in this book works on any Boot 3 app.</div>
+</section>
+<section class="sec" id="glance" style="--c:#6366f1">
+<h2>At a glance (2-minute overview)</h2>
+<p class="goal">Skim this first; revisit before an interview. Every row links to its section.</p>
+<table><tr><th>Section</th><th>One-sentence takeaway</th><th>Top 3 must-know</th><th>Java version</th></tr>
+<tr><td><a href="#s1">1 · Functional mindset</a></td><td>Data in, data out: pure functions, immutable data, pipelines.</td><td>Pure functions; immutability; higher-order functions</td><td>Java 8+</td></tr>
+<tr><td><a href="#s2">2 · Lambda expressions</a></td><td>A lambda is an inline implementation of a functional interface's single abstract method.</td><td>Target typing; effectively final captures; lambda vs anonymous class</td><td>Java 8+; <code>var</code> in lambda params 11</td></tr>
+<tr><td><a href="#s3">3 · Functional interfaces</a></td><td>Know Supplier, Predicate, Function, Consumer and their Bi/Unary/Binary/primitive variants.</td><td>Signatures of the big four; Operator = same in/out type; primitive variants avoid boxing</td><td>Java 8+</td></tr>
+<tr><td><a href="#s4">4 · Method references</a></td><td>A method reference is a lambda that only calls an existing method, shorter and named.</td><td>Four kinds (static, bound, unbound, constructor); when to prefer a lambda; ambiguity</td><td>Java 8+</td></tr>
+<tr><td><a href="#s5">5 · Composing functions</a></td><td>Build large behaviour from small functions with andThen, compose, and/or/negate and currying.</td><td><code>andThen</code> vs <code>compose</code> order; Predicate <code>and/or/negate</code>; <code>Function.identity()</code></td><td>Java 8+; <code>Predicate.not</code> 11</td></tr>
+<tr><td><a href="#s6">6 · Stream pipeline fundamentals</a></td><td>A stream is a lazy, single-use pipeline: source, intermediate operations, one terminal operation.</td><td>Nothing runs without a terminal op; streams are single-use; streams do not store data</td><td>Java 8+; <code>Stream.toList()</code> 16</td></tr>
+<tr><td><a href="#s7">7 · Intermediate operations</a></td><td>Transform the flow with filter, map, flatMap, distinct, sorted, limit, skip, peek, takeWhile, dropWhile.</td><td>map vs flatMap; sorted/distinct are stateful; peek is for debugging only</td><td>Java 8+; takeWhile/dropWhile 9</td></tr>
+<tr><td><a href="#s8">8 · Terminal operations &amp; reduce</a></td><td>Terminal operations trigger the pipeline and produce a value or side effect.</td><td>reduce with identity vs Optional; short-circuit ops (findFirst, anyMatch); collect vs reduce</td><td>Java 8+; <code>toList()</code> 16</td></tr>
+<tr><td><a href="#s9">9 · Collectors</a></td><td>Turn a stream into a List, Set, Map, groups or summaries.</td><td><code>groupingBy</code> with downstream; <code>toMap</code> merge function; <code>partitioningBy</code></td><td>Java 8+; <code>toUnmodifiableList</code> 10; <code>teeing</code> 12</td></tr>
+<tr><td><a href="#s10">10 · Primitive streams</a></td><td>IntStream, LongStream and DoubleStream avoid boxing and add numeric terminals.</td><td><code>mapToInt</code> / <code>boxed</code>; <code>summaryStatistics</code>; <code>range</code> vs <code>rangeClosed</code></td><td>Java 8+</td></tr>
+<tr><td><a href="#s11">11 · Optional</a></td><td>A return-type box meaning a value may be absent.</td><td>map/flatMap/orElse chain; orElse vs orElseGet; never as field or parameter</td><td>Java 8+; <code>ifPresentOrElse</code>/<code>or</code>/<code>stream</code> 9; <code>orElseThrow()</code> 10; <code>isEmpty</code> 11</td></tr>
+<tr><td><a href="#s12">12 · Comparator &amp; sorting</a></td><td>Compose comparators from key extractors; never subtract ints.</td><td><code>comparing().thenComparing()</code>; <code>reversed()</code> scope; <code>nullsFirst</code></td><td>Java 8+</td></tr>
+<tr><td><a href="#s13">13 · Functional APIs on collections &amp; maps</a></td><td>Streams-free lambdas: removeIf, replaceAll, forEach, computeIfAbsent, merge, plus immutable factories.</td><td><code>computeIfAbsent</code> / <code>merge</code>; <code>removeIf</code>; <code>List.of</code> is immutable</td><td>Java 8+; factories 9; <code>copyOf</code> 10</td></tr>
+<tr><td><a href="#s14">14 · Parallel streams</a></td><td>One word can make code faster or incorrect; know when to use it.</td><td>Only for CPU-bound, large, stateless, associative work; common ForkJoinPool; no shared mutation</td><td>Java 8+</td></tr>
+<tr><td><a href="#s15">15 · Handy additions in Java 9 - 15</a></td><td>Small features that shorten everyday functional code.</td><td><code>var</code>, <code>Predicate.not</code>, <code>teeing</code> / <code>takeWhile</code></td><td>Java 9-15</td></tr>
+<tr><td><a href="#s16">16 · Records, sealed types, pattern instanceof, switch expressions</a></td><td>Model data and alternatives as algebraic data types.</td><td>Records are immutable data carriers; sealed enables exhaustive switch; pattern instanceof removes casts</td><td>Switch expr 14; records and pattern instanceof 16; sealed 17</td></tr>
+<tr><td><a href="#s17">17 · Pattern matching for switch &amp; record patterns</a></td><td>Replace visitors and instanceof chains with exhaustive, type-safe switch.</td><td>Type patterns with guards (<code>when</code>); record deconstruction; exhaustiveness over sealed types</td><td>Java 21 (final)</td></tr>
+<tr><td><a href="#s18">18 · Newer Stream APIs: toList, mapMulti, Gatherers</a></td><td>Gatherers add custom intermediate operations; toList and mapMulti trim boilerplate.</td><td><code>Stream.toList()</code> is unmodifiable; <code>mapMulti</code> as flatMap alternative; Gatherers (windowFixed, scan)</td><td><code>toList</code>/<code>mapMulti</code> 16; Gatherers final 24</td></tr>
+<tr><td><a href="#s19">19 · Java 22 - 25 language and library features</a></td><td>Stay current: unnamed variables, scoped values, simpler constructors and entry points.</td><td>Unnamed <code>_</code>; scoped values; flexible constructor bodies</td><td>Java 22-25 (check each feature's status)</td></tr>
+<tr><td><a href="#s20">20 · CompletableFuture &amp; virtual threads</a></td><td>Compose async work functionally, or write blocking code on cheap virtual threads.</td><td><code>thenApply</code> vs <code>thenCompose</code>; <code>allOf</code>; exceptionally/handle; virtual threads for blocking I/O</td><td>CompletableFuture 8; virtual threads 21</td></tr>
+<tr><td><a href="#s21">21 · Functional style in Spring Boot</a></td><td>Lambdas, streams and Optional appear daily in Boot code; know where not to use them.</td><td>Optional from repositories; stream mapping entity to DTO; do not use lambdas to hide transactions</td><td>Boot 3 needs Java 17+</td></tr>
+<tr><td><a href="#s22">22 · Functional patterns &amp; gotchas</a></td><td>Reusable recipes: exceptions in lambdas, memoization, result types, laziness, command tables.</td><td>Wrap checked exceptions; <code>computeIfAbsent</code> memoization; sealed Result type</td><td>Java 8+ (sealed/records 16-17)</td></tr>
+<tr><td><a href="#s23">23 · Capstone: mixed problems</a></td><td>Solve without hints, combining everything above.</td><td>Group then aggregate; flatMap nested data; Optional chains</td><td>Mixed (8-21)</td></tr>
+</table>
+<h3>Which functional interface / collector / Optional method?</h3>
+<table><tr><th>I need to...</th><th>Use</th></tr>
+<tr><td>produce a value, no input</td><td><code>Supplier&lt;T&gt;</code></td></tr>
+<tr><td>test a condition</td><td><code>Predicate&lt;T&gt;</code> (<code>BiPredicate</code>, <code>IntPredicate</code>)</td></tr>
+<tr><td>transform T to R</td><td><code>Function&lt;T,R&gt;</code>; same type: <code>UnaryOperator&lt;T&gt;</code></td></tr>
+<tr><td>combine two same-type values</td><td><code>BinaryOperator&lt;T&gt;</code></td></tr>
+<tr><td>do something, return nothing</td><td><code>Consumer&lt;T&gt;</code></td></tr>
+<tr><td>collect to list / set / map</td><td><code>toList()</code> (or <code>Stream.toList()</code> 16), <code>toSet()</code>, <code>toMap(k, v, merge)</code></td></tr>
+<tr><td>bucket by key / split in two</td><td><code>groupingBy(key, downstream)</code> / <code>partitioningBy(pred)</code></td></tr>
+<tr><td>count, sum, average per group</td><td><code>counting()</code>, <code>summingInt()</code>, <code>averagingDouble()</code></td></tr>
+<tr><td>two results in one pass</td><td><code>teeing(c1, c2, merger)</code> (12)</td></tr>
+<tr><td>transform an Optional value</td><td><code>map</code> (plain result) / <code>flatMap</code> (returns Optional)</td></tr>
+<tr><td>default when empty</td><td><code>orElse</code> (cheap constant) / <code>orElseGet</code> (computed) / <code>orElseThrow</code></td></tr>
+<tr><td>act on presence or absence</td><td><code>ifPresent</code> / <code>ifPresentOrElse</code> (9) / <code>or</code> (9)</td></tr></table>
+<div class="box glance"><b class="h">⚡ Functional Java: 12 things to remember</b><ol style="margin:2px 0 0 20px;padding:0"><li>A lambda needs a functional interface target type; the compiler infers everything else.</li><li>Captured locals must be effectively final; never mutate outside state from a lambda.</li><li>A stream is lazy and single-use: nothing runs without a terminal operation.</li><li><code>map</code> is 1-to-1, <code>flatMap</code> flattens; <code>reduce</code> combines, <code>collect</code> builds containers.</li><li><code>toMap</code> needs a merge function when keys can repeat.</li><li><code>orElse</code> is eager, <code>orElseGet</code> is lazy; never call <code>Optional.get()</code> blindly.</li><li>Optional is for return types, not fields or parameters.</li><li>Build comparators with <code>comparing().thenComparing()</code>; never subtract ints.</li><li>Parallel streams only for large, CPU-bound, stateless work; measure first.</li><li>Prefer immutability: records, <code>List.of</code>, <code>Stream.toList()</code>.</li><li>Sealed types plus pattern switch (21) give exhaustive, compiler-checked branching.</li><li>Use virtual threads (21) for blocking I/O; use CompletableFuture to compose async results.</li></ol></div>
+</section>
+<section class="sec" id="s1" style="--c:#6366f1">
+<h2>1 · Functional mindset</h2>
+<p class="goal">Think in “data in → data out” instead of “loops mutating variables”.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> style built on pure functions, immutable data and declarative pipelines.</li><li><b>Must know:</b> first-class and higher-order functions are lambdas typed as functional interfaces.</li><li><b>Must know:</b> prefer creating new objects (records, <code>List.of</code>, <code>toList()</code>) over mutating.</li><li><b>Pitfall:</b> forcing FP everywhere; a plain loop is fine for index-heavy or stateful early-exit logic.</li><li><b>Version:</b> Java 8 introduced the style; later versions only add sugar.</li></ul></div>
+<div class="grid">
+<div class="card" style="--cc:#6366f1"><b>Pure function</b>Same input → same output, no side effects. Easy to test, safe in parallel.</div>
+<div class="card" style="--cc:#06b6d4"><b>First-class function</b>A function can be stored in a variable, passed in, returned. In Java: lambdas typed as functional interfaces.</div>
+<div class="card" style="--cc:#f59e0b"><b>Higher-order function</b>Takes or returns a function: <code>map</code>, <code>filter</code>, <code>Comparator.comparing</code>.</div>
+<div class="card" style="--cc:#22c55e"><b>Immutability</b>Do not change objects, create new ones: records, <code>List.of</code>, <code>toList()</code>.</div>
+<div class="card" style="--cc:#ec4899"><b>Declarative</b>Say <i>what</i> you want (filter, map, group), not <i>how</i> (index, temp list, if).</div>
+</div>
+<h3>Imperative vs declarative</h3>
+<script type="text/plain" class="code">
+// Imperative: HOW   (mutable temp list, loop, if)
+List<String> result = new ArrayList<>();
+for (Employee e : emps) {
+    if (e.dept().equals("ENG") && e.salary() > 100_000) {
+        result.add(e.name().toUpperCase());
+    }
+}
+// Declarative: WHAT
+List<String> result2 = emps.stream()
+        .filter(e -> e.dept().equals("ENG"))
+        .filter(e -> e.salary() > 100_000)
+        .map(e -> e.name().toUpperCase())
+        .toList();                       // [ASHA, DIVYA]
+</script>
+<div class="box mem"><b class="h">🧠 Remember</b>Functional Java = <b>pure functions + immutable data + pipelines</b>. If a lambda changes something outside itself, you are probably fighting the style.</div>
+<div class="box warn"><b class="h">⚠ Pitfall</b>Java is not Haskell. Use FP where it makes code shorter and safer (collections, Optional, async); a plain <code>for</code> loop is still right for index-heavy or early-exit-with-state logic.</div>
+
+<h3>Worksheet 1</h3>
+<div class="q e"><div class="qt"><div class="body">Which of these methods is <b>pure</b>? Explain each.<br>(a) <code>int add(int a, int b) { return a + b; }</code><br>(b) <code>boolean isExpired(Token t) { return t.expiry().isBefore(Instant.now()); }</code><br>(c) <code>int next() { return ++counter; }</code> (field)<br>(d) <code>String upper(String s) { log.info(s); return s.toUpperCase(); }</code></div></div>
+<details><summary>Answer</summary><div class="ans"><p>Only <b>(a)</b> is pure. (b) depends on the hidden input <code>Instant.now()</code>, so same argument can give different results (fix: pass the clock/time in as a parameter). (c) reads and mutates state outside the method. (d) logging is a side effect, although harmless in practice; strictly it is impure.</p></div></details></div>
+
+<div class="q e"><div class="qt"><div class="body">What is a <b>higher-order function</b>? Name three from the JDK.</div></div>
+<details><summary>Answer</summary><div class="ans"><p>A function that accepts a function as a parameter and/or returns a function. Examples: <code>Stream.map/filter/reduce</code> (accept functions), <code>List.sort(Comparator)</code>, <code>Optional.map</code>, <code>Comparator.comparing(keyExtractor)</code> (accepts and returns a function), <code>Map.computeIfAbsent</code>, <code>Function.andThen</code>.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">A teammate wrote this. Why is it a bad idea, and how do you fix it?
+<script type="text/plain" class="code">
+List<String> names = new ArrayList<>();
+emps.stream().filter(e -> e.age() > 30).forEach(e -> names.add(e.name()));
+</script></div></div>
+<details><summary>Answer</summary><div class="ans"><p>The lambda mutates an external collection (side effect). It works sequentially, but breaks if someone adds <code>.parallel()</code> (<code>ArrayList</code> is not thread-safe, so you get lost elements or exceptions) and it hides the intent. Let the stream build the result:</p>
+<script type="text/plain" class="code">List<String> names = emps.stream().filter(e -> e.age() > 30).map(Employee::name).toList();</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Rewrite as a stream: “sum of salaries of employees whose skills contain <code>"AWS"</code>”. Expected answer on the sample data?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">double total = emps.stream()
+        .filter(e -> e.skills().contains("AWS"))
+        .mapToDouble(Employee::salary)
+        .sum();          // Divya 145,000 + Fatima 81,000 = 226,000.0</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">How do you make a class immutable in modern Java? What is the difference between <code>Collections.unmodifiableList(list)</code> and <code>List.copyOf(list)</code>?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>Use a <b>record</b> (final fields, no setters) and copy mutable inputs in the compact constructor. <code>unmodifiableList</code> is a read-only <i>view</i>: if the original list changes, the view changes. <code>List.copyOf</code> makes an independent immutable <i>copy</i> (and rejects nulls).</p></div></details></div>
+</section>
+
+<section class="sec" id="s2" style="--c:#0ea5e9">
+<h2>2 · Lambda expressions</h2>
+<p class="goal">A lambda is an inline implementation of a functional interface’s single method.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> <code>(args) -&gt; body</code>, valid only where a functional interface is expected.</li><li><b>Must know:</b> the compiler infers the interface from the target type; a lambda has no type of its own.</li><li><b>Must know:</b> <code>this</code> inside a lambda is the enclosing class, unlike an anonymous class.</li><li><b>Pitfall:</b> captured locals must be effectively final; do not mutate outside state.</li><li><b>Version:</b> Java 8; <code>var</code> in lambda parameters since 11; unnamed <code>_</code> parameter since 22.</li></ul></div>
+<script type="text/plain" class="code">
+// syntax:  (parameters) -> expression      or      (parameters) -> { statements; return x; }
+Runnable r              = () -> System.out.println("hi");          // no params
+Function<String,Integer> len = s -> s.length();                    // one param, parens optional
+BiFunction<Integer,Integer,Integer> add = (a, b) -> a + b;         // two params
+Comparator<String> cmp  = (String a, String b) -> {                // typed params + block body
+    int d = a.length() - b.length();
+    return d != 0 ? d : a.compareTo(b);
+};
+</script>
+<svg viewBox="0 0 900 130">
+<rect x="20" y="25" width="190" height="60" rx="10" fill="#e0f2fe" stroke="#0ea5e9"/><text x="115" y="50" text-anchor="middle" font-weight="700">(a, b)</text><text x="115" y="70" text-anchor="middle" fill="#475569">parameters</text>
+<text x="235" y="62" font-size="26" fill="#0ea5e9" font-weight="700">→</text>
+<rect x="265" y="25" width="190" height="60" rx="10" fill="#fef9c3" stroke="#f59e0b"/><text x="360" y="50" text-anchor="middle" font-weight="700">a + b</text><text x="360" y="70" text-anchor="middle" fill="#475569">body (returned value)</text>
+<text x="480" y="62" font-size="22" fill="#64748b">≙</text>
+<rect x="510" y="15" width="370" height="85" rx="10" fill="#f1f5f9" stroke="#94a3b8"/><text x="525" y="40" font-family="Menlo,monospace" font-size="12">new BiFunction&lt;Integer,Integer,Integer&gt;() {</text><text x="540" y="58" font-family="Menlo,monospace" font-size="12">public Integer apply(Integer a, Integer b)</text><text x="555" y="76" font-family="Menlo,monospace" font-size="12">{ return a + b; } }</text>
+</svg>
+<div class="box key"><b class="h">🔑 Key idea</b>The compiler infers <i>which</i> interface from the <b>target type</b> (assignment, method parameter, return type). A lambda has no type of its own.</div>
+<div class="box tip"><b class="h">💡 Tip: lambda or anonymous class?</b>Lambda: <code>this</code> = enclosing class, no new scope, compiled with <code>invokedynamic</code> (no extra <code>.class</code> file). Anonymous class: <code>this</code> = the anonymous object, can have state and multiple methods.</div>
+<div class="box warn"><b class="h">⚠ Pitfall: captured variables must be effectively final</b>A lambda can read local variables only if they are never reassigned. Use a field, <code>AtomicInteger</code>, or (better) a stream operation like <code>count()</code>.</div>
+
+<h3>Worksheet 2</h3>
+<div class="q e"><div class="qt"><div class="body">Which of these are valid lambdas? Fix the invalid ones.<br>
+1. <code>x -> x * 2</code> &nbsp; 2. <code>(x) -> { x * 2 }</code> &nbsp; 3. <code>() -> 42</code> &nbsp; 4. <code>(int x, y) -> x + y</code> &nbsp; 5. <code>(a, b) -> { return a + b; }</code></div></div>
+<details><summary>Answer</summary><div class="ans"><p>Valid: 1, 3, 5. Invalid: <b>2</b> — a block body needs <code>return</code> and a semicolon: <code>(x) -> { return x * 2; }</code>. <b>4</b> — you cannot mix typed and untyped parameters: <code>(int x, int y) -> x + y</code> or <code>(x, y) -> x + y</code>.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">This does not compile. Why, and give two fixes.
+<script type="text/plain" class="code">int count = 0;
+emps.forEach(e -> { if (e.age() > 30) count++; });
+System.out.println(count);</script></div></div>
+<details><summary>Answer</summary><div class="ans"><p>Local variables captured by a lambda must be <b>effectively final</b>; <code>count++</code> reassigns it. The lambda may run later or on another thread, so it works on a copy of the value. Fixes:</p>
+<script type="text/plain" class="code">long count = emps.stream().filter(e -> e.age() > 30).count();         // best: no mutation
+AtomicInteger counter = new AtomicInteger();                          // works, but a smell
+emps.forEach(e -> { if (e.age() > 30) counter.incrementAndGet(); });</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">What does <code>this</code> refer to inside a lambda versus inside an anonymous class? What does this print?
+<script type="text/plain" class="code">class Demo {
+    String name = "Demo";
+    void run() {
+        Runnable lam  = () -> System.out.println(this.name);
+        Runnable anon = new Runnable() {
+            String name = "Anon";
+            public void run() { System.out.println(this.name); }
+        };
+        lam.run(); anon.run();
+    }
+}</script></div></div>
+<details><summary>Answer</summary><div class="ans"><p>Prints <code>Demo</code> then <code>Anon</code>. In a lambda <code>this</code> is the enclosing instance (lambdas do not introduce a new scope). In an anonymous class <code>this</code> is the anonymous object itself.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">How are lambdas implemented by the JVM? Is a lambda “just an anonymous inner class”?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>No. javac emits a private synthetic method for the lambda body and an <code>invokedynamic</code> call site. At first execution, <code>LambdaMetafactory</code> spins up the functional-interface implementation at runtime. Consequences: no <code>Outer$1.class</code> file per lambda, lower startup/footprint, and <b>non-capturing</b> lambdas can be a cached singleton. Capturing lambdas allocate an object holding the captured values.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Why do these fail, and what makes them compile?
+<script type="text/plain" class="code">Object o = () -> 42;
+var f = x -> x + 1;</script></div></div>
+<details><summary>Answer</summary><div class="ans"><p>A lambda needs a <b>functional-interface target type</b>. <code>Object</code> is not one, and <code>var</code> gives the compiler nothing to infer from. Fix: <code>Supplier&lt;Integer&gt; o = () -> 42;</code> and <code>Function&lt;Integer,Integer&gt; f = x -> x + 1;</code> (or a cast: <code>Object o = (Supplier&lt;Integer&gt;) () -> 42;</code>).</p></div></details></div>
+</section>
+
+<section class="sec" id="s3" style="--c:#14b8a6">
+<h2>3 · Functional interfaces (java.util.function)</h2>
+<p class="goal">Know the big six by signature and you can read 90% of functional Java.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> an interface with exactly one abstract method (<code>@FunctionalInterface</code> checks it).</li><li><b>Must know:</b> Supplier <code>get()</code>, Predicate <code>test()</code>, Function <code>apply()</code>, Consumer <code>accept()</code>.</li><li><b>Must know:</b> UnaryOperator and BinaryOperator are Functions with identical input and output types.</li><li><b>Pitfall:</b> boxing cost; use <code>IntPredicate</code>, <code>ToIntFunction</code> etc. on hot paths.</li><li><b>Version:</b> all in <code>java.util.function</code> since Java 8; <code>Predicate.not</code> added in 11.</li></ul></div>
+<div class="grid">
+<div class="card" style="--cc:#14b8a6"><b>Function&lt;T,R&gt;</b>transform<code>R apply(T t)</code></div>
+<div class="card" style="--cc:#3b82f6"><b>Predicate&lt;T&gt;</b>test / decide<code>boolean test(T t)</code></div>
+<div class="card" style="--cc:#f59e0b"><b>Consumer&lt;T&gt;</b>use, return nothing<code>void accept(T t)</code></div>
+<div class="card" style="--cc:#a855f7"><b>Supplier&lt;T&gt;</b>produce, take nothing<code>T get()</code></div>
+<div class="card" style="--cc:#ec4899"><b>UnaryOperator&lt;T&gt;</b>T → T (extends Function)<code>T apply(T t)</code></div>
+<div class="card" style="--cc:#ef4444"><b>BinaryOperator&lt;T&gt;</b>(T, T) → T (extends BiFunction)<code>T apply(T a, T b)</code></div>
+</div>
+<svg viewBox="0 0 900 190">
+<defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#334155"/></marker></defs>
+<g text-anchor="middle" font-weight="700">
+<text x="110" y="22" fill="#14b8a6">Function</text><rect x="60" y="45" width="100" height="40" rx="8" fill="#ccfbf1" stroke="#14b8a6"/><text x="110" y="70">T → R</text><line x1="10" y1="65" x2="58" y2="65" stroke="#334155" marker-end="url(#ar)"/><line x1="162" y1="65" x2="210" y2="65" stroke="#334155" marker-end="url(#ar)"/>
+<text x="320" y="22" fill="#3b82f6">Predicate</text><rect x="270" y="45" width="100" height="40" rx="8" fill="#dbeafe" stroke="#3b82f6"/><text x="320" y="70">T → boolean</text><line x1="220" y1="65" x2="268" y2="65" stroke="#334155" marker-end="url(#ar)"/>
+<text x="530" y="22" fill="#d97706">Consumer</text><rect x="480" y="45" width="100" height="40" rx="8" fill="#fef3c7" stroke="#f59e0b"/><text x="530" y="70">T → void</text><line x1="430" y1="65" x2="478" y2="65" stroke="#334155" marker-end="url(#ar)"/>
+<text x="740" y="22" fill="#9333ea">Supplier</text><rect x="690" y="45" width="100" height="40" rx="8" fill="#f3e8ff" stroke="#a855f7"/><text x="740" y="70">() → T</text><line x1="792" y1="65" x2="840" y2="65" stroke="#334155" marker-end="url(#ar)"/>
+</g>
+<text x="450" y="125" text-anchor="middle" fill="#475569">Bi-versions take two arguments: BiFunction&lt;T,U,R&gt;, BiPredicate&lt;T,U&gt;, BiConsumer&lt;T,U&gt;</text>
+<text x="450" y="148" text-anchor="middle" fill="#475569">Primitive versions avoid boxing: IntPredicate, IntFunction&lt;R&gt;, ToIntFunction&lt;T&gt;, IntUnaryOperator, IntBinaryOperator, IntSupplier, BooleanSupplier…</text>
+<text x="450" y="171" text-anchor="middle" fill="#475569">Other single-method interfaces you already use: Runnable () → void, Callable&lt;V&gt; () → V (throws), Comparator&lt;T&gt; (T,T) → int</text>
+</svg>
+<div class="box mem"><b class="h">🧠 Remember: “S-P-F-C”</b><b>S</b>upplier <i>gives</i>, <b>P</b>redicate <i>tests</i>, <b>F</b>unction <i>transforms</i>, <b>C</b>onsumer <i>consumes</i>. Operator = Function where input and output types are the same.</div>
+<table><tr><th>Where you meet it</th><th>Interface</th></tr>
+<tr><td><code>stream.filter(...)</code>, <code>list.removeIf(...)</code></td><td>Predicate</td></tr>
+<tr><td><code>stream.map(...)</code>, <code>map.computeIfAbsent(k, ...)</code></td><td>Function</td></tr>
+<tr><td><code>forEach</code>, <code>ifPresent</code>, <code>peek</code></td><td>Consumer</td></tr>
+<tr><td><code>orElseGet</code>, <code>Stream.generate</code>, <code>Optional.orElseThrow(...)</code></td><td>Supplier</td></tr>
+<tr><td><code>reduce(0, Integer::sum)</code>, <code>Map.merge</code>, <code>list.replaceAll</code></td><td>BinaryOperator / UnaryOperator</td></tr></table>
+<script type="text/plain" class="code">
+Predicate<Employee> senior = e -> e.age() >= 35;
+Function<Employee,String> label = e -> e.name() + " (" + e.dept() + ")";
+Consumer<String> printer = System.out::println;
+Supplier<List<String>> fresh = ArrayList::new;
+UnaryOperator<String> shout = s -> s.toUpperCase() + "!";
+BinaryOperator<Double> bigger = BinaryOperator.maxBy(Comparator.naturalOrder());
+
+emps.stream().filter(senior).map(label).forEach(printer);
+// Ben (ENG)  Chen (OPS)  Divya (ENG)
+</script>
+
+<h3>Worksheet 3</h3>
+<div class="q e"><div class="qt"><div class="body">Name the interface for each: (a) takes a <code>String</code>, returns <code>boolean</code>; (b) takes nothing, returns a <code>UUID</code>; (c) takes an <code>Employee</code>, returns nothing; (d) two <code>int</code>s in, one <code>int</code> out; (e) <code>String</code> in, <code>String</code> out.</div></div>
+<details><summary>Answer</summary><div class="ans"><p>(a) <code>Predicate&lt;String&gt;</code> (b) <code>Supplier&lt;UUID&gt;</code> (c) <code>Consumer&lt;Employee&gt;</code> (d) <code>IntBinaryOperator</code> (e) <code>UnaryOperator&lt;String&gt;</code> (or <code>Function&lt;String,String&gt;</code>).</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">What exactly makes an interface “functional”? Is <code>Comparator</code> one, given it declares <code>equals</code>? Is <code>@FunctionalInterface</code> required?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>Exactly <b>one abstract method</b>. <code>default</code>, <code>static</code> and <code>private</code> methods do not count, nor do abstract methods that match <code>public</code> methods of <code>Object</code> (<code>equals</code>). So <code>Comparator</code> is functional (<code>compare</code> is its only real abstract method). The annotation is optional; it just makes the compiler reject a second abstract method — add it to your own interfaces for safety.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Create your own functional interface <code>TriFunction&lt;A,B,C,R&gt;</code> and use it to compute <code>price * qty * (1 - discount)</code>.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">@FunctionalInterface
+interface TriFunction<A, B, C, R> {
+    R apply(A a, B b, C c);
+    default <V> TriFunction<A, B, C, V> andThen(Function<? super R, ? extends V> after) {
+        return (a, b, c) -> after.apply(apply(a, b, c));
+    }
+}
+TriFunction<Double, Integer, Double, Double> total = (price, qty, disc) -> price * qty * (1 - disc);
+total.apply(100.0, 3, 0.1);     // 270.0 (floating point: may show 270.0)</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Why do <code>IntPredicate</code>, <code>ToIntFunction&lt;T&gt;</code> and <code>IntUnaryOperator</code> exist when <code>Predicate&lt;Integer&gt;</code> and <code>Function</code> would work? Which would you use for the lambda in <code>IntStream.map(...)</code>?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>To avoid <b>autoboxing</b> (<code>int</code> ↔ <code>Integer</code>): allocation and cache pressure in hot loops. <code>IntStream.map</code> takes an <code>IntUnaryOperator</code>; <code>mapToInt</code> takes <code>ToIntFunction&lt;T&gt;</code>; <code>IntStream.filter</code> takes <code>IntPredicate</code>. You rarely name them, but knowing them explains why <code>mapToInt(Employee::age)</code> is faster than <code>map(Employee::age)</code> followed by unboxing.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Which functional interface does each parameter below expect?<br>(a) <code>optional.orElseGet(?)</code> (b) <code>map.computeIfAbsent(key, ?)</code> (c) <code>list.removeIf(?)</code> (d) <code>map.forEach(?)</code> (e) <code>list.replaceAll(?)</code></div></div>
+<details><summary>Answer</summary><div class="ans"><p>(a) <code>Supplier&lt;T&gt;</code> (b) <code>Function&lt;K,V&gt;</code> (c) <code>Predicate&lt;E&gt;</code> (d) <code>BiConsumer&lt;K,V&gt;</code> (e) <code>UnaryOperator&lt;E&gt;</code>.</p></div></details></div>
+</section>
+
+<section class="sec" id="s4" style="--c:#f97316">
+<h2>4 · Method references</h2>
+<p class="goal">A method reference is a lambda that just calls an existing method: shorter and named.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> <code>Type::method</code> shorthand for a lambda that just forwards its arguments.</li><li><b>Must know:</b> static <code>Integer::parseInt</code>, bound <code>list::add</code>, unbound <code>String::length</code>, constructor <code>Person::new</code>.</li><li><b>Must know:</b> array constructors work too: <code>int[]::new</code>.</li><li><b>Pitfall:</b> overloaded methods can be ambiguous; fall back to an explicit lambda.</li><li><b>Version:</b> Java 8.</li></ul></div>
+<table><tr><th>Kind</th><th>Syntax</th><th>Equivalent lambda</th></tr>
+<tr><td>Static method</td><td><code>Integer::parseInt</code></td><td><code>s -> Integer.parseInt(s)</code></td></tr>
+<tr><td>Instance method of a <b>particular object</b></td><td><code>System.out::println</code>, <code>this::validate</code></td><td><code>x -> System.out.println(x)</code></td></tr>
+<tr><td>Instance method of an <b>arbitrary object</b> of a type</td><td><code>String::toUpperCase</code>, <code>Employee::name</code></td><td><code>s -> s.toUpperCase()</code> (first param becomes the receiver)</td></tr>
+<tr><td>Constructor</td><td><code>ArrayList::new</code>, <code>int[]::new</code></td><td><code>() -> new ArrayList<>()</code></td></tr></table>
+<div class="box mem"><b class="h">🧠 Remember</b>Look at what is <i>left of</i> <code>::</code>. A <b>Class</b> → static method or “first argument is the receiver”. An <b>object/this</b> → bound receiver. <code>new</code> → constructor.</div>
+<script type="text/plain" class="code">
+List<String> names = emps.stream().map(Employee::name).toList();               // arbitrary-object ref
+Set<String> depts  = emps.stream().map(Employee::dept).collect(Collectors.toCollection(TreeSet::new)); // ctor ref
+String[] arr       = names.stream().toArray(String[]::new);                    // array ctor ref
+names.forEach(System.out::println);                                            // bound receiver
+Map<Integer,Employee> byId = emps.stream().collect(Collectors.toMap(Employee::id, Function.identity()));
+</script>
+<div class="box warn"><b class="h">⚠ Pitfall</b><code>Stream.of(1,2,3).map(Integer::toString)</code> does not compile: <code>Integer</code> has both static <code>toString(int)</code> and instance <code>toString()</code>, so the reference is ambiguous. Use <code>String::valueOf</code> or <code>i -> i.toString()</code>.</div>
+
+<h3>Worksheet 4</h3>
+<div class="q e"><div class="qt"><div class="body">Convert to method references: (a) <code>s -> s.trim()</code> (b) <code>() -> new HashMap<>()</code> (c) <code>e -> System.out.println(e)</code> (d) <code>(a, b) -> Integer.compare(a, b)</code> (e) <code>e -> e.salary()</code> (<code>Employee</code>).</div></div>
+<details><summary>Answer</summary><div class="ans"><p>(a) <code>String::trim</code> (b) <code>HashMap::new</code> (c) <code>System.out::println</code> (d) <code>Integer::compare</code> (e) <code>Employee::salary</code>.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Classify each as static / bound-instance / unbound-instance / constructor: <code>Math::abs</code>, <code>String::length</code>, <code>"prefix"::concat</code>, <code>Employee::new</code>, <code>this::process</code>, <code>Objects::nonNull</code>.</div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>Math::abs</code> static · <code>String::length</code> unbound instance (arbitrary object) · <code>"prefix"::concat</code> bound instance (receiver is that string) · <code>Employee::new</code> constructor · <code>this::process</code> bound instance · <code>Objects::nonNull</code> static.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Why does <code>Stream.of(1, 2, 3).map(Integer::toString)</code> fail, and how do you fix it?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>Ambiguity: <code>Integer.toString(int)</code> (static, fits <code>Function&lt;Integer,String&gt;</code> via unboxing) and <code>Integer#toString()</code> (instance, receiver = the element) both match. Use <code>String::valueOf</code>, or <code>i -> i.toString()</code>, or <code>Object::toString</code>.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Which of these <i>cannot</i> be turned into a plain method reference, and what should you do instead? (a) <code>x -> x * 2</code> (b) <code>s -> s.trim().length()</code> (c) <code>e -> e.name()</code> (d) <code>(a, b) -> a + b</code> on <code>Integer</code></div></div>
+<details><summary>Answer</summary><div class="ans"><p>(a) and (b) have no single method to point at: keep the lambda (or extract a named method and reference it). (c) <code>Employee::name</code>. (d) <code>Integer::sum</code>. <b>Tip:</b> a method reference is not always clearer; if you need a comment to explain it, use a lambda or extract a well-named method.</p></div></details></div>
+</section>
+
+<section class="sec" id="s5" style="--c:#d946ef">
+<h2>5 · Composing functions</h2>
+<p class="goal">Build big behaviours from small ones: <code>andThen</code>, <code>compose</code>, <code>and/or/negate</code>, currying.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> combine small functions and predicates into bigger ones.</li><li><b>Must know:</b> <code>f.andThen(g)</code> = g(f(x)); <code>f.compose(g)</code> = f(g(x)).</li><li><b>Must know:</b> Predicates chain with <code>and</code>, <code>or</code>, <code>negate</code>; use <code>Predicate.not(String::isBlank)</code>.</li><li><b>Pitfall:</b> mixing up andThen and compose order.</li><li><b>Version:</b> Java 8; <code>Predicate.not</code> since 11.</li></ul></div>
+<svg viewBox="0 0 900 150">
+<defs><marker id="a2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#334155"/></marker></defs>
+<text x="20" y="25" font-weight="700" fill="#d946ef">f.andThen(g)   =   g(f(x))     (f first)</text>
+<rect x="20" y="40" width="80" height="34" rx="17" fill="#fae8ff" stroke="#d946ef"/><text x="60" y="62" text-anchor="middle">x = 3</text>
+<line x1="102" y1="57" x2="150" y2="57" stroke="#334155" marker-end="url(#a2)"/><rect x="152" y="40" width="130" height="34" rx="8" fill="#dbeafe" stroke="#3b82f6"/><text x="217" y="62" text-anchor="middle">f: x + 1 → 4</text>
+<line x1="284" y1="57" x2="332" y2="57" stroke="#334155" marker-end="url(#a2)"/><rect x="334" y="40" width="130" height="34" rx="8" fill="#dcfce7" stroke="#22c55e"/><text x="399" y="62" text-anchor="middle">g: x * 2 → 8</text>
+<text x="20" y="105" font-weight="700" fill="#d946ef">f.compose(g)   =   f(g(x))     (g first)</text>
+<rect x="20" y="120" width="80" height="26" rx="13" fill="#fae8ff" stroke="#d946ef"/><text x="60" y="138" text-anchor="middle">x = 3</text>
+<line x1="102" y1="133" x2="150" y2="133" stroke="#334155" marker-end="url(#a2)"/><rect x="152" y="120" width="130" height="26" rx="8" fill="#dcfce7" stroke="#22c55e"/><text x="217" y="138" text-anchor="middle">g: 3*2 → 6</text>
+<line x1="284" y1="133" x2="332" y2="133" stroke="#334155" marker-end="url(#a2)"/><rect x="334" y="120" width="130" height="26" rx="8" fill="#dbeafe" stroke="#3b82f6"/><text x="399" y="138" text-anchor="middle">f: 6+1 → 7</text>
+<text x="520" y="62" fill="#475569">Predicate: p.and(q)   p.or(q)   p.negate()</text><text x="520" y="82" fill="#475569">Predicate.not(p)  (Java 11)   Predicate.isEqual(x)</text>
+<text x="520" y="102" fill="#475569">Function.identity()    Comparator.thenComparing(...)</text>
+</svg>
+<script type="text/plain" class="code">
+Function<Integer,Integer> plus1 = x -> x + 1, times2 = x -> x * 2;
+plus1.andThen(times2).apply(3);   // 8
+plus1.compose(times2).apply(3);   // 7
+
+Predicate<Employee> eng    = e -> e.dept().equals("ENG");
+Predicate<Employee> senior = e -> e.age() >= 35;
+emps.stream().filter(eng.and(senior.negate())).map(Employee::name).toList();   // [Asha]  (ENG and not senior)
+
+// Currying: a function that returns a function
+Function<Double, Function<Double, Double>> discount = rate -> price -> price * (1 - rate);
+Function<Double, Double> blackFriday = discount.apply(0.30);
+blackFriday.apply(200.0);          // 140.0
+</script>
+<div class="box tip"><b class="h">💡 Tip</b>Name your predicates (<code>isActive</code>, <code>isOverdue</code>) as constants or static methods in the domain class, then combine them. Business rules become readable: <code>filter(isActive.and(isOverdue.negate()))</code>.</div>
+
+<h3>Worksheet 5</h3>
+<div class="q e"><div class="qt"><div class="body">With <code>f = x -> x + 1</code> and <code>g = x -> x * 2</code>, what are <code>f.andThen(g).apply(5)</code> and <code>f.compose(g).apply(5)</code>?</div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>andThen</code>: f first → 6, then g → <b>12</b>. <code>compose</code>: g first → 10, then f → <b>11</b>. Mnemonic: <b>andThen = reading order; compose = math order f∘g</b>.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Using the sample data, build one predicate “ENG employees earning at least 100,000 <i>or</i> anyone over 40” and list the names.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">Predicate<Employee> p = ((Predicate<Employee>) e -> e.dept().equals("ENG"))
+        .and(e -> e.salary() >= 100_000)
+        .or(e -> e.age() > 40);
+emps.stream().filter(p).map(Employee::name).toList();   // [Asha, Chen, Divya]</script>
+<p>Asha (ENG, 125k), Divya (ENG, 145k), Chen (age 41). Ben is ENG but 98k and 35, so no. Note the cast: a bare lambda has no type, so you cannot call <code>.and</code> on it; declare typed variables instead.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Write a curried <code>Function&lt;Integer, Function&lt;Integer, Integer&gt;&gt; add</code>, and use it to create <code>add5</code>. Where is this useful in a Spring service?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">Function<Integer, Function<Integer, Integer>> add = a -> b -> a + b;
+Function<Integer,Integer> add5 = add.apply(5);
+add5.apply(10);      // 15</script>
+<p>Useful to “pre-configure” behaviour: a function factory such as <code>taxFor(country)</code> returning a <code>Function&lt;BigDecimal,BigDecimal&gt;</code>, or a validator built from config values, created once and reused across a stream.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">Why does <code>BiFunction</code> have <code>andThen</code> but no <code>compose</code>?</div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>andThen(Function after)</code> feeds the single result into a one-argument function: fine. <code>compose</code> would need a function that produces <i>two</i> values to feed into the two parameters, which Java cannot express with one return value.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">You have <code>List&lt;Function&lt;String,String&gt;&gt; steps = List.of(String::trim, String::toUpperCase, s -> s + "!")</code>. Combine them into one function with a stream and apply it to <code>"  hello "</code>.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">Function<String,String> pipeline = steps.stream().reduce(Function.identity(), Function::andThen);
+pipeline.apply("  hello ");     // "HELLO!"</script>
+<p><code>reduce</code> folds the list: <code>identity.andThen(trim).andThen(toUpperCase).andThen(+"!")</code>. This is the “chain of transformations” pattern, handy for text cleaning or request pre-processing.</p></div></details></div>
+</section>
+<section class="sec" id="s6" style="--c:#2563eb">
+<h2>6 · Stream pipeline fundamentals</h2>
+<p class="goal">A stream is a lazy, single-use pipeline: <b>source → intermediate operations → one terminal operation</b>.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> lazy pipeline over a source (collection, array, <code>Stream.of</code>, <code>iterate</code>, <code>generate</code>).</li><li><b>Must know:</b> intermediate operations are lazy; the terminal operation triggers work.</li><li><b>Must know:</b> elements flow one by one through the whole pipeline (vertical processing), enabling short-circuiting.</li><li><b>Pitfall:</b> reusing a stream throws <code>IllegalStateException</code>.</li><li><b>Version:</b> Java 8; <code>Stream.toList()</code> 16.</li></ul></div>
+<svg viewBox="0 0 960 200">
+<defs><marker id="a6" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#334155"/></marker></defs>
+<rect x="10" y="30" width="140" height="70" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/><text x="80" y="58" text-anchor="middle" font-weight="700" fill="#1d4ed8">SOURCE</text><text x="80" y="78" text-anchor="middle" font-size="12">list.stream()</text>
+<line x1="152" y1="65" x2="196" y2="65" stroke="#334155" stroke-width="2" marker-end="url(#a6)"/>
+<rect x="198" y="30" width="130" height="70" rx="12" fill="#fef9c3" stroke="#eab308" stroke-width="2"/><text x="263" y="58" text-anchor="middle" font-weight="700" fill="#a16207">filter</text><text x="263" y="78" text-anchor="middle" font-size="12">keep some</text>
+<line x1="330" y1="65" x2="374" y2="65" stroke="#334155" stroke-width="2" marker-end="url(#a6)"/>
+<rect x="376" y="30" width="130" height="70" rx="12" fill="#fef9c3" stroke="#eab308" stroke-width="2"/><text x="441" y="58" text-anchor="middle" font-weight="700" fill="#a16207">map</text><text x="441" y="78" text-anchor="middle" font-size="12">transform 1:1</text>
+<line x1="508" y1="65" x2="552" y2="65" stroke="#334155" stroke-width="2" marker-end="url(#a6)"/>
+<rect x="554" y="30" width="130" height="70" rx="12" fill="#fef9c3" stroke="#eab308" stroke-width="2"/><text x="619" y="58" text-anchor="middle" font-weight="700" fill="#a16207">sorted</text><text x="619" y="78" text-anchor="middle" font-size="12">stateful barrier</text>
+<line x1="686" y1="65" x2="730" y2="65" stroke="#334155" stroke-width="2" marker-end="url(#a6)"/>
+<rect x="732" y="30" width="210" height="70" rx="12" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><text x="837" y="58" text-anchor="middle" font-weight="700" fill="#15803d">TERMINAL</text><text x="837" y="78" text-anchor="middle" font-size="12">toList · collect · count · reduce</text>
+<text x="263" y="130" text-anchor="middle" fill="#a16207" font-size="12">intermediate ops are LAZY: they only build the recipe</text>
+<line x1="198" y1="118" x2="684" y2="118" stroke="#eab308" stroke-width="2"/>
+<text x="837" y="130" text-anchor="middle" fill="#15803d" font-size="12">terminal op PULLS data: nothing runs before it</text>
+<text x="480" y="170" text-anchor="middle" fill="#475569">Elements flow one at a time through the whole chain ("vertical"), except at stateful barriers such as sorted().</text>
+</svg>
+<script type="text/plain" class="code">
+Stream<String> s = emps.stream().filter(e -> e.age() > 30).map(Employee::name);   // nothing executed yet!
+List<String> out = s.toList();       // terminal operation: now the pipeline runs -> [Ben, Chen, Divya, Fatima]
+s.toList();                           // IllegalStateException: stream has already been operated upon or closed
+</script>
+<h3>Ways to create streams</h3>
+<table><tr><th>Source</th><th>Example</th></tr>
+<tr><td>Collection / array</td><td><code>list.stream()</code>, <code>Arrays.stream(arr)</code>, <code>Stream.of("a","b")</code></td></tr>
+<tr><td>Numeric range</td><td><code>IntStream.range(0, 5)</code> → 0..4, <code>rangeClosed(1, 5)</code> → 1..5</td></tr>
+<tr><td>Infinite</td><td><code>Stream.iterate(1, x -> x * 2)</code>, <code>Stream.generate(UUID::randomUUID)</code> (always add <code>limit</code>)</td></tr>
+<tr><td>Bounded iterate (9)</td><td><code>Stream.iterate(1, x -> x &lt; 100, x -> x * 3)</code></td></tr>
+<tr><td>Files / text</td><td><code>Files.lines(path)</code> (close it!), <code>"abc".chars()</code>, <code>Pattern.compile(",").splitAsStream(s)</code></td></tr>
+<tr><td>Null-safe single (9)</td><td><code>Stream.ofNullable(value)</code> → 0 or 1 element</td></tr></table>
+<div class="box key"><b class="h">🔑 Key idea: laziness + short-circuit</b>With <code>findFirst</code>, <code>anyMatch</code>, <code>limit</code> the pipeline stops as soon as the answer is known. A filter over a million rows costs only as much as it takes to find the first match.</div>
+<div class="box tip"><b class="h">💡 Tip</b>Read a pipeline like a sentence: “from employees, <i>keep</i> seniors, <i>take</i> names, <i>collect</i> to list”. If a stage needs a 6-line lambda, extract a method and use a method reference.</div>
+
+<h3>Worksheet 6</h3>
+<div class="q e"><div class="qt"><div class="body">Which of these lines actually executes the pipeline?<br>(1) <code>var s = emps.stream();</code> (2) <code>var t = s.filter(e -> e.age() > 30);</code> (3) <code>var u = t.map(Employee::name);</code> (4) <code>long n = u.count();</code></div></div>
+<details><summary>Answer</summary><div class="ans"><p>Only <b>(4)</b>, the terminal operation <code>count()</code>. Lines 1–3 just describe the pipeline (lazy). Result: 4 (Ben, Chen, Divya, Fatima).</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Predict the output:
+<script type="text/plain" class="code">Stream.of("a", "bb", "ccc", "dddd")
+    .filter(s -> { System.out.println("filter " + s); return s.length() > 1; })
+    .map(s -> { System.out.println("map " + s); return s.toUpperCase(); })
+    .findFirst();</script></div></div>
+<details><summary>Answer</summary><div class="ans"><script type="text/plain" class="code">filter a
+filter bb
+map bb</script><p>Elements move through the whole pipeline <b>one at a time</b>, and <code>findFirst</code> short-circuits after “bb”, so “ccc” and “dddd” are never touched. This is why stream code is not slower than a hand-written loop with early exit.</p></div></details></div>
+
+<div class="q e"><div class="qt"><div class="body">What happens here and how do you fix it if you really need to traverse twice?
+<script type="text/plain" class="code">Stream<Employee> s = emps.stream();
+long a = s.count();
+long b = s.filter(e -> e.age() > 30).count();</script></div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>IllegalStateException: stream has already been operated upon or closed</code>. Streams are single-use. Create a new stream each time or use a supplier:</p>
+<script type="text/plain" class="code">Supplier<Stream<Employee>> src = emps::stream;
+long a = src.get().count();                                  // 6
+long b = src.get().filter(e -> e.age() > 30).count();        // 4</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Write the stream that produces <code>[1, 3, 9, 27, 81]</code> in two different ways (no loops, no literals).</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">Stream.iterate(1, x -> x * 3).limit(5).toList();            // infinite + limit
+Stream.iterate(1, x -> x <= 81, x -> x * 3).toList();       // Java 9: has a stop condition
+IntStream.range(0, 5).map(i -> (int) Math.pow(3, i)).boxed().toList();</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">List four differences between a <code>Collection</code> and a <code>Stream</code>. Does a stream pipeline change the source list?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>(1) A collection <b>stores</b> elements; a stream does not, it computes them on demand. (2) A stream can be <b>infinite</b>. (3) A stream is <b>single-use</b>; a collection can be iterated many times. (4) Stream operations are <b>lazy</b> and can be fused/short-circuited; collection methods are eager. The source is <b>not modified</b>: operations produce new results (modifying the source <i>during</i> traversal is undefined behaviour).</p></div></details></div>
+</section>
+
+<section class="sec" id="s7" style="--c:#ca8a04">
+<h2>7 · Intermediate operations</h2>
+<p class="goal">Transform the flow: filter, map, flatMap, distinct, sorted, limit, skip, peek, takeWhile, dropWhile.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> operations that return another stream and run lazily.</li><li><b>Must know:</b> <code>map</code> is 1-to-1, <code>flatMap</code> flattens 1-to-many into one stream.</li><li><b>Must know:</b> <code>sorted</code> and <code>distinct</code> are stateful and buffer elements.</li><li><b>Pitfall:</b> relying on <code>peek</code> for logic or side effects; it may be skipped.</li><li><b>Version:</b> Java 8; <code>takeWhile</code>/<code>dropWhile</code> since 9.</li></ul></div>
+<table><tr><th>Operation</th><th>Does</th><th>Type</th></tr>
+<tr><td><code>filter(Predicate)</code></td><td>keep matching elements</td><td>stateless</td></tr>
+<tr><td><code>map(Function)</code></td><td>transform each element 1 → 1</td><td>stateless</td></tr>
+<tr><td><code>flatMap(Function→Stream)</code></td><td>transform each element into a stream and flatten 1 → many</td><td>stateless</td></tr>
+<tr><td><code>distinct()</code></td><td>remove duplicates (uses <code>equals</code>)</td><td>stateful</td></tr>
+<tr><td><code>sorted()</code> / <code>sorted(cmp)</code></td><td>order; must see all elements first</td><td>stateful barrier</td></tr>
+<tr><td><code>limit(n)</code> / <code>skip(n)</code></td><td>first n / drop first n</td><td>short-circuit</td></tr>
+<tr><td><code>takeWhile</code> / <code>dropWhile</code> (9)</td><td>take / drop the prefix while predicate holds</td><td>short-circuit</td></tr>
+<tr><td><code>peek(Consumer)</code></td><td>look at elements (debugging only)</td><td>stateless</td></tr></table>
+<h3>map vs flatMap</h3>
+<svg viewBox="0 0 900 200">
+<defs><marker id="a7" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#334155"/></marker></defs>
+<text x="10" y="18" font-weight="700" fill="#ca8a04">map(Employee::skills)  →  Stream&lt;List&lt;String&gt;&gt;  (nested)</text>
+<rect x="10" y="30" width="110" height="30" rx="6" fill="#fef9c3" stroke="#ca8a04"/><text x="65" y="50" text-anchor="middle">[Java, Spring]</text>
+<rect x="130" y="30" width="110" height="30" rx="6" fill="#fef9c3" stroke="#ca8a04"/><text x="185" y="50" text-anchor="middle">[Java, Kafka]</text>
+<rect x="250" y="30" width="110" height="30" rx="6" fill="#fef9c3" stroke="#ca8a04"/><text x="305" y="50" text-anchor="middle">[Recruiting]</text>
+<text x="380" y="50" fill="#64748b">… still lists inside a stream</text>
+<text x="10" y="100" font-weight="700" fill="#16a34a">flatMap(e -> e.skills().stream())  →  Stream&lt;String&gt;  (flat)</text>
+<g text-anchor="middle"><rect x="10" y="112" width="60" height="28" rx="14" fill="#dcfce7" stroke="#16a34a"/><text x="40" y="131">Java</text><rect x="78" y="112" width="70" height="28" rx="14" fill="#dcfce7" stroke="#16a34a"/><text x="113" y="131">Spring</text><rect x="156" y="112" width="60" height="28" rx="14" fill="#dcfce7" stroke="#16a34a"/><text x="186" y="131">Java</text><rect x="224" y="112" width="64" height="28" rx="14" fill="#dcfce7" stroke="#16a34a"/><text x="256" y="131">Kafka</text><rect x="296" y="112" width="90" height="28" rx="14" fill="#dcfce7" stroke="#16a34a"/><text x="341" y="131">Recruiting</text></g>
+<text x="400" y="131" fill="#64748b">… one flat stream; then distinct().sorted()</text>
+<text x="10" y="180" fill="#475569">Rule: if your mapping function returns a Stream (or Optional with Optional.flatMap), use flatMap.</text>
+</svg>
+<script type="text/plain" class="code">
+emps.stream().flatMap(e -> e.skills().stream()).distinct().sorted().toList();
+// [AWS, Bash, Java, Kafka, Linux, Recruiting, Spring, Terraform]
+</script>
+<div class="box mem"><b class="h">🧠 Remember</b><b>map = 1→1, flatMap = 1→N then flatten, filter = N→≤N.</b> “Stateful” ops (<code>sorted</code>, <code>distinct</code>) must buffer; avoid them on huge or infinite streams.</div>
+<div class="box warn"><b class="h">⚠ Pitfall</b><code>peek</code> is for debugging. The JVM may skip it: <code>List.of(1,2,3).stream().peek(System.out::println).count()</code> prints <b>nothing</b> on Java 9+ because the count is known from the source size.</div>
+
+<h3>Worksheet 7</h3>
+<div class="q e"><div class="qt"><div class="body">List the names of employees older than 30, highest salary first.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">emps.stream()
+    .filter(e -> e.age() > 30)
+    .sorted(Comparator.comparingDouble(Employee::salary).reversed())
+    .map(Employee::name)
+    .toList();       // [Divya, Ben, Fatima, Chen]   (145k, 98k, 81k, 72k)</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Return the distinct, sorted list of all skills, and explain why <code>map</code> would give the wrong type.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">emps.stream().flatMap(e -> e.skills().stream()).distinct().sorted().toList();
+// [AWS, Bash, Java, Kafka, Linux, Recruiting, Spring, Terraform]</script>
+<p><code>map(e -> e.skills())</code> gives <code>Stream&lt;List&lt;String&gt;&gt;</code>: one list per employee, not a flat stream of strings, so <code>distinct</code>/<code>sorted</code> would work on lists, not skills.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">What is the result? <code>Stream.of(5, 3, 5, 1, 3, 9).distinct().sorted().skip(1).limit(2).toList()</code></div></div>
+<details><summary>Answer</summary><div class="ans"><p>distinct → 5,3,1,9 · sorted → 1,3,5,9 · skip(1) → 3,5,9 · limit(2) → <b>[3, 5]</b>.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Given <code>Stream.of(1, 2, 3, 10, 4, 5)</code>, what do <code>filter(x -> x &lt; 5)</code>, <code>takeWhile(x -> x &lt; 5)</code> and <code>dropWhile(x -> x &lt; 5)</code> return?</div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>filter</code> → [1, 2, 3, 4] (tests every element) · <code>takeWhile</code> → [1, 2, 3] (stops at the first failure, 10) · <code>dropWhile</code> → [10, 4, 5] (drops only the prefix, then keeps everything). <b>Tip:</b> they are meant for <i>ordered/sorted</i> data, e.g. “take log lines until the first ERROR”.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">Why is <code>sorted()</code> called a stateful barrier, and where should you put it in a pipeline for performance?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>It cannot emit anything until it has seen <b>all</b> upstream elements, so it buffers them and breaks element-at-a-time flow and short-circuiting. Put cheap reducing steps (<code>filter</code>, <code>distinct</code>, <code>limit</code> if semantically valid) <b>before</b> it so less data is sorted; do <code>map</code> after sorting only if the mapping is expensive and the order key is available before mapping.</p></div></details></div>
+</section>
+
+<section class="sec" id="s8" style="--c:#16a34a">
+<h2>8 · Terminal operations &amp; reduce</h2>
+<p class="goal">Terminal operations trigger the pipeline and produce a value (or a side effect).</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> forEach, collect, reduce, count, min/max, find*, any/all/noneMatch, toArray, toList.</li><li><b>Must know:</b> <code>reduce(identity, op)</code> returns a value; without identity it returns an Optional.</li><li><b>Must know:</b> <code>anyMatch</code>, <code>findFirst</code> short-circuit infinite streams.</li><li><b>Pitfall:</b> using <code>reduce</code> to build collections; use <code>collect</code> (mutable reduction).</li><li><b>Version:</b> Java 8; <code>Stream.toList()</code> 16.</li></ul></div>
+<div class="grid">
+<div class="card" style="--cc:#16a34a"><b>Collect to a result</b><code>toList() · collect(...) · toArray()</code></div>
+<div class="card" style="--cc:#2563eb"><b>Reduce to one value</b><code>reduce · count · sum · min · max</code></div>
+<div class="card" style="--cc:#d97706"><b>Search (short-circuit)</b><code>findFirst · findAny · anyMatch · allMatch · noneMatch</code></div>
+<div class="card" style="--cc:#dc2626"><b>Side effect</b><code>forEach · forEachOrdered</code> (use sparingly)</div>
+</div>
+<h3>reduce: three flavours</h3>
+<script type="text/plain" class="code">
+int totalAge = emps.stream().map(Employee::age).reduce(0, Integer::sum);            // identity + accumulator   -> 203
+Optional<Integer> oldest = emps.stream().map(Employee::age).reduce(Integer::max);   // no identity -> Optional  -> Optional[41]
+// 3-arg form: result type differs from element type; combiner merges partial results in parallel
+double payroll = emps.stream().reduce(0.0, (acc, e) -> acc + e.salary(), Double::sum);   // 586000.0
+</script>
+<svg viewBox="0 0 900 130">
+<defs><marker id="a8" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#334155"/></marker></defs>
+<text x="10" y="22" font-weight="700" fill="#16a34a">reduce(0, Integer::sum) on ages 29, 35, 41, 38, 27, 33</text>
+<g text-anchor="middle"><rect x="10" y="40" width="50" height="30" rx="15" fill="#dcfce7" stroke="#16a34a"/><text x="35" y="60">0</text>
+<text x="80" y="60">+29</text><rect x="110" y="40" width="50" height="30" rx="15" fill="#bbf7d0" stroke="#16a34a"/><text x="135" y="60">29</text>
+<text x="180" y="60">+35</text><rect x="210" y="40" width="50" height="30" rx="15" fill="#bbf7d0" stroke="#16a34a"/><text x="235" y="60">64</text>
+<text x="280" y="60">+41</text><rect x="310" y="40" width="50" height="30" rx="15" fill="#bbf7d0" stroke="#16a34a"/><text x="335" y="60">105</text>
+<text x="380" y="60">+38</text><rect x="410" y="40" width="50" height="30" rx="15" fill="#bbf7d0" stroke="#16a34a"/><text x="435" y="60">143</text>
+<text x="480" y="60">+27</text><rect x="510" y="40" width="50" height="30" rx="15" fill="#bbf7d0" stroke="#16a34a"/><text x="535" y="60">170</text>
+<text x="580" y="60">+33</text><rect x="610" y="40" width="60" height="30" rx="15" fill="#4ade80" stroke="#16a34a"/><text x="640" y="60" font-weight="700">203</text></g>
+<text x="10" y="110" fill="#475569">The accumulator must be associative and stateless, and the identity must be neutral (0 for +, 1 for ×, "" for concat), or parallel results break.</text>
+</svg>
+<div class="box tip"><b class="h">💡 Tip</b>Prefer the specific terminal op over <code>reduce</code>: <code>sum()</code>, <code>count()</code>, <code>max(cmp)</code>, <code>Collectors.joining</code> are clearer and often faster. Use <code>reduce</code> for custom folds.</div>
+<div class="box warn"><b class="h">⚠ Pitfall: toList() vs Collectors.toList()</b><code>stream.toList()</code> (Java 16) returns an <b>unmodifiable</b> list and allows nulls. <code>collect(Collectors.toList())</code> returns a mutable <code>ArrayList</code> (not guaranteed by spec). If a later <code>.add()</code> throws <code>UnsupportedOperationException</code>, this is why.</div>
+
+<h3>Worksheet 8</h3>
+<div class="q e"><div class="qt"><div class="body">Compute the total and average salary using <code>mapToDouble</code>. What is the average on the sample data?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">double total = emps.stream().mapToDouble(Employee::salary).sum();                        // 586000.0
+double avg   = emps.stream().mapToDouble(Employee::salary).average().orElse(0);           // 97666.666...</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">What do these return on an <b>empty</b> stream? <code>allMatch(p)</code>, <code>anyMatch(p)</code>, <code>noneMatch(p)</code>. Why does it matter?</div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>allMatch</code> → <b>true</b> (vacuous truth), <code>anyMatch</code> → <b>false</b>, <code>noneMatch</code> → <b>true</b>. Matters for validation: <code>items.stream().allMatch(Item::isValid)</code> passes for an empty order. Add an explicit emptiness check if “at least one” is required.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Find the highest-paid employee. What type does it return and how do you safely use the result?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">Optional<Employee> top = emps.stream().max(Comparator.comparingDouble(Employee::salary));
+String name = top.map(Employee::name).orElse("n/a");     // "Divya"</script>
+<p>It returns <code>Optional</code> because the stream may be empty.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Compute the sum of ages with <code>reduce</code>, then explain why <code>reduce(0, (a, b) -> a - b)</code> is wrong.</div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>emps.stream().map(Employee::age).reduce(0, Integer::sum)</code> → 203. Subtraction is <b>not associative</b>: <code>(a-b)-c ≠ a-(b-c)</code>, so a parallel stream (which splits and combines partial results) would give a different answer from the sequential one. Accumulators must be associative.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Difference between <code>findFirst</code> and <code>findAny</code>? And between <code>forEach</code> and <code>forEachOrdered</code> on a parallel stream?</div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>findFirst</code> always returns the first element in encounter order; <code>findAny</code> may return any element: on parallel streams it is cheaper because it need not coordinate. <code>forEach</code> on a parallel stream runs in arbitrary order; <code>forEachOrdered</code> respects encounter order (at the cost of parallel speed-up). On sequential streams they behave the same.</p></div></details></div>
+</section>
+
+<section class="sec" id="s9" style="--c:#7c3aed">
+<h2>9 · Collectors</h2>
+<p class="goal">Turn a stream into a List, Set, Map, groups, summaries. The most-used part of the Stream API in business code.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> mutable-reduction recipes passed to <code>collect</code>.</li><li><b>Must know:</b> <code>groupingBy(key, downstream)</code> with <code>counting</code>, <code>summingInt</code>, <code>mapping</code>.</li><li><b>Must know:</b> <code>partitioningBy</code> always gives true and false keys.</li><li><b>Pitfall:</b> <code>toMap</code> throws <code>IllegalStateException</code> on duplicate keys without a merge function.</li><li><b>Version:</b> Java 8; <code>toUnmodifiable*</code> 10; <code>teeing</code> 12; <code>filtering</code>/<code>flatMapping</code> 9.</li></ul></div>
+<svg viewBox="0 0 960 250">
+<defs><marker id="a9" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#334155"/></marker></defs>
+<text x="10" y="20" font-weight="700" fill="#7c3aed">groupingBy(Employee::dept, counting())</text>
+<g font-size="12"><rect x="10" y="32" width="220" height="190" rx="10" fill="#f5f3ff" stroke="#7c3aed"/><text x="120" y="52" text-anchor="middle" font-weight="700">6 employees</text>
+<circle cx="45" cy="85" r="16" fill="#bfdbfe"/><text x="45" y="89" text-anchor="middle">Asha</text><circle cx="95" cy="85" r="16" fill="#bfdbfe"/><text x="95" y="89" text-anchor="middle">Ben</text><circle cx="145" cy="85" r="16" fill="#fed7aa"/><text x="145" y="89" text-anchor="middle">Chen</text>
+<circle cx="45" cy="135" r="16" fill="#bfdbfe"/><text x="45" y="139" text-anchor="middle">Divya</text><circle cx="95" cy="135" r="16" fill="#fecaca"/><text x="95" y="139" text-anchor="middle">Eli</text><circle cx="145" cy="135" r="16" fill="#fed7aa"/><text x="145" y="139" text-anchor="middle">Fatima</text>
+<text x="120" y="185" text-anchor="middle" fill="#475569">classifier = dept</text><text x="120" y="205" text-anchor="middle" fill="#475569">blue ENG · orange OPS · red HR</text></g>
+<line x1="235" y1="127" x2="300" y2="127" stroke="#334155" stroke-width="2" marker-end="url(#a9)"/>
+<g font-size="12"><rect x="305" y="32" width="190" height="55" rx="10" fill="#dbeafe" stroke="#2563eb"/><text x="400" y="55" text-anchor="middle" font-weight="700">ENG → [Asha, Ben, Divya]</text><text x="400" y="74" text-anchor="middle">counting() → 3</text>
+<rect x="305" y="100" width="190" height="55" rx="10" fill="#ffedd5" stroke="#ea580c"/><text x="400" y="123" text-anchor="middle" font-weight="700">OPS → [Chen, Fatima]</text><text x="400" y="142" text-anchor="middle">counting() → 2</text>
+<rect x="305" y="168" width="190" height="55" rx="10" fill="#fee2e2" stroke="#dc2626"/><text x="400" y="191" text-anchor="middle" font-weight="700">HR → [Eli]</text><text x="400" y="210" text-anchor="middle">counting() → 1</text></g>
+<text x="530" y="20" font-weight="700" fill="#7c3aed">partitioningBy(e -> e.salary() &gt;= 100_000)</text>
+<g font-size="12"><rect x="530" y="32" width="200" height="75" rx="10" fill="#dcfce7" stroke="#16a34a"/><text x="630" y="55" text-anchor="middle" font-weight="700">true</text><text x="630" y="78" text-anchor="middle">[Asha, Divya]</text>
+<rect x="530" y="120" width="200" height="75" rx="10" fill="#fef9c3" stroke="#ca8a04"/><text x="630" y="143" text-anchor="middle" font-weight="700">false</text><text x="630" y="166" text-anchor="middle">[Ben, Chen, Eli, Fatima]</text></g>
+<text x="750" y="70" fill="#475569" font-size="12">always exactly two keys</text><text x="750" y="88" fill="#475569" font-size="12">(true and false), even if</text><text x="750" y="106" fill="#475569" font-size="12">one group is empty</text>
+</svg>
+<script type="text/plain" class="code">
+import static java.util.stream.Collectors.*;
+
+Map<String, Long>           headcount = emps.stream().collect(groupingBy(Employee::dept, counting()));        // {ENG=3, OPS=2, HR=1}
+Map<String, Double>         avgSalary = emps.stream().collect(groupingBy(Employee::dept, averagingDouble(Employee::salary)));
+Map<String, List<String>>   names     = emps.stream().collect(groupingBy(Employee::dept, mapping(Employee::name, toList())));
+Map<Boolean, List<Employee>> rich     = emps.stream().collect(partitioningBy(e -> e.salary() >= 100_000));
+String csv = emps.stream().map(Employee::name).collect(joining(", ", "[", "]"));   // [Asha, Ben, Chen, Divya, Eli, Fatima]
+Map<Integer, String> idToName = emps.stream().collect(toMap(Employee::id, Employee::name));
+DoubleSummaryStatistics st = emps.stream().collect(summarizingDouble(Employee::salary));   // min 65000, max 145000, avg 97666.67
+</script>
+<table><tr><th>Collector</th><th>Result</th><th>Notes</th></tr>
+<tr><td><code>toList / toSet / toCollection(TreeSet::new)</code></td><td>collection</td><td><code>toUnmodifiableList</code> (10)</td></tr>
+<tr><td><code>toMap(key, value[, merge[, mapSupplier]])</code></td><td>Map</td><td>duplicate key → <code>IllegalStateException</code> unless merge given</td></tr>
+<tr><td><code>groupingBy(classifier[, mapFactory][, downstream])</code></td><td>Map&lt;K, …&gt;</td><td>default <code>HashMap</code>; use <code>TreeMap::new</code> or <code>LinkedHashMap::new</code> for order</td></tr>
+<tr><td><code>partitioningBy(pred[, downstream])</code></td><td>Map&lt;Boolean, …&gt;</td><td>both keys always present</td></tr>
+<tr><td><code>counting · summingX · averagingX · minBy · maxBy</code></td><td>number / Optional</td><td>common downstream collectors</td></tr>
+<tr><td><code>mapping · filtering (9) · flatMapping (9) · collectingAndThen · teeing (12)</code></td><td>adapters</td><td>transform downstream results</td></tr>
+<tr><td><code>joining(sep, prefix, suffix)</code></td><td>String</td><td>stream must contain <code>CharSequence</code>s</td></tr></table>
+<div class="box mem"><b class="h">🧠 Remember: groupingBy = “GROUP BY” in SQL</b><code>groupingBy(dept, counting())</code> ≈ <code>SELECT dept, COUNT(*) … GROUP BY dept</code>. The second argument is the aggregate function (downstream collector).</div>
+<div class="box warn"><b class="h">⚠ Pitfall</b><code>toMap</code> with a <code>null</code> value throws NPE (it uses <code>HashMap.merge</code>). If values can be null, use <code>groupingBy</code>/<code>HashMap</code> by hand, or <code>Optional</code> values.</div>
+
+<h3>Worksheet 9</h3>
+<div class="q e"><div class="qt"><div class="body">Count employees per department, then compute the average salary per department. Give the result.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">emps.stream().collect(groupingBy(Employee::dept, counting()));
+// {ENG=3, OPS=2, HR=1}  (HashMap order not guaranteed)
+emps.stream().collect(groupingBy(Employee::dept, averagingDouble(Employee::salary)));
+// {ENG=122666.67, OPS=76500.0, HR=65000.0}</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Split employees into “earns ≥ 100,000” and “earns less”. How does <code>partitioningBy</code> differ from <code>groupingBy</code> with a boolean classifier?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">Map<Boolean, List<String>> m = emps.stream().collect(
+    partitioningBy(e -> e.salary() >= 100_000, mapping(Employee::name, toList())));
+// {false=[Ben, Chen, Eli, Fatima], true=[Asha, Divya]}</script>
+<p><code>partitioningBy</code> always has both <code>true</code> and <code>false</code> keys (empty list if none); <code>groupingBy</code> only has keys that occurred. Partition is also faster and clearer for binary splits.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">What happens, and how do you fix it?
+<script type="text/plain" class="code">Map<String,String> m = emps.stream().collect(toMap(Employee::dept, Employee::name));</script></div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>IllegalStateException: Duplicate key ENG (attempted merging values Asha and Ben)</code>. Provide a merge function, and optionally a map factory to keep order:</p>
+<script type="text/plain" class="code">emps.stream().collect(toMap(Employee::dept, Employee::name, (a, b) -> a + "," + b, LinkedHashMap::new));
+// {ENG=Asha,Ben,Divya, OPS=Chen,Fatima, HR=Eli}</script></div></details></div>
+
+<div class="q e"><div class="qt"><div class="body">Produce the string <code>[Asha, Ben, Chen, Divya, Eli, Fatima]</code> from the employees.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">emps.stream().map(Employee::name).collect(Collectors.joining(", ", "[", "]"));</script></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">For each department, return the <b>name</b> of the highest-paid employee (a <code>Map&lt;String,String&gt;</code>).</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">Map<String,String> top = emps.stream().collect(
+    groupingBy(Employee::dept,
+        collectingAndThen(maxBy(Comparator.comparingDouble(Employee::salary)),
+                          o -> o.get().name())));
+// {ENG=Divya, OPS=Fatima, HR=Eli}</script>
+<p><code>maxBy</code> returns <code>Optional</code>; <code>collectingAndThen</code> post-processes it. <code>o.get()</code> is safe: groups are never empty. Alternative: <code>toMap(Employee::dept, Function.identity(), BinaryOperator.maxBy(cmp))</code> then map the values.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">Group employee names by department into a <b>sorted</b> map (<code>TreeMap</code>) of comma-joined strings.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">emps.stream().collect(groupingBy(Employee::dept, TreeMap::new,
+        mapping(Employee::name, joining(","))));
+// {ENG=Asha,Ben,Divya, HR=Eli, OPS=Chen,Fatima}</script>
+<p>Three-argument <code>groupingBy(classifier, mapFactory, downstream)</code>: the map factory is the middle argument.</p></div></details></div>
+</section>
+
+<section class="sec" id="s10" style="--c:#0891b2">
+<h2>10 · Primitive streams: IntStream, LongStream, DoubleStream</h2>
+<p class="goal">No boxing, plus handy numeric terminals: <code>sum, average, min, max, summaryStatistics</code>.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> specialised streams of int, long, double.</li><li><b>Must know:</b> <code>sum</code>, <code>average</code> (OptionalDouble), <code>min</code>, <code>max</code>, <code>summaryStatistics</code>.</li><li><b>Must know:</b> convert with <code>mapToInt</code>, <code>mapToObj</code>, <code>boxed</code>.</li><li><b>Pitfall:</b> <code>range(a,b)</code> excludes b; <code>rangeClosed</code> includes it; int sums can overflow.</li><li><b>Version:</b> Java 8; <code>IntStream.iterate</code> with predicate 9.</li></ul></div>
+<svg viewBox="0 0 900 110">
+<defs><marker id="a10" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#334155"/></marker></defs>
+<rect x="20" y="30" width="170" height="50" rx="10" fill="#cffafe" stroke="#0891b2"/><text x="105" y="60" text-anchor="middle" font-weight="700">Stream&lt;T&gt;</text>
+<line x1="195" y1="45" x2="355" y2="45" stroke="#334155" marker-end="url(#a10)"/><text x="275" y="38" text-anchor="middle" font-size="12">mapToInt / mapToDouble</text>
+<line x1="355" y1="68" x2="195" y2="68" stroke="#334155" marker-end="url(#a10)"/><text x="275" y="88" text-anchor="middle" font-size="12">boxed() / mapToObj</text>
+<rect x="360" y="30" width="170" height="50" rx="10" fill="#fef9c3" stroke="#ca8a04"/><text x="445" y="60" text-anchor="middle" font-weight="700">IntStream</text>
+<text x="560" y="52" font-size="12" fill="#475569">sum() average() max() min()</text><text x="560" y="70" font-size="12" fill="#475569">summaryStatistics() asLongStream()</text>
+</svg>
+<script type="text/plain" class="code">
+IntStream.rangeClosed(1, 5).sum();                  // 15       (range(1,5).sum() = 10, end exclusive)
+IntSummaryStatistics s = emps.stream().mapToInt(Employee::age).summaryStatistics();
+// count=6 sum=203 min=27 average=33.83 max=41
+int[] nums = {4, 8, 15};
+List<Integer> boxed = Arrays.stream(nums).boxed().toList();
+int[] back = boxed.stream().mapToInt(Integer::intValue).toArray();
+IntStream.range(0, emps.size()).mapToObj(i -> i + ":" + emps.get(i).name()).toList();  // [0:Asha, 1:Ben, ...]
+</script>
+<div class="box tip"><b class="h">💡 Tip</b>An <code>average()</code> on an empty stream returns <code>OptionalDouble.empty</code>, while <code>sum()</code> returns 0. Always use <code>.orElse(...)</code>. Use <code>IntStream.range</code> when you genuinely need an index.</div>
+<div class="box warn"><b class="h">⚠ Pitfall</b><code>Stream&lt;Integer&gt;</code> has no <code>sum()</code>. And <code>int</code> overflows silently: sum large values with <code>mapToLong</code>. For money use <code>BigDecimal</code> with <code>reduce(BigDecimal.ZERO, BigDecimal::add)</code>, not <code>double</code>.</div>
+
+<h3>Worksheet 10</h3>
+<div class="q e"><div class="qt"><div class="body">What do <code>IntStream.range(1, 5).sum()</code> and <code>IntStream.rangeClosed(1, 5).sum()</code> return?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>1+2+3+4 = <b>10</b> (end exclusive) and 1+2+3+4+5 = <b>15</b> (end inclusive).</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Get min, max, average and count of ages in one pass.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">IntSummaryStatistics s = emps.stream().mapToInt(Employee::age).summaryStatistics();
+s.getMin(); s.getMax(); s.getAverage(); s.getCount();   // 27, 41, 33.83.., 6</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Compute the sum of squares of the even numbers from 1 to 10 using a primitive stream.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">IntStream.rangeClosed(1, 10).filter(n -> n % 2 == 0).map(n -> n * n).sum();   // 4+16+36+64+100 = 220</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Convert <code>int[] arr = {3, 1, 2}</code> to a sorted <code>List&lt;Integer&gt;</code> and back to <code>int[]</code>. Why is <code>Arrays.asList(arr)</code> the wrong tool?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">List<Integer> list = Arrays.stream(arr).sorted().boxed().toList();     // [1, 2, 3]
+int[] back = list.stream().mapToInt(Integer::intValue).toArray();</script>
+<p><code>Arrays.asList(arr)</code> on an <code>int[]</code> gives a <code>List&lt;int[]&gt;</code> with <b>one</b> element (generics cannot hold primitives).</p></div></details></div>
+</section>
+<section class="sec" id="s11" style="--c:#e11d48">
+<h2>11 · Optional</h2>
+<p class="goal">A return-type box that says “a value may be absent”. Replaces null checks with <code>map / flatMap / orElse…</code></p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> container for a possibly absent return value.</li><li><b>Must know:</b> chain <code>map</code>, <code>flatMap</code>, <code>filter</code>, then finish with <code>orElse*</code>.</li><li><b>Must know:</b> <code>orElse</code> evaluates its argument eagerly; <code>orElseGet</code> is lazy.</li><li><b>Pitfall:</b> <code>get()</code> without a check, and Optional as a field or parameter.</li><li><b>Version:</b> Java 8; 9 adds <code>ifPresentOrElse</code>, <code>or</code>, <code>stream</code>; 10 no-arg <code>orElseThrow</code>; 11 <code>isEmpty</code>.</li></ul></div>
+<svg viewBox="0 0 900 190">
+<defs><marker id="a11" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#334155"/></marker></defs>
+<text x="10" y="20" font-weight="700" fill="#e11d48">Optional.ofNullable(user).map(User::address).map(Address::city).orElse("Unknown")</text>
+<rect x="10" y="40" width="120" height="44" rx="8" fill="#ffe4e6" stroke="#e11d48"/><text x="70" y="67" text-anchor="middle">Optional[user]</text>
+<line x1="132" y1="62" x2="190" y2="62" stroke="#334155" marker-end="url(#a11)"/><text x="160" y="55" text-anchor="middle" font-size="11">map</text>
+<rect x="192" y="40" width="130" height="44" rx="8" fill="#ffe4e6" stroke="#e11d48"/><text x="257" y="67" text-anchor="middle">Optional[address]</text>
+<line x1="324" y1="62" x2="382" y2="62" stroke="#334155" marker-end="url(#a11)"/><text x="353" y="55" text-anchor="middle" font-size="11">map</text>
+<rect x="384" y="40" width="130" height="44" rx="8" fill="#ffe4e6" stroke="#e11d48"/><text x="449" y="67" text-anchor="middle">Optional[city]</text>
+<line x1="516" y1="62" x2="574" y2="62" stroke="#334155" marker-end="url(#a11)"/><text x="545" y="55" text-anchor="middle" font-size="11">orElse</text>
+<rect x="576" y="40" width="120" height="44" rx="8" fill="#dcfce7" stroke="#16a34a"/><text x="636" y="67" text-anchor="middle">"Chennai"</text>
+<text x="10" y="120" fill="#475569">If any step is empty (user null, address null, city null), every following map is skipped and orElse supplies the fallback:</text>
+<rect x="10" y="132" width="120" height="40" rx="8" fill="#f1f5f9" stroke="#94a3b8" stroke-dasharray="4"/><text x="70" y="157" text-anchor="middle">Optional.empty</text>
+<line x1="132" y1="152" x2="574" y2="152" stroke="#94a3b8" stroke-dasharray="5" marker-end="url(#a11)"/>
+<rect x="576" y="132" width="120" height="40" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="636" y="157" text-anchor="middle">"Unknown"</text>
+</svg>
+<script type="text/plain" class="code">
+Optional<Employee> e = emps.stream().filter(x -> x.name().equals("Divya")).findFirst();
+String dept = e.map(Employee::dept).orElse("none");                    // "ENG"
+e.ifPresent(x -> log.info("found {}", x.name()));
+Employee must = e.orElseThrow(() -> new NoSuchElementException("Divya missing"));
+Employee lazy = e.orElseGet(() -> loadDefaultFromDb());               // only evaluated if empty
+e.filter(x -> x.salary() > 200_000).isPresent();                      // false
+// Java 9+
+e.ifPresentOrElse(x -> System.out.println(x.name()), () -> System.out.println("nobody"));
+Optional<Employee> alt = e.or(() -> backupLookup());                  // Optional-returning fallback
+Stream<Employee> s = e.stream();                                      // 0 or 1 element
+</script>
+<table><tr><th>Method</th><th>Use when</th></tr>
+<tr><td><code>Optional.of(x)</code></td><td>x is definitely non-null (NPE otherwise)</td></tr>
+<tr><td><code>Optional.ofNullable(x)</code></td><td>x may be null</td></tr>
+<tr><td><code>map(f)</code></td><td>f returns a plain value</td></tr>
+<tr><td><code>flatMap(f)</code></td><td>f itself returns an Optional (avoids <code>Optional&lt;Optional&lt;T&gt;&gt;</code>)</td></tr>
+<tr><td><code>orElse(v)</code> / <code>orElseGet(supplier)</code></td><td>cheap constant / expensive or side-effecting default</td></tr>
+<tr><td><code>orElseThrow(supplier)</code> / <code>orElseThrow()</code> (10)</td><td>absence is an error (e.g. 404)</td></tr></table>
+<div class="box mem"><b class="h">🧠 Remember</b>Optional is for <b>return types</b>. Not for fields, not for method parameters, not for collection elements, not for JPA entities. Never return <code>null</code> from a method that returns <code>Optional</code>, and never return <code>Optional</code> for a collection (return an empty list).</div>
+<div class="box warn"><b class="h">⚠ Pitfall</b><code>orElse(expensive())</code> evaluates <code>expensive()</code> <b>every time</b>, even when the value is present. Use <code>orElseGet(() -> expensive())</code>. Also avoid <code>if (o.isPresent()) o.get()</code>: it is just a null check in disguise.</div>
+
+<h3>Worksheet 11</h3>
+<div class="q e"><div class="qt"><div class="body">What is the difference between <code>Optional.of(null)</code>, <code>Optional.ofNullable(null)</code> and <code>Optional.empty()</code>?</div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>Optional.of(null)</code> throws <code>NullPointerException</code> immediately. <code>ofNullable(null)</code> and <code>empty()</code> both give the empty Optional. Use <code>of</code> when you know the value exists (fails fast on bugs), <code>ofNullable</code> to wrap values from legacy / external APIs.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">What is the behavioural difference between these two, and which is better?
+<script type="text/plain" class="code">String a = opt.orElse(buildDefault());
+String b = opt.orElseGet(() -> buildDefault());</script></div></div>
+<details><summary>Answer</summary><div class="ans"><p>In <code>a</code>, <code>buildDefault()</code> runs <b>always</b> (argument evaluated before the call), even when <code>opt</code> has a value; wasteful or harmful if it hits a DB, logs or creates an object. In <code>b</code>, the supplier runs only when empty. Prefer <code>orElseGet</code> unless the default is a cheap constant/variable.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Given <code>record User(Address address) {}</code>, <code>record Address(String city) {}</code>, write a null-safe <code>String cityOf(User u)</code> returning <code>"Unknown"</code> when anything is missing. Then: when do you need <code>flatMap</code> instead of <code>map</code>?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">String cityOf(User u) {
+    return Optional.ofNullable(u).map(User::address).map(Address::city).orElse("Unknown");
+}
+// if getters return Optional:  record User(Optional<Address> address)  -> use flatMap(User::address)</script>
+<p>Use <code>flatMap</code> when the mapping function already returns an <code>Optional</code>; <code>map</code> would produce <code>Optional&lt;Optional&lt;Address&gt;&gt;</code>. (Repository methods like <code>findByEmail</code> returning <code>Optional</code> are the typical case.)</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Rewrite the anti-pattern, and list two other Optional anti-patterns.
+<script type="text/plain" class="code">Optional<Employee> o = repo.findById(id);
+if (o.isPresent()) { return o.get().name(); } else { return "unknown"; }</script></div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">return repo.findById(id).map(Employee::name).orElse("unknown");</script>
+<p>Other anti-patterns: <code>Optional</code> as a <b>field</b> or <b>method parameter</b> (use overloads or <code>@Nullable</code>), calling <code>get()</code> without checking, <code>Optional&lt;List&lt;T&gt;&gt;</code> (return an empty list), and using Optional in serialized DTOs/entities.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">You have <code>List&lt;Optional&lt;String&gt;&gt; opts = List.of(Optional.of("a"), Optional.empty(), Optional.of("c"))</code>. Produce <code>[a, c]</code> on Java 8 and on Java 9+.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">// Java 8
+opts.stream().filter(Optional::isPresent).map(Optional::get).toList();
+// Java 9+  (Optional.stream() gives 0 or 1 element, flatMap flattens)
+opts.stream().flatMap(Optional::stream).toList();</script></div></details></div>
+</section>
+
+<section class="sec" id="s12" style="--c:#ea580c">
+<h2>12 · Comparator &amp; sorting</h2>
+<p class="goal">Never write <code>(a,b) -> a - b</code> again. Compose comparators from key extractors.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> build orderings with <code>Comparator.comparing(keyExtractor)</code>.</li><li><b>Must know:</b> chain with <code>thenComparing</code>; use <code>comparingInt</code> for primitives.</li><li><b>Must know:</b> <code>nullsFirst</code>/<code>nullsLast</code> wrap a comparator for null-safe sorting.</li><li><b>Pitfall:</b> <code>(a,b) -&gt; a - b</code> overflows; <code>reversed()</code> applies to the whole chain before it.</li><li><b>Version:</b> Java 8; <code>List.sort</code> and <code>Map.Entry.comparingByValue</code> also 8.</li></ul></div>
+<script type="text/plain" class="code">
+Comparator<Employee> byDept   = Comparator.comparing(Employee::dept);
+Comparator<Employee> bySalary = Comparator.comparingDouble(Employee::salary);          // primitive: no boxing
+Comparator<Employee> cmp = byDept.thenComparing(bySalary.reversed());                  // dept asc, salary desc
+
+emps.stream().sorted(cmp).map(Employee::name).toList();
+// [Divya, Asha, Ben, Eli, Fatima, Chen]    (ENG: 145k 125k 98k | HR: Eli | OPS: 81k 72k)
+
+list.sort(Comparator.comparing(Employee::name, String.CASE_INSENSITIVE_ORDER));
+list.sort(Comparator.comparing(Employee::age, Comparator.reverseOrder()));
+names.sort(Comparator.nullsLast(Comparator.naturalOrder()));
+</script>
+<table><tr><th>Method</th><th>Purpose</th></tr>
+<tr><td><code>comparing / comparingInt / comparingDouble / comparingLong</code></td><td>sort by an extracted key</td></tr>
+<tr><td><code>thenComparing / thenComparingInt …</code></td><td>tie-breakers</td></tr>
+<tr><td><code>reversed()</code>, <code>reverseOrder()</code>, <code>naturalOrder()</code></td><td>direction</td></tr>
+<tr><td><code>nullsFirst(c)</code>, <code>nullsLast(c)</code></td><td>null-safe wrapper</td></tr></table>
+<div class="box warn"><b class="h">⚠ Pitfall: inference with reversed()</b><code>Comparator.comparing(e -> e.salary()).reversed()</code> does not compile: with a lambda the compiler infers <code>Object</code> before <code>.reversed()</code>. Use a method reference <code>Employee::salary</code>, a typed lambda <code>(Employee e) -> e.salary()</code>, or an explicit type witness <code>Comparator.&lt;Employee,Double&gt;comparing(e -> e.salary())</code>.</div>
+<div class="box tip"><b class="h">💡 Tip</b><code>List.sort</code> and <code>sorted()</code> are <b>stable</b> (equal elements keep their previous order), so sorting by two keys in two passes also works. Put the comparator in a <code>static final</code> constant when reused.</div>
+
+<h3>Worksheet 12</h3>
+<div class="q e"><div class="qt"><div class="body">Sort employees by department ascending, then salary descending. What is the resulting order of names?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">emps.stream()
+    .sorted(Comparator.comparing(Employee::dept)
+            .thenComparing(Employee::salary, Comparator.reverseOrder()))
+    .map(Employee::name).toList();
+// [Divya, Asha, Ben, Eli, Fatima, Chen]</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Why does this not compile, and what are two fixes?
+<script type="text/plain" class="code">emps.sort(Comparator.comparing(e -> e.salary()).reversed());</script></div></div>
+<details><summary>Answer</summary><div class="ans"><p>In a chained call, <code>comparing(e -> …)</code> is not given a target type, so <code>T</code> is inferred as <code>Object</code> and <code>e.salary()</code> fails. Fixes: <code>Comparator.comparing(Employee::salary).reversed()</code>, or <code>Comparator.comparing((Employee e) -> e.salary()).reversed()</code>, or <code>Comparator.comparing(e -> e.salary(), Comparator.reverseOrder())</code>.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Sort <code>Arrays.asList("pear", null, "apple", "fig")</code> with nulls last, shortest first.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">list.sort(Comparator.nullsLast(Comparator.comparing(String::length).thenComparing(Comparator.naturalOrder())));
+// [fig, pear, apple, null]</script></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">What is wrong with <code>(a, b) -> a.salary() - b.salary()</code> (if the salary were an <code>int</code>), and what should you write?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>Subtraction can <b>overflow</b> for large/negative ints (e.g. <code>Integer.MAX_VALUE - (-1)</code> wraps negative) and gives the wrong ordering; with <code>double</code> salaries it would not even compile (the lambda must return an <code>int</code>). Use <code>Integer.compare(a, b)</code> or <code>Comparator.comparingInt(Employee::salary)</code>.</p></div></details></div>
+</section>
+
+<section class="sec" id="s13" style="--c:#0d9488">
+<h2>13 · Functional APIs on collections &amp; maps</h2>
+<p class="goal">Many “streams-free” lambdas: <code>removeIf, replaceAll, forEach, computeIfAbsent, merge</code>. Plus immutable factories.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> lambda-taking methods directly on Collection, List and Map.</li><li><b>Must know:</b> <code>map.merge(k, 1, Integer::sum)</code> counts; <code>computeIfAbsent</code> builds multi-maps.</li><li><b>Must know:</b> <code>List.of</code>, <code>Set.of</code>, <code>Map.of</code> are immutable and reject nulls.</li><li><b>Pitfall:</b> modifying a map inside <code>computeIfAbsent</code> or mutating while iterating throws exceptions.</li><li><b>Version:</b> Java 8 APIs; <code>of</code> factories 9; <code>copyOf</code> 10.</li></ul></div>
+<script type="text/plain" class="code">
+List<Integer> nums = new ArrayList<>(List.of(1, 2, 3, 4, 5, 6));
+nums.removeIf(n -> n % 2 == 0);          // [1, 3, 5]
+nums.replaceAll(n -> n * 10);            // [10, 30, 50]
+nums.forEach(System.out::println);
+
+Map<Character, List<String>> byInitial = new TreeMap<>();
+for (String w : List.of("apple", "avocado", "banana"))
+    byInitial.computeIfAbsent(w.charAt(0), k -> new ArrayList<>()).add(w);       // {a=[apple, avocado], b=[banana]}
+
+Map<String, Integer> freq = new HashMap<>();
+for (String w : "a b a c b a".split(" ")) freq.merge(w, 1, Integer::sum);         // {a=3, b=2, c=1}
+
+freq.getOrDefault("z", 0);                    // 0
+freq.computeIfPresent("a", (k, v) -> v + 1);  // a=4
+freq.compute("d", (k, v) -> v == null ? 1 : v + 1);
+freq.entrySet().stream().sorted(Map.Entry.<String,Integer>comparingByValue().reversed()).limit(2).toList();
+</script>
+<table><tr><th>Factory</th><th>Mutable?</th><th>Nulls?</th><th>Notes</th></tr>
+<tr><td><code>List.of(...) / Set.of / Map.of</code> (9)</td><td>no</td><td>no (NPE)</td><td><code>Set.of</code>/<code>Map.of</code> reject duplicates, iteration order is unspecified</td></tr>
+<tr><td><code>List.copyOf</code> (10)</td><td>no</td><td>no</td><td>copy, not a view</td></tr>
+<tr><td><code>Arrays.asList(...)</code></td><td>set() yes, add/remove no</td><td>yes</td><td>write-through view of the array</td></tr>
+<tr><td><code>Collections.unmodifiableList(l)</code></td><td>no (via view)</td><td>yes</td><td>changes to <code>l</code> still show through</td></tr>
+<tr><td><code>stream.toList()</code> (16)</td><td>no</td><td>yes</td><td>—</td></tr></table>
+<div class="box warn"><b class="h">⚠ Pitfall</b>Removing inside a for-each loop throws <code>ConcurrentModificationException</code>. Use <code>removeIf</code>. And <code>List.of(...).add(x)</code> throws <code>UnsupportedOperationException</code>: wrap with <code>new ArrayList&lt;&gt;(...)</code> if you need to mutate.</div>
+<div class="box tip"><b class="h">💡 Tip</b><code>Map.merge(key, 1, Integer::sum)</code> is the idiom for counters; <code>computeIfAbsent(k, x -> new ArrayList&lt;&gt;()).add(v)</code> is the idiom for multi-maps (cache and grouping).</div>
+
+<h3>Worksheet 13</h3>
+<div class="q e"><div class="qt"><div class="body">Why prefer <code>list.removeIf(pred)</code> over a for-each loop with <code>list.remove</code>? What exception does the loop cause?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>Modifying a list while iterating it with the iterator that for-each uses throws <code>ConcurrentModificationException</code>. <code>removeIf</code> removes safely in one pass (for <code>ArrayList</code> it is O(n) rather than O(n²) from repeated shifting) and states the intent.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Count word frequencies of <code>"to be or not to be"</code> with <code>Map.merge</code>, then with streams. Result?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">Map<String,Integer> m = new HashMap<>();
+for (String w : "to be or not to be".split(" ")) m.merge(w, 1, Integer::sum);
+Map<String,Long> m2 = Arrays.stream("to be or not to be".split(" "))
+        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+// {to=2, be=2, or=1, not=1}   (order unspecified)</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Group <code>List.of("apple", "avocado", "banana", "blueberry", "cherry")</code> by first letter using <code>computeIfAbsent</code>.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">Map<Character, List<String>> m = new TreeMap<>();
+words.forEach(w -> m.computeIfAbsent(w.charAt(0), k -> new ArrayList<>()).add(w));
+// {a=[apple, avocado], b=[banana, blueberry], c=[cherry]}</script>
+<p>The function creates the list only when the key is absent, then <code>.add</code> mutates it. (Streams alternative: <code>groupingBy(w -> w.charAt(0))</code>.)</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Compare <code>List.of</code>, <code>Arrays.asList</code>, <code>Collections.unmodifiableList</code> and <code>List.copyOf</code>. Which throw on <code>add</code>, which allow <code>set</code>, which allow nulls?</div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>List.of</code>/<code>copyOf</code>: add and set both throw, nulls rejected. <code>Arrays.asList</code>: <code>add</code> throws, <code>set</code> allowed (writes through to the array), nulls allowed. <code>unmodifiableList</code>: add and set throw, nulls allowed, but it is only a view of the original.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">From a word-count <code>Map&lt;String,Integer&gt;</code> return the top 2 entries by count (ties: alphabetical).</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">freq.entrySet().stream()
+    .sorted(Map.Entry.<String,Integer>comparingByValue(Comparator.reverseOrder())
+            .thenComparing(Map.Entry.comparingByKey()))
+    .limit(2)
+    .map(e -> e.getKey() + "=" + e.getValue())
+    .toList();        // for to/be/or/not: [be=2, to=2]</script>
+<p>Note the explicit type witness <code>Map.Entry.&lt;String,Integer&gt;</code>, needed because inference does not flow through a chained call.</p></div></details></div>
+</section>
+
+<section class="sec" id="s14" style="--c:#b91c1c">
+<h2>14 · Parallel streams: when and when not</h2>
+<p class="goal">One word can make code faster or incorrect. Know the rules.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> <code>parallelStream()</code> or <code>.parallel()</code> splits work over the common ForkJoinPool.</li><li><b>Must know:</b> good for large CPU-bound, stateless, non-blocking pipelines.</li><li><b>Must know:</b> reduce operators must be associative; results stay correct only without shared mutable state.</li><li><b>Pitfall:</b> blocking I/O in a parallel stream starves the shared pool; always measure first.</li><li><b>Version:</b> Java 8; virtual threads (21) suit blocking work instead.</li></ul></div>
+<svg viewBox="0 0 900 190">
+<defs><marker id="a14" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#334155"/></marker></defs>
+<rect x="10" y="60" width="140" height="50" rx="10" fill="#fee2e2" stroke="#b91c1c"/><text x="80" y="82" text-anchor="middle" font-weight="700">list.parallel</text><text x="80" y="99" text-anchor="middle" font-size="12">Stream()</text>
+<line x1="152" y1="85" x2="210" y2="40" stroke="#334155" marker-end="url(#a14)"/><line x1="152" y1="85" x2="210" y2="85" stroke="#334155" marker-end="url(#a14)"/><line x1="152" y1="85" x2="210" y2="130" stroke="#334155" marker-end="url(#a14)"/>
+<rect x="212" y="20" width="150" height="40" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="287" y="45" text-anchor="middle" font-size="12">split → worker 1</text>
+<rect x="212" y="65" width="150" height="40" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="287" y="90" text-anchor="middle" font-size="12">split → worker 2</text>
+<rect x="212" y="110" width="150" height="40" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="287" y="135" text-anchor="middle" font-size="12">split → worker 3</text>
+<line x1="364" y1="40" x2="420" y2="85" stroke="#334155" marker-end="url(#a14)"/><line x1="364" y1="85" x2="420" y2="85" stroke="#334155" marker-end="url(#a14)"/><line x1="364" y1="130" x2="420" y2="85" stroke="#334155" marker-end="url(#a14)"/>
+<rect x="422" y="60" width="130" height="50" rx="10" fill="#dcfce7" stroke="#16a34a"/><text x="487" y="90" text-anchor="middle" font-weight="700">combine</text>
+<text x="590" y="50" font-weight="700" fill="#16a34a">Good fit</text><text x="590" y="70" font-size="12">large data, CPU-bound, stateless,</text><text x="590" y="86" font-size="12">ArrayList / array / IntStream.range</text>
+<text x="590" y="116" font-weight="700" fill="#b91c1c">Bad fit</text><text x="590" y="136" font-size="12">I/O, DB, HTTP calls, small lists, LinkedList,</text><text x="590" y="152" font-size="12">shared mutable state, web request threads</text>
+<text x="10" y="180" fill="#475569" font-size="12">All parallel streams share ONE pool: ForkJoinPool.commonPool() (cores − 1 threads).</text>
+</svg>
+<script type="text/plain" class="code">
+// OK: pure CPU work on a big range
+long primes = IntStream.rangeClosed(2, 2_000_000).parallel().filter(Main::isPrime).count();
+
+// BROKEN: shared mutable state
+List<Integer> out = new ArrayList<>();
+IntStream.range(0, 10_000).parallel().forEach(out::add);    // lost updates / ArrayIndexOutOfBounds / size != 10000
+// FIXED
+List<Integer> ok = IntStream.range(0, 10_000).parallel().boxed().toList();
+</script>
+<div class="box warn"><b class="h">⚠ Pitfall in Spring Boot</b>A blocking call (REST client, JDBC) inside a parallel stream blocks the <b>common pool</b> shared by the whole JVM, starving other streams and <code>CompletableFuture</code> tasks. For I/O concurrency use an explicit executor or virtual threads (section 20).</div>
+<div class="box tip"><b class="h">💡 Tip</b>Measure first (JMH or a simple timer). Rule of thumb: parallel pays off only if (elements × work per element) is large — roughly more than 10,000 elements with non-trivial CPU per element. Default to sequential.</div>
+
+<h3>Worksheet 14</h3>
+<div class="q e"><div class="qt"><div class="body">Name three conditions where <code>parallelStream()</code> is a good idea and three where it is a bad idea.</div></div>
+<details><summary>Answer</summary><div class="ans"><p><b>Good:</b> large dataset; CPU-bound, independent, stateless work; splittable source (<code>ArrayList</code>, array, <code>IntStream.range</code>). <b>Bad:</b> small data (overhead dominates); blocking I/O; poor splitters (<code>LinkedList</code>, <code>Stream.iterate</code>), order-dependent or stateful lambdas, running inside a request thread of a busy web server.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Why is this unsafe and how do you fix it?
+<script type="text/plain" class="code">List<String> r = new ArrayList<>();
+emps.parallelStream().map(Employee::name).forEach(r::add);</script></div></div>
+<details><summary>Answer</summary><div class="ans"><p>Several threads call <code>ArrayList.add</code> concurrently: a data race (lost elements, exceptions, nondeterministic order). Fix: let the stream collect: <code>emps.parallelStream().map(Employee::name).toList()</code> (which also preserves encounter order). Avoid <code>Collections.synchronizedList</code> + <code>forEach</code> as a band-aid.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">Why can <code>IntStream.rangeClosed(1,100).parallel().reduce(0, (a, b) -> a - b)</code> differ from the sequential result? What are the rules for reduce on parallel streams?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>Parallel execution splits the range, reduces each chunk starting from the identity, then combines partial results. That only equals the sequential fold if the operation is <b>associative</b>, and the identity satisfies <code>op(identity, x) == x</code>. Subtraction fails both rules. Safe examples: sum, max, string concatenation (associative, though not commutative: order still preserved), <code>Integer::sum</code>.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">Which thread pool do parallel streams use, how can you check/limit it, and what is the better alternative for blocking work?</div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>ForkJoinPool.commonPool()</code>, sized <code>availableProcessors() - 1</code> (the calling thread also participates). It can be tuned via <code>-Djava.util.concurrent.ForkJoinPool.common.parallelism=N</code>. (A hack is submitting the stream task into your own <code>ForkJoinPool</code>, not officially guaranteed.) For blocking I/O use <code>CompletableFuture</code> with a dedicated executor or, on Java 21, virtual threads.</p></div></details></div>
+</section>
+
+<section class="sec" id="s15" style="--c:#4f46e5">
+<h2>15 · Handy additions in Java 9 – 15</h2>
+<p class="goal">Small features that make everyday functional code shorter.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> incremental API and language improvements between Java 9 and 15.</li><li><b>Must know:</b> <code>var</code> (10), <code>Collectors.teeing</code> (12), <code>takeWhile</code>/<code>dropWhile</code> (9), <code>Optional.or</code> (9).</li><li><b>Must know:</b> text blocks (15), <code>String.strip/isBlank/lines</code> (11), switch expressions (14).</li><li><b>Pitfall:</b> using <code>var</code> where the inferred type hurts readability.</li><li><b>Version:</b> each item is tagged with its release in the section.</li></ul></div>
+<div class="grid">
+<div class="card" style="--cc:#4f46e5"><b>Java 9</b><code>takeWhile / dropWhile / ofNullable / iterate(seed, hasNext, next)</code><code>Collectors.filtering / flatMapping</code><code>Optional.or / ifPresentOrElse / stream</code><code>List.of / Set.of / Map.of</code></div>
+<div class="card" style="--cc:#0891b2"><b>Java 10</b><code>var</code> for locals<code>List.copyOf / Collectors.toUnmodifiableList</code><code>Optional.orElseThrow()</code></div>
+<div class="card" style="--cc:#16a34a"><b>Java 11</b><code>Predicate.not</code><code>String: isBlank, strip, lines, repeat</code><code>Optional.isEmpty</code><code>var in lambda params</code> <code>Files.readString</code></div>
+<div class="card" style="--cc:#d97706"><b>Java 12 – 15</b><code>Collectors.teeing</code> (12)<code>switch expressions</code> (14)<code>text blocks</code> (15)</div>
+</div>
+<script type="text/plain" class="code">
+// filtering keeps empty groups (filter-before-group drops them)
+emps.stream().collect(groupingBy(Employee::dept, filtering(e -> e.salary() > 100_000, counting())));
+// {ENG=2, OPS=0, HR=0}
+emps.stream().filter(e -> e.salary() > 100_000).collect(groupingBy(Employee::dept, counting()));
+// {ENG=2}
+
+// teeing: two collectors in ONE pass, then combine
+double avg = emps.stream().collect(teeing(summingDouble(Employee::salary), counting(), (sum, n) -> sum / n));  // 97666.67
+
+// Predicate.not for readable negation
+names.stream().filter(Predicate.not(String::isBlank)).toList();
+
+var emp = emps.get(0);                      // inferred Employee: great for long generic types
+for (var entry : byDept.entrySet()) { }
+</script>
+<div class="box tip"><b class="h">💡 Tip: var</b>Use <code>var</code> when the type is obvious from the right-hand side (<code>var list = new ArrayList&lt;String&gt;()</code>). Skip it when the type is not visible (<code>var x = service.process()</code>). It is <b>not</b> dynamic typing: the type is fixed at compile time. Not allowed for fields, parameters, or <code>null</code> initialisers.</div>
+
+<h3>Worksheet 15</h3>
+<div class="q e"><div class="qt"><div class="body">What does <code>Stream.iterate(1, n -> n &lt;= 100, n -> n * 2).toList()</code> produce? Which Java version added the 3-argument form?</div></div>
+<details><summary>Answer</summary><div class="ans"><p><b>[1, 2, 4, 8, 16, 32, 64]</b> (128 fails the <code>hasNext</code> test, so the stream ends). Added in Java 9; it works like a <code>for(;;)</code> loop with seed, condition and step.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Explain the difference between putting a <code>.filter()</code> before <code>groupingBy</code> and using <code>Collectors.filtering</code> as the downstream. What does each return for “count of employees earning above 100,000 per department”?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>Pre-filter: only departments that still have matching elements appear → <code>{ENG=2}</code>. <code>filtering</code> downstream: all groups appear with the filtered count → <code>{ENG=2, OPS=0, HR=0}</code>. Choose by whether you need the empty groups (e.g. a report that lists every department).</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Use <code>Collectors.teeing</code> to compute the lowest and highest salary in a single pass and return a string such as <code>"65000.0 - 145000.0"</code>.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">String range = emps.stream().collect(teeing(
+        minBy(Comparator.comparingDouble(Employee::salary)),
+        maxBy(Comparator.comparingDouble(Employee::salary)),
+        (mn, mx) -> mn.get().salary() + " - " + mx.get().salary()));    // "65000.0 - 145000.0"</script>
+<p>Simpler: <code>summarizingDouble</code> gives min and max too. <code>teeing</code> shines when the two collectors are different kinds (sum + count, min + max objects).</p></div></details></div>
+
+<div class="q e"><div class="qt"><div class="body">Evaluate: <code>"  ".isBlank()</code>, <code>" hi ".strip()</code>, <code>"a\nb\nc".lines().count()</code>, <code>"ab".repeat(3)</code>. Which of these <code>var</code> declarations is illegal? (a) <code>var x = null;</code> (b) <code>var l = new ArrayList&lt;String&gt;();</code> (c) <code>var f = (String s) -> s;</code></div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>true</code>, <code>"hi"</code>, <code>3</code>, <code>"ababab"</code>. Illegal: <b>(a)</b> (no type to infer) and <b>(c)</b> (lambda needs a target type). (b) is fine.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Rewrite <code>.filter(s -> !s.isBlank())</code> with <code>Predicate.not</code>, and replace <code>collect(Collectors.toList())</code> with the Java 10 and Java 16 immutable alternatives.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">.filter(Predicate.not(String::isBlank))
+.collect(Collectors.toUnmodifiableList())    // Java 10: rejects nulls
+.toList()                                    // Java 16: shortest, allows nulls</script></div></details></div>
+</section>
+
+<section class="sec" id="s16" style="--c:#059669">
+<h2>16 · Records, sealed types, pattern <code>instanceof</code>, switch expressions (Java 14 – 17)</h2>
+<p class="goal">Modern “data + behaviour” modelling: algebraic data types in Java.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> <code>record</code> = immutable data class; <code>sealed</code> = closed type hierarchy.</li><li><b>Must know:</b> records auto-generate constructor, accessors, equals, hashCode, toString; compact constructors validate.</li><li><b>Must know:</b> <code>if (o instanceof Circle c)</code> binds without a cast; switch expressions yield values.</li><li><b>Pitfall:</b> record components are shallowly immutable; mutable lists inside stay mutable.</li><li><b>Version:</b> switch expr 14, records and pattern instanceof 16, sealed 17.</li></ul></div>
+<svg viewBox="0 0 900 190">
+<defs><marker id="a16" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#059669"/></marker></defs>
+<rect x="320" y="10" width="260" height="46" rx="10" fill="#d1fae5" stroke="#059669" stroke-width="2"/><text x="450" y="30" text-anchor="middle" font-weight="700">sealed interface Shape</text><text x="450" y="47" text-anchor="middle" font-size="12">permits Circle, Square, Rect</text>
+<line x1="380" y1="58" x2="190" y2="110" stroke="#059669" marker-end="url(#a16)"/><line x1="450" y1="58" x2="450" y2="110" stroke="#059669" marker-end="url(#a16)"/><line x1="520" y1="58" x2="710" y2="110" stroke="#059669" marker-end="url(#a16)"/>
+<rect x="90" y="112" width="200" height="50" rx="10" fill="#ecfdf5" stroke="#059669"/><text x="190" y="133" text-anchor="middle">record Circle(double r)</text><text x="190" y="151" text-anchor="middle" font-size="12" fill="#475569">implicitly final</text>
+<rect x="350" y="112" width="200" height="50" rx="10" fill="#ecfdf5" stroke="#059669"/><text x="450" y="133" text-anchor="middle">record Square(double side)</text>
+<rect x="610" y="112" width="200" height="50" rx="10" fill="#ecfdf5" stroke="#059669"/><text x="710" y="133" text-anchor="middle">record Rect(double w, double h)</text>
+<text x="450" y="182" text-anchor="middle" fill="#047857" font-size="12">Closed set of types → the compiler knows every case → exhaustive switch needs no default</text>
+</svg>
+<script type="text/plain" class="code">
+public record Team(String name, List<String> members) {            // generates ctor, accessors, equals, hashCode, toString
+    public Team {                                                    // compact constructor: validate + defensive copy
+        Objects.requireNonNull(name);
+        members = List.copyOf(members);
+    }
+    public int size() { return members.size(); }                    // extra methods are fine
+    public static Team of(String n, String... m) { return new Team(n, List.of(m)); }
+}
+
+// pattern matching for instanceof (16): test + cast + bind in one step
+if (obj instanceof String s && s.length() > 3) System.out.println(s.toUpperCase());
+if (!(obj instanceof Team t)) return;      // t is in scope below because we returned above
+System.out.println(t.size());
+
+// switch expression (14): arrows, no fall-through, returns a value
+String kind = switch (day) {
+    case SATURDAY, SUNDAY -> "weekend";
+    case FRIDAY           -> { log.info("almost"); yield "weekday-ish"; }
+    default               -> "weekday";
+};
+
+sealed interface Shape permits Circle, Square, Rect {}
+record Circle(double r) implements Shape {}
+record Square(double side) implements Shape {}
+record Rect(double w, double h) implements Shape {}
+</script>
+<table><tr><th>Feature</th><th>Final in</th><th>Why a Spring dev cares</th></tr>
+<tr><td>Records</td><td>16</td><td>DTOs, API request/response, <code>@ConfigurationProperties</code>, JPA projections, event payloads</td></tr>
+<tr><td><code>instanceof</code> patterns</td><td>16</td><td>No more manual casts in <code>equals</code>, exception translators, visitors</td></tr>
+<tr><td>Sealed classes</td><td>17</td><td>Closed domain models (payment types, command results) with exhaustive handling</td></tr>
+<tr><td>Switch expressions</td><td>14</td><td>Replace if-else chains and enum maps, forced exhaustiveness for enums</td></tr></table>
+<div class="box spring"><b class="h">🌱 Spring Boot</b><code>record CreateOrderRequest(@NotBlank String customer, @Positive int qty) {}</code> works directly with <code>@RequestBody @Valid</code> (Jackson 2.12+) and with <code>@ConfigurationProperties("app")</code> on a record (constructor binding, Boot 3). Records are <b>not</b> JPA <code>@Entity</code> classes (entities need a no-arg constructor and mutability), but they are great for Spring Data projections: <code>interface/record EmployeeView(String name, String dept)</code>.</div>
+<div class="box warn"><b class="h">⚠ Pitfall</b>A record is only <b>shallowly</b> immutable: a <code>List</code> component can still be mutated unless you copy it with <code>List.copyOf</code> in the compact constructor.</div>
+
+<h3>Worksheet 16</h3>
+<div class="q e"><div class="qt"><div class="body">What does the compiler generate for <code>record Point(int x, int y) {}</code>? What can a record <b>not</b> do?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>Private final fields, a canonical constructor, accessors <code>x()</code> and <code>y()</code> (not <code>getX</code>), <code>equals</code>, <code>hashCode</code>, <code>toString</code> (<code>Point[x=1, y=2]</code>). A record <b>cannot</b> extend another class (it implicitly extends <code>java.lang.Record</code>), declare extra instance fields, or have setters; it is implicitly final. It <b>can</b> implement interfaces, have static members, extra methods and nested types.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Write a record <code>Money(BigDecimal amount, String currency)</code> that rejects a negative amount and normalises the currency to upper case.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">public record Money(BigDecimal amount, String currency) {
+    public Money {
+        Objects.requireNonNull(amount);
+        if (amount.signum() < 0) throw new IllegalArgumentException("negative amount");
+        currency = currency.toUpperCase();          // reassign the parameter in a compact ctor
+    }
+    public Money plus(Money o) { return new Money(amount.add(o.amount), currency); }
+}</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Rewrite using pattern matching for <code>instanceof</code>, and explain the scope of the binding variable.
+<script type="text/plain" class="code">if (o instanceof Employee) {
+    Employee e = (Employee) o;
+    if (e.age() > 30) return e.name();
+}
+return null;</script></div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">if (o instanceof Employee e && e.age() > 30) return e.name();
+return null;</script>
+<p>The binding <code>e</code> is in scope only where the compiler can prove the match succeeded: inside the <code>&amp;&amp;</code> right side and the if-body. With <code>!(o instanceof Employee e) → return;</code>, <code>e</code> is also in scope after the if.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Convert to a switch expression and explain two advantages over the old switch.
+<script type="text/plain" class="code">int days;
+switch (month) {
+    case FEB: days = 28; break;
+    case APR: case JUN: case SEP: case NOV: days = 30; break;
+    default: days = 31;
+}</script></div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">int days = switch (month) {
+    case FEB -> 28;
+    case APR, JUN, SEP, NOV -> 30;
+    default -> 31;
+};</script>
+<p>Advantages: it is an <b>expression</b> (returns a value, so <code>days</code> is effectively final); <b>no fall-through</b> (no forgotten <code>break</code> bugs); multiple labels per case; and the compiler checks exhaustiveness (no <code>default</code> needed for a full enum switch expression).</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">What is a sealed hierarchy, which modifiers must permitted subclasses use, and what is the main benefit?</div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>sealed</code> restricts which classes may implement/extend it (<code>permits</code> list, or same file). Every permitted subtype must declare exactly one of <code>final</code> (records are implicitly final), <code>sealed</code> (continues the restriction), or <code>non-sealed</code> (opens the branch again). Benefit: the set of subtypes is closed, so the compiler can verify <b>exhaustive</b> pattern switches (Java 21) and you get safer “result” types than a bare interface.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">Spring question: can a record be used as (a) request body, (b) <code>@ConfigurationProperties</code>, (c) JPA entity, (d) Spring Data projection? Justify each.</div></div>
+<details><summary>Answer</summary><div class="ans"><p>(a) <b>Yes</b>, Jackson supports record deserialisation (2.12+), validation annotations go on components. (b) <b>Yes</b>, Boot 3 binds via the canonical constructor (use <code>@DefaultValue</code> for defaults). (c) <b>No</b>: Hibernate needs a no-arg constructor, non-final class, mutable fields/proxies. (d) <b>Yes</b> for class-based DTO projections (JPQL <code>select new ...</code> or constructor expressions) and interface-based ones are alternatives.</p></div></details></div>
+</section>
+<section class="sec" id="s17" style="--c:#2563eb">
+<h2>17 · Pattern matching for switch &amp; record patterns (Java 21)</h2>
+<p class="goal">Replace visitor patterns and <code>instanceof</code> chains with exhaustive, type-safe <code>switch</code>.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> <code>switch</code> that matches on type and record structure.</li><li><b>Must know:</b> <code>case Circle c when c.r() &gt; 10 -&gt;</code> adds guards; <code>case Point(int x, int y)</code> deconstructs.</li><li><b>Must know:</b> over a sealed hierarchy the compiler enforces exhaustiveness, so no <code>default</code> needed.</li><li><b>Pitfall:</b> dominance: a general case before a specific one is a compile error; <code>null</code> needs <code>case null</code>.</li><li><b>Version:</b> final in Java 21 (LTS).</li></ul></div>
+<script type="text/plain" class="code">
+sealed interface Shape permits Circle, Square, Rect {}
+record Circle(double r) implements Shape {}
+record Square(double side) implements Shape {}
+record Rect(double w, double h) implements Shape {}
+
+static double area(Shape s) {
+    return switch (s) {                                   // no default: compiler checks all permitted types
+        case Circle c  -> Math.PI * c.r() * c.r();
+        case Square q  -> q.side() * q.side();
+        case Rect(double w, double h) -> w * h;           // record pattern: deconstruct in place
+    };
+}
+
+static String describe(Object o) {
+    return switch (o) {
+        case null                      -> "nothing";
+        case Integer i when i > 100    -> "big int " + i;       // guard with 'when'
+        case Integer i                 -> "int " + i;
+        case String s                  -> "string of " + s.length();
+        case Circle(double r) when r == 0 -> "dot";
+        default                        -> "other";
+    };
+}
+
+record Line(Point from, Point to) {}  record Point(int x, int y) {}
+if (obj instanceof Line(Point(var x1, var y1), Point p2)) { /* nested deconstruction */ }
+</script>
+<div class="box key"><b class="h">🔑 Key idea</b>Sealed + records + pattern switch = <b>algebraic data types</b>. Add a new subtype and every non-exhaustive <code>switch</code> fails to compile, so you cannot forget a case. This beats <code>default -> throw</code>, which hides the omission until runtime.</div>
+<div class="box warn"><b class="h">⚠ Pitfall</b>Order matters: a more general case before a specific one is a compile error (“dominated”). Put guarded and specific cases first. Also, <code>switch (o)</code> over an object now throws <code>NullPointerException</code> unless you add <code>case null</code>.</div>
+
+<h3>Worksheet 17</h3>
+<div class="q e"><div class="qt"><div class="body">Write <code>perimeter(Shape s)</code> with a pattern switch for the <code>Shape</code> hierarchy above. Why is no <code>default</code> needed?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">static double perimeter(Shape s) {
+    return switch (s) {
+        case Circle c  -> 2 * Math.PI * c.r();
+        case Square q  -> 4 * q.side();
+        case Rect(double w, double h) -> 2 * (w + h);
+    };
+}</script>
+<p><code>Shape</code> is sealed with exactly three permitted subtypes, all covered, so the switch is exhaustive. If you add <code>Triangle</code> later, this method stops compiling until you handle it.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">What does <code>describe(150)</code>, <code>describe(7)</code> and <code>describe(null)</code> return in the <code>describe</code> method above? What if the two <code>Integer</code> cases were swapped?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>"big int 150", "int 7", "nothing". If <code>case Integer i</code> came first, the guarded <code>case Integer i when i &gt; 100</code> would be unreachable and the compiler reports <b>“this case label is dominated by a preceding case label”</b>.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Using record patterns, write a method that returns the length of a <code>Line(Point from, Point to)</code> (Euclidean) without calling accessors.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">static double length(Object o) {
+    if (o instanceof Line(Point(int x1, int y1), Point(int x2, int y2))) {
+        return Math.hypot(x2 - x1, y2 - y1);
+    }
+    throw new IllegalArgumentException();
+}
+length(new Line(new Point(0, 0), new Point(3, 4)));   // 5.0</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Text blocks (Java 15): write a JSON test payload for a <code>CreateOrderRequest</code> and fill in values using <code>formatted</code>. How does the compiler decide how much leading whitespace to strip?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">String json = """
+        {
+          "customer": "%s",
+          "qty": %d
+        }
+        """.formatted("Asha", 3);</script>
+<p>The <b>minimum indentation</b> over all non-blank lines <i>and the closing <code>"""</code> line</i> is removed. Moving the closing delimiter left keeps more indentation. Trailing spaces are stripped; <code>\</code> at line end joins lines. Quotes need no escaping.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Java 21 Sequenced Collections: how do you get the last element of a <code>List</code> before and after Java 21? Which types gained this API?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">list.get(list.size() - 1);      // before (throws on empty, noisy)
+list.getLast();                 // 21 (NoSuchElementException on empty)
+list.reversed();                // view in reverse order
+list.addFirst(x); list.removeLast();
+linkedHashMap.firstEntry(); linkedHashMap.lastEntry(); linkedHashMap.reversed();</script>
+<p>New interfaces <code>SequencedCollection</code>, <code>SequencedSet</code>, <code>SequencedMap</code> are implemented by <code>List</code>, <code>Deque</code>, <code>LinkedHashSet</code>, <code>SortedSet</code>/<code>TreeSet</code>, <code>LinkedHashMap</code>, <code>SortedMap</code>/<code>TreeMap</code>. Not by <code>HashSet</code>/<code>HashMap</code> (no defined order). Note <code>List.of(...).reversed()</code> works too; mutators on immutable lists still throw.</p></div></details></div>
+</section>
+
+<section class="sec" id="s18" style="--c:#9333ea">
+<h2>18 · Newer Stream APIs: toList, mapMulti, Gatherers (Java 16 – 24)</h2>
+<p class="goal">Gatherers (final in Java 24) are the “custom intermediate operation” that was missing from streams.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> newer stream additions that extend the pipeline.</li><li><b>Must know:</b> <code>Stream.toList()</code> returns an unmodifiable list (it allows nulls); <code>Collectors.toList()</code> makes no mutability guarantee.</li><li><b>Must know:</b> <code>gather(Gatherers.windowFixed(3))</code> adds stateful intermediate steps.</li><li><b>Pitfall:</b> gatherers need Java 24 or later (preview in 22-23).</li><li><b>Version:</b> 16 for <code>toList</code>/<code>mapMulti</code>; 24 for Gatherers.</li></ul></div>
+<svg viewBox="0 0 900 170">
+<defs><marker id="a18" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#334155"/></marker></defs>
+<text x="10" y="20" font-weight="700" fill="#9333ea">Collector → terminal customisation (always existed)  ·  Gatherer → intermediate customisation (Java 24)</text>
+<g text-anchor="middle" font-size="12">
+<rect x="10" y="40" width="150" height="40" rx="8" fill="#f3e8ff" stroke="#9333ea"/><text x="85" y="65">1 2 3 4 5 6 7</text>
+<line x1="162" y1="60" x2="220" y2="60" stroke="#334155" marker-end="url(#a18)"/>
+<rect x="222" y="40" width="200" height="40" rx="8" fill="#ede9fe" stroke="#7c3aed"/><text x="322" y="65" font-weight="700">gather(windowFixed(3))</text>
+<line x1="424" y1="60" x2="482" y2="60" stroke="#334155" marker-end="url(#a18)"/>
+<rect x="484" y="40" width="400" height="40" rx="8" fill="#dcfce7" stroke="#16a34a"/><text x="684" y="65">[1,2,3]   [4,5,6]   [7]</text>
+<rect x="10" y="100" width="150" height="40" rx="8" fill="#f3e8ff" stroke="#9333ea"/><text x="85" y="125">1 2 3 4</text>
+<line x1="162" y1="120" x2="220" y2="120" stroke="#334155" marker-end="url(#a18)"/>
+<rect x="222" y="100" width="200" height="40" rx="8" fill="#ede9fe" stroke="#7c3aed"/><text x="322" y="125" font-weight="700">gather(windowSliding(2))</text>
+<line x1="424" y1="120" x2="482" y2="120" stroke="#334155" marker-end="url(#a18)"/>
+<rect x="484" y="100" width="400" height="40" rx="8" fill="#dcfce7" stroke="#16a34a"/><text x="684" y="125">[1,2]   [2,3]   [3,4]</text></g>
+</svg>
+<script type="text/plain" class="code">
+// Java 16
+List<String> a = emps.stream().map(Employee::name).toList();          // unmodifiable
+List<Object> b = Stream.of(1, 2, 3).<Object>mapMulti((n, sink) -> {  // emit 0..n items without creating tiny streams
+    if (n != 2) { sink.accept(n); sink.accept("#" + n); }
+}).toList();                                                          // [1, #1, 3, #3]
+
+// Java 24: java.util.stream.Gatherers
+Stream.of(1, 2, 3, 4, 5, 6, 7).gather(Gatherers.windowFixed(3)).toList();    // [[1,2,3], [4,5,6], [7]]
+Stream.of(1, 2, 3, 4).gather(Gatherers.windowSliding(2)).toList();          // [[1,2], [2,3], [3,4]]
+Stream.of(1, 2, 3, 4).gather(Gatherers.scan(() -> 0, Integer::sum)).toList(); // [1, 3, 6, 10] running total
+Stream.of(1, 2, 3, 4).gather(Gatherers.fold(() -> 0, Integer::sum)).toList(); // [10]  (fold = reduce as an intermediate op)
+// bounded parallel I/O on virtual threads, results kept in order
+List<String> bodies = urls.stream().gather(Gatherers.mapConcurrent(8, client::fetch)).toList();
+</script>
+<div class="box tip"><b class="h">💡 Tip</b>Typical Spring use: <code>windowFixed(500)</code> to batch a stream of IDs into chunks for <code>repository.saveAll(chunk)</code> or a bulk SQL <code>IN (...)</code>. On Java 21 use <code>IntStream.range</code> + <code>subList</code> or Guava <code>Lists.partition</code>.</div>
+<div class="box warn"><b class="h">⚠ Pitfall</b>Gatherers are <b>final in Java 24</b>. On Java 21 (preview in 22/23) they are not available without <code>--enable-preview</code>. Check your Boot service’s Java version before using them.</div>
+
+<h3>Worksheet 18</h3>
+<div class="q e"><div class="qt"><div class="body">Two differences between <code>stream.toList()</code> and <code>collect(Collectors.toList())</code>?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>(1) <code>toList()</code> returns an <b>unmodifiable</b> list (add/remove throw <code>UnsupportedOperationException</code>); the collector returns a modifiable <code>ArrayList</code> in practice. (2) <code>toList()</code> accepts <code>null</code> elements (unlike <code>List.copyOf</code>/<code>toUnmodifiableList</code>), and is shorter and can size the result array exactly.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">When would you choose <code>mapMulti</code> over <code>flatMap</code>?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>When each input produces a <b>small number</b> (often 0 or 1) of outputs, or when you already have imperative code to push values: <code>mapMulti</code> avoids allocating a temporary <code>Stream</code> per element, so it is faster in that case. For ordinary “one element → a collection” use <code>flatMap</code>, which is easier to read. Remember the type witness <code>&lt;R&gt;</code> is often needed.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Split <code>List.of(1..10)</code> into chunks of 4 using Gatherers. What is the result, and what would you do on Java 21?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">IntStream.rangeClosed(1, 10).boxed().gather(Gatherers.windowFixed(4)).toList();
+// [[1,2,3,4], [5,6,7,8], [9,10]]     (last window may be smaller)
+// Java 21 alternative:
+IntStream.range(0, (list.size() + 3) / 4).mapToObj(i -> list.subList(i * 4, Math.min(list.size(), i * 4 + 4))).toList();</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Given daily sales <code>Stream.of(10, 20, 30, 40)</code>, produce (a) the running total, (b) the moving sum of 2 days. Which gatherers?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">Stream.of(10, 20, 30, 40).gather(Gatherers.scan(() -> 0, Integer::sum)).toList();                  // [10, 30, 60, 100]
+Stream.of(10, 20, 30, 40).gather(Gatherers.windowSliding(2))
+      .map(w -> w.stream().mapToInt(Integer::intValue).sum()).toList();                             // [30, 50, 70]</script></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">Why were Gatherers introduced? Give a use case that was awkward with streams before Java 24.</div></div>
+<details><summary>Answer</summary><div class="ans"><p>The set of intermediate operations was fixed; stateful or many-to-many steps (windowing, running totals, <code>distinctBy(key)</code>, take-until, bounded-concurrency mapping) had to be implemented by breaking out of the pipeline (<code>collect</code> to a list and loop again) or with fragile hacks (<code>peek</code>/<code>AtomicInteger</code>). A <code>Gatherer</code> is a user-defined intermediate op with optional state, can short-circuit, and works with parallel streams if it supplies a combiner. They complement <code>Collector</code> (terminal) the way <code>map</code> complements <code>reduce</code>.</p></div></details></div>
+</section>
+
+<section class="sec" id="s19" style="--c:#db2777">
+<h2>19 · Java 22 – 25 language and library features</h2>
+<p class="goal">What to know to stay current: unnamed variables, scoped values, simpler constructors and entry points.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> features arriving between Java 22 and 25 (LTS).</li><li><b>Must know:</b> unnamed variables and patterns <code>_</code> are final in 22.</li><li><b>Must know:</b> scoped values replace many <code>ThreadLocal</code> uses; flexible constructor bodies allow statements before <code>super()</code>.</li><li><b>Pitfall:</b> assuming a preview feature is final; preview needs <code>--enable-preview</code>.</li><li><b>Version:</b> 22 unnamed vars; 24 Gatherers; 25 LTS finalises several features listed here.</li></ul></div>
+<script type="text/plain" class="code">
+// Java 22: unnamed variables and patterns (final)
+try { Integer.parseInt(s); } catch (NumberFormatException _) { return 0; }       // unused exception
+map.forEach((_, value) -> process(value));                                       // unused lambda param
+if (shape instanceof Rect(double w, _)) { /* only width matters */ }
+for (var _ : list) count++;                                                      // unused loop variable
+
+// Java 25: scoped values (final): immutable, inheritable per-task context, designed for virtual threads
+static final ScopedValue<String> TENANT = ScopedValue.newInstance();
+ScopedValue.where(TENANT, "acme").run(() -> service.handle());                   // service reads TENANT.get()
+
+// Java 25: flexible constructor bodies: validate BEFORE super(...)
+class Adult extends Person {
+    Adult(String name, int age) {
+        if (age < 18) throw new IllegalArgumentException("not an adult");
+        super(name, age);
+    }
+}
+// Java 25: compact source file + module import
+import module java.base;                                 // all packages of java.base: List, Map, Stream, ...
+void main() { IO.println("hello"); }                    // no class, no String[] args, no public static
+</script>
+<table><tr><th>Ver</th><th>Feature (final)</th><th>Why it matters</th></tr>
+<tr><td>22</td><td>Unnamed variables <code>_</code></td><td>Signals “intentionally unused”, cleaner catch/lambda/patterns</td></tr>
+<tr><td>22</td><td>Foreign Function &amp; Memory API</td><td>Safe native interop (replaces JNI)</td></tr>
+<tr><td>24</td><td>Stream Gatherers; no virtual-thread pinning on <code>synchronized</code>; Class-File API</td><td>Custom stream ops; virtual threads work well with legacy locking</td></tr>
+<tr><td>25 LTS</td><td>Scoped values, flexible constructor bodies, compact source files, module imports, compact object headers</td><td>Cleaner context passing, smaller heap, easier scripts</td></tr></table>
+<div class="box tip"><b class="h">💡 Tip</b>Learning path: master <b>21</b> first (it is where Spring Boot teams are landing), then add 24–25 items as you adopt Java 25 LTS. Preview features need <code>--enable-preview</code>; never rely on them in production.</div>
+
+<h3>Worksheet 19</h3>
+<div class="q e"><div class="qt"><div class="body">What is the purpose of <code>_</code> in <code>catch (IOException _)</code> and <code>(_, v) -> ...</code>? Since which version is it final?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>It declares a variable you will deliberately not use, so readers and static analysers know it is intentional (and the compiler does not warn). Final in <b>Java 22</b> (JEP 456); a lone <code>_</code> cannot be referenced.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Match each feature with the Java version in which it became <b>final</b>: (a) records (b) pattern switch (c) virtual threads (d) Stream Gatherers (e) text blocks (f) <code>var</code> (g) scoped values. Options: 10, 15, 16, 21, 21, 24, 25.</div></div>
+<details><summary>Answer</summary><div class="ans"><p>(a) records <b>16</b> (b) pattern switch <b>21</b> (c) virtual threads <b>21</b> (d) Gatherers <b>24</b> (e) text blocks <b>15</b> (f) <code>var</code> <b>10</b> (g) scoped values <b>25</b>.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">How do <code>ScopedValue</code>s differ from <code>ThreadLocal</code>, and why do they suit virtual threads?</div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>ThreadLocal</code> is mutable, lives until removed (leaks on pooled threads) and every virtual thread copying inherited values is costly with millions of threads. A <code>ScopedValue</code> is <b>immutable</b>, bound for a bounded dynamic scope (<code>where(...).run(...)</code>), automatically unbound afterwards, and is shared cheaply with child tasks created in <code>StructuredTaskScope</code>. Use cases: tenant id, correlation id, authenticated principal passed implicitly down a call tree.</p></div></details></div>
+</section>
+
+<section class="sec" id="s20" style="--c:#0284c7">
+<h2>20 · CompletableFuture &amp; virtual threads</h2>
+<p class="goal">Functional composition for async code, plus the Java 21 alternative: write blocking code on cheap threads.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> <code>CompletableFuture</code> is a composable async result; virtual threads are lightweight JVM threads.</li><li><b>Must know:</b> <code>thenApply</code> maps, <code>thenCompose</code> flattens, <code>thenCombine</code> joins two futures.</li><li><b>Must know:</b> pass your own executor; the default is the common pool.</li><li><b>Pitfall:</b> swallowing exceptions; always add <code>exceptionally</code> or <code>handle</code>.</li><li><b>Version:</b> Java 8; virtual threads final in 21.</li></ul></div>
+<svg viewBox="0 0 900 220">
+<defs><marker id="a20" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#334155"/></marker></defs>
+<rect x="10" y="20" width="190" height="44" rx="10" fill="#e0f2fe" stroke="#0284c7"/><text x="105" y="47" text-anchor="middle">supplyAsync(getUser)</text>
+<rect x="10" y="130" width="190" height="44" rx="10" fill="#e0f2fe" stroke="#0284c7"/><text x="105" y="157" text-anchor="middle">supplyAsync(getOrders)</text>
+<line x1="202" y1="42" x2="330" y2="90" stroke="#334155" marker-end="url(#a20)"/><line x1="202" y1="152" x2="330" y2="104" stroke="#334155" marker-end="url(#a20)"/>
+<rect x="332" y="70" width="180" height="50" rx="10" fill="#fef9c3" stroke="#ca8a04"/><text x="422" y="92" text-anchor="middle" font-weight="700">thenCombine</text><text x="422" y="109" text-anchor="middle" font-size="12">(user, orders) → Profile</text>
+<line x1="514" y1="95" x2="580" y2="95" stroke="#334155" marker-end="url(#a20)"/>
+<rect x="582" y="70" width="140" height="50" rx="10" fill="#dcfce7" stroke="#16a34a"/><text x="652" y="92" text-anchor="middle" font-weight="700">thenApply</text><text x="652" y="109" text-anchor="middle" font-size="12">Profile → ProfileDto</text>
+<line x1="724" y1="95" x2="780" y2="95" stroke="#334155" marker-end="url(#a20)"/>
+<rect x="782" y="70" width="108" height="50" rx="10" fill="#fee2e2" stroke="#dc2626"/><text x="836" y="92" text-anchor="middle" font-weight="700">exceptionally</text><text x="836" y="109" text-anchor="middle" font-size="12">fallback</text>
+<text x="10" y="205" fill="#475569" font-size="12">Both calls run in parallel; total latency = max(user, orders), not the sum.</text>
+</svg>
+<table><tr><th>CompletableFuture</th><th>Stream / Optional analogue</th><th>Use</th></tr>
+<tr><td><code>thenApply(f)</code></td><td><code>map</code></td><td>transform the value</td></tr>
+<tr><td><code>thenCompose(f)</code></td><td><code>flatMap</code></td><td>f itself returns a CompletableFuture (dependent async call)</td></tr>
+<tr><td><code>thenCombine(other, f)</code></td><td>zip</td><td>join two independent results</td></tr>
+<tr><td><code>thenAccept(c)</code> / <code>thenRun(r)</code></td><td><code>forEach</code></td><td>consume / run after</td></tr>
+<tr><td><code>exceptionally / handle / whenComplete</code></td><td>catch / finally</td><td>error handling</td></tr>
+<tr><td><code>allOf(...)</code> / <code>anyOf(...)</code></td><td>—</td><td>wait for all / first</td></tr></table>
+<script type="text/plain" class="code">
+ExecutorService io = Executors.newFixedThreadPool(8);
+CompletableFuture<User>        u = CompletableFuture.supplyAsync(() -> userClient.get(7), io);
+CompletableFuture<List<Order>> o = CompletableFuture.supplyAsync(() -> orderClient.listFor(7), io);
+Profile p = u.thenCombine(o, Profile::new)
+             .exceptionally(ex -> Profile.empty())          // recovers from any failure above
+             .orTimeout(2, TimeUnit.SECONDS)
+             .join();                                         // unchecked CompletionException; get() throws checked exceptions
+
+List<CompletableFuture<Price>> fs = skus.stream().map(s -> CompletableFuture.supplyAsync(() -> price(s), io)).toList();
+CompletableFuture.allOf(fs.toArray(CompletableFuture[]::new)).join();
+List<Price> prices = fs.stream().map(CompletableFuture::join).toList();
+
+// Java 21 virtual threads: plain blocking code, one cheap thread per task
+try (var ex = Executors.newVirtualThreadPerTaskExecutor()) {
+    List<Future<Price>> futures = skus.stream().map(s -> ex.submit(() -> price(s))).toList();
+}
+</script>
+<div class="box spring"><b class="h">🌱 Spring Boot 3.2+</b><code>spring.threads.virtual.enabled=true</code> makes Tomcat and <code>@Async</code>/scheduling use virtual threads. Great for blocking I/O-heavy REST services. Do not pool virtual threads, avoid <code>ThreadLocal</code> heavy caches, and on Java 21–23 beware long <code>synchronized</code> blocks around I/O (pinning; fixed in Java 24).</div>
+<div class="box warn"><b class="h">⚠ Pitfall</b>Without an executor argument, <code>supplyAsync</code> runs on the shared common pool (cores − 1 threads): a few slow HTTP calls can starve everything else. Always pass a dedicated executor for blocking work, and add timeouts.</div>
+
+<h3>Worksheet 20</h3>
+<div class="q e"><div class="qt"><div class="body">Match: <code>thenApply</code>, <code>thenCompose</code>, <code>thenCombine</code>. Which one avoids a <code>CompletableFuture&lt;CompletableFuture&lt;T&gt;&gt;</code>?</div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>thenApply</code> = <code>map</code> (function returns a plain value); <code>thenCompose</code> = <code>flatMap</code> (function returns another <code>CompletableFuture</code>: <b>this one avoids the nesting</b>); <code>thenCombine</code> = merge two independent futures with a <code>BiFunction</code>.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Call three services in parallel (<code>a()</code>, <code>b()</code>, <code>c()</code> returning Strings) and join them into one string. Then say what <code>join</code> does that <code>get</code> doesn’t.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">var fa = CompletableFuture.supplyAsync(() -> a(), io);
+var fb = CompletableFuture.supplyAsync(() -> b(), io);
+var fc = CompletableFuture.supplyAsync(() -> c(), io);
+String all = fa.thenCombine(fb, (x, y) -> x + y).thenCombine(fc, (xy, z) -> xy + z).join();
+// or: allOf(fa, fb, fc).thenApply(v -> fa.join() + fb.join() + fc.join()).join()</script>
+<p><code>join()</code> throws unchecked <code>CompletionException</code> (convenient in lambdas); <code>get()</code> throws checked <code>InterruptedException</code>/<code>ExecutionException</code>.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Explain <code>exceptionally</code>, <code>handle</code> and <code>whenComplete</code>. Which can change the result?</div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>exceptionally(ex -> fallback)</code>: runs only on failure and supplies a replacement value. <code>handle((value, ex) -> result)</code>: runs always, can return a new value (success or recovery). <code>whenComplete((value, ex) -> …)</code>: runs always but only <b>observes</b> (logging, cleanup); the original result or exception is propagated unchanged. So <code>exceptionally</code> and <code>handle</code> can change the outcome; <code>whenComplete</code> cannot.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">What is the risk of calling <code>CompletableFuture.supplyAsync(() -> restClient.get(...))</code> without an executor inside a Spring service?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>It runs on <code>ForkJoinPool.commonPool()</code> (also used by parallel streams), with only cores − 1 threads (on a 2-CPU container that is 1 thread, or a plain thread-per-task fallback). Blocking calls exhaust it and unrelated async work stalls. Pass a bounded <code>Executor</code> bean (<code>ThreadPoolTaskExecutor</code>) or a virtual-thread executor; set timeouts with <code>orTimeout</code>.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">When do virtual threads help, when not? Mention pinning and how to enable them in Spring Boot.</div></div>
+<details><summary>Answer</summary><div class="ans"><p>They help with <b>blocking I/O concurrency</b> (HTTP, JDBC, messaging): thousands of concurrent requests with simple synchronous code. They do <b>not</b> speed up CPU-bound work and are not to be pooled. <b>Pinning</b>: in Java 21–23 a virtual thread blocked inside <code>synchronized</code> (or native code) pins its carrier thread, reducing scalability; Java 24 removes the <code>synchronized</code> case. Also limit downstream concurrency with a <code>Semaphore</code> (DB pool size is still finite). Enable in Boot 3.2+: <code>spring.threads.virtual.enabled=true</code>.</p></div></details></div>
+</section>
+
+<section class="sec" id="s21" style="--c:#059669">
+<h2>21 · Functional style in Spring Boot code</h2>
+<p class="goal">Where lambdas, streams and Optional show up daily in a Boot application, and where <i>not</i> to use them.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> daily functional patterns in controllers, services and repositories.</li><li><b>Must know:</b> <code>repo.findById(id).orElseThrow(...)</code>, <code>stream().map(Dto::from).toList()</code>.</li><li><b>Must know:</b> functional endpoints (<code>RouterFunction</code>) and <code>Supplier</code>/<code>Function</code> beans exist.</li><li><b>Pitfall:</b> lazy streams over JPA collections outside a transaction; <code>@Transactional</code> and proxies ignore lambdas called elsewhere.</li><li><b>Version:</b> Spring Boot 3.x requires Java 17 minimum.</li></ul></div>
+<svg viewBox="0 0 900 190">
+<defs><marker id="a21" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="#334155"/></marker></defs>
+<rect x="10" y="30" width="200" height="110" rx="12" fill="#ecfdf5" stroke="#059669"/><text x="110" y="52" text-anchor="middle" font-weight="700" fill="#047857">Controller</text><text x="110" y="75" text-anchor="middle" font-size="12">records as request/response</text><text x="110" y="93" text-anchor="middle" font-size="12">Optional → ResponseEntity</text><text x="110" y="111" text-anchor="middle" font-size="12">orElseThrow(NotFound)</text>
+<line x1="212" y1="85" x2="258" y2="85" stroke="#334155" marker-end="url(#a21)"/>
+<rect x="260" y="30" width="200" height="110" rx="12" fill="#eff6ff" stroke="#2563eb"/><text x="360" y="52" text-anchor="middle" font-weight="700" fill="#1d4ed8">Service</text><text x="360" y="75" text-anchor="middle" font-size="12">stream / collectors for mapping</text><text x="360" y="93" text-anchor="middle" font-size="12">strategy via Map&lt;String,Handler&gt;</text><text x="360" y="111" text-anchor="middle" font-size="12">TransactionTemplate lambda</text>
+<line x1="462" y1="85" x2="508" y2="85" stroke="#334155" marker-end="url(#a21)"/>
+<rect x="510" y="30" width="200" height="110" rx="12" fill="#fff7ed" stroke="#ea580c"/><text x="610" y="52" text-anchor="middle" font-weight="700" fill="#c2410c">Repository</text><text x="610" y="75" text-anchor="middle" font-size="12">Optional&lt;T&gt; findById</text><text x="610" y="93" text-anchor="middle" font-size="12">Stream&lt;T&gt; (needs @Transactional)</text><text x="610" y="111" text-anchor="middle" font-size="12">GROUP BY in SQL, not in Java</text>
+<line x1="712" y1="85" x2="758" y2="85" stroke="#334155" marker-end="url(#a21)"/>
+<rect x="760" y="30" width="130" height="110" rx="12" fill="#f5f3ff" stroke="#7c3aed"/><text x="825" y="52" text-anchor="middle" font-weight="700" fill="#6d28d9">Clients</text><text x="825" y="75" text-anchor="middle" font-size="12">RestClient</text><text x="825" y="93" text-anchor="middle" font-size="12">onStatus(...)</text><text x="825" y="111" text-anchor="middle" font-size="12">CompletableFuture</text>
+<text x="450" y="170" text-anchor="middle" fill="#475569" font-size="12">Rule: functional style for in-memory transformation and composition. Let the database do filtering, sorting and aggregation.</text>
+</svg>
+<script type="text/plain" class="code">
+// Controller: Optional -> 404
+@GetMapping("/employees/{id}")
+EmployeeDto get(@PathVariable int id) {
+    return repo.findById(id).map(EmployeeDto::from)
+               .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "employee " + id));
+}
+record EmployeeDto(int id, String name, String dept) {
+    static EmployeeDto from(Employee e) { return new EmployeeDto(e.id(), e.name(), e.dept()); }
+}
+Page<EmployeeDto> page = repo.findAll(pageable).map(EmployeeDto::from);       // Page.map is functional too
+
+// Streaming a big result set: must be inside a transaction and CLOSED
+@Transactional(readOnly = true)
+public long exportEng() {
+    try (Stream<Employee> s = repo.streamByDept("ENG")) {      // Stream<Employee> streamByDept(String dept);
+        return s.map(EmployeeDto::from).peek(writer::write).count();
+    }
+}
+
+// JdbcTemplate: RowMapper is a lambda
+List<Employee> list = jdbc.query("select * from employee where dept = ?",
+        (rs, i) -> new Employee(rs.getInt("id"), rs.getString("name"), rs.getString("dept"),
+                                rs.getDouble("salary"), rs.getInt("age"), List.of()), "ENG");
+
+// Strategy pattern: Spring injects ALL beans of a type, no if/else chain
+@Service class PaymentService {
+    private final Map<String, PaymentHandler> handlers;
+    PaymentService(List<PaymentHandler> hs) { handlers = hs.stream().collect(toMap(PaymentHandler::type, Function.identity())); }
+    Receipt pay(String type, Order o) {
+        return Optional.ofNullable(handlers.get(type)).orElseThrow(() -> new IllegalArgumentException(type)).handle(o);
+    }
+}
+
+// Programmatic transaction with a lambda
+Employee saved = txTemplate.execute(status -> repo.save(new Employee(...)));
+
+// RestClient (Spring 6.1 / Boot 3.2)
+Employee e = restClient.get().uri("/employees/{id}", 7).retrieve()
+        .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> { throw new NotFoundException(); })
+        .body(Employee.class);
+</script>
+<div class="box warn"><b class="h">⚠ Pitfalls</b>(1) <code>findAll().stream().filter(...)</code> loads the whole table; use a derived query or <code>@Query</code>. (2) Do not use a lazy-loaded entity relation inside a stream after the transaction ended (<code>LazyInitializationException</code>). (3) Do not call a repository inside <code>map</code> for each element (N+1 queries): fetch in bulk with <code>findAllById</code>, then build a <code>Map</code>.</div>
+<div class="box tip"><b class="h">💡 Tip</b>Prefer constructor injection of <code>List&lt;Handler&gt;</code> / <code>Map&lt;String,Handler&gt;</code> and <code>ObjectProvider&lt;T&gt;.ifAvailable(...)</code> for optional beans; both are functional-friendly and easy to test with plain lambdas as fakes.</div>
+
+<h3>Worksheet 21</h3>
+<div class="q e"><div class="qt"><div class="body">Rewrite this controller method in functional style (return the DTO or throw a 404):
+<script type="text/plain" class="code">Employee e = repo.findById(id).orElse(null);
+if (e == null) throw new NotFoundException(id);
+return new EmployeeDto(e.id(), e.name(), e.dept());</script></div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">return repo.findById(id).map(EmployeeDto::from).orElseThrow(() -> new NotFoundException(id));</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">What two things must you do when a Spring Data repository method returns <code>Stream&lt;T&gt;</code>? What happens if you forget?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>(1) Call it inside a <b>transaction</b> (<code>@Transactional(readOnly = true)</code>), because the cursor stays open; (2) <b>close</b> the stream (try-with-resources). Forgetting the transaction gives “You’re trying to execute a streaming query method without a surrounding transaction”; forgetting to close leaks the DB connection/cursor.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Replace this if/else with the strategy pattern using Spring injection. What is the benefit?
+<script type="text/plain" class="code">if (type.equals("CARD")) return card.pay(o);
+else if (type.equals("UPI")) return upi.pay(o);
+else if (type.equals("PAYPAL")) return paypal.pay(o);
+throw new IllegalArgumentException(type);</script></div></div>
+<details><summary>Answer</summary><div class="ans"><p>Define <code>interface PaymentHandler { String type(); Receipt handle(Order o); }</code>, implement it as three <code>@Component</code>s, inject <code>List&lt;PaymentHandler&gt;</code>, build a <code>Map&lt;String,PaymentHandler&gt;</code> with <code>toMap(PaymentHandler::type, identity())</code>, and look up with <code>Optional.ofNullable(map.get(type)).orElseThrow(...)</code> (see code above). Benefit: <b>open/closed</b>: add a new payment type by adding one class, no change to the service; each handler is tested in isolation.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Why is this code a performance bug, and how do you fix it?
+<script type="text/plain" class="code">List<OrderDto> r = orderIds.stream()
+    .map(id -> orderRepo.findById(id).orElseThrow())     // one query per id
+    .map(OrderDto::from).toList();</script></div></div>
+<details><summary>Answer</summary><div class="ans"><p>It is an <b>N+1 query</b>: one SELECT per id. Fetch in bulk and map in memory: <code>orderRepo.findAllById(orderIds).stream().map(OrderDto::from).toList()</code>. If you need lookup by id: <code>Map&lt;Long,Order&gt; byId = repo.findAllById(ids).stream().collect(toMap(Order::getId, identity()))</code>. Streams are not a license to forget the database.</p></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">When should aggregation be done in Java streams and when in SQL? Example: total revenue per customer for 5 million orders.</div></div>
+<details><summary>Answer</summary><div class="ans"><p>Use SQL (<code>select customer, sum(amount) … group by customer</code>, via a Spring Data projection) for large data: the DB has indexes, streams results, and the app avoids loading millions of rows. Use Java streams for in-memory data you already have (API responses, small result sets, post-processing, combining results from several sources). Heuristic: if you would call <code>findAll()</code> to then filter/group, push it down to the DB.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">Reactive vs streams: how is a Reactor <code>Flux</code> different from a <code>java.util.stream.Stream</code>, and what do <code>map</code>/<code>flatMap</code> mean there?</div></div>
+<details><summary>Answer</summary><div class="ans"><p>A <code>Stream</code> is a synchronous, pull-based, single-use pipeline over data you can iterate. A <code>Flux</code>/<code>Mono</code> is an asynchronous, push-based, back-pressured publisher: nothing happens until someone <b>subscribes</b>, values may arrive over time, and errors/completion are signals. <code>map</code> transforms an element synchronously; <code>flatMap</code> takes a function returning a <code>Publisher</code> (e.g. an async HTTP call) and merges the inner results (possibly out of order). Same vocabulary, different execution model; with virtual threads many teams stay on blocking MVC + streams for simplicity.</p></div></details></div>
+</section>
+
+<section class="sec" id="s22" style="--c:#c026d3">
+<h2>22 · Functional patterns &amp; gotchas</h2>
+<p class="goal">Recipes you will reuse: exceptions in lambdas, memoization, result types, laziness, command tables.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> practical recipes that make lambdas robust.</li><li><b>Must know:</b> checked exceptions need a wrapper functional interface or try/catch inside the lambda.</li><li><b>Must know:</b> memoize with <code>map.computeIfAbsent</code>; model outcomes as a sealed <code>Result</code> instead of throwing.</li><li><b>Pitfall:</b> recursive <code>computeIfAbsent</code> on <code>HashMap</code> can throw <code>ConcurrentModificationException</code>.</li><li><b>Version:</b> core Java 8; Result types shine with 17+ sealed and records.</li></ul></div>
+<script type="text/plain" class="code">
+// 1. Checked exceptions inside lambdas: wrap once, reuse everywhere
+@FunctionalInterface interface ThrowingFunction<T, R, E extends Exception> { R apply(T t) throws E; }
+static <T, R> Function<T, R> unchecked(ThrowingFunction<T, R, ?> f) {
+    return t -> { try { return f.apply(t); } catch (Exception e) { throw new RuntimeException(e); } };
+}
+paths.stream().map(unchecked(Files::readString)).toList();
+
+// 2. Result type instead of exceptions for expected failures (sealed + records)
+sealed interface Result<T> {
+    record Ok<T>(T value) implements Result<T> {}
+    record Err<T>(String error) implements Result<T> {}
+    default <R> Result<R> map(Function<? super T, ? extends R> f) {
+        return switch (this) {
+            case Ok<T> ok   -> new Ok<>(f.apply(ok.value()));
+            case Err<T> err -> new Err<>(err.error());
+        };
+    }
+}
+
+// 3. Command table: Map<String, function> replaces switch
+Map<String, BinaryOperator<Integer>> ops = Map.of("add", Integer::sum, "sub", (a, b) -> a - b, "mul", (a, b) -> a * b);
+ops.get("mul").apply(4, 5);          // 20
+
+// 4. Laziness with Supplier
+log.atDebug().log(() -> expensiveDump());               // only built if DEBUG is on
+Supplier<Config> cfg = Suppliers.memoize(this::loadConfig);   // (Guava) compute once, on first use
+</script>
+<div class="box warn"><b class="h">⚠ Pitfall: recursive computeIfAbsent</b>Memoising recursion with <code>map.computeIfAbsent(n, k -> fib(k - 1) + fib(k - 2))</code> on a <code>HashMap</code> throws <code>ConcurrentModificationException</code> (Java 9+); <code>ConcurrentHashMap</code> may throw <code>IllegalStateException: Recursive update</code> or deadlock. Use <code>get/put</code> manually, or compute iteratively.</div>
+<div class="box mem"><b class="h">🧠 Remember</b>Exceptions for <i>bugs and infrastructure faults</i>; Result/Optional for <i>expected business outcomes</i>. Keep lambdas short (≤ 3 lines): longer → extract a named method and use a method reference.</div>
+
+<h3>Worksheet 22</h3>
+<div class="q m"><div class="qt"><div class="body">Why doesn’t <code>paths.stream().map(p -> Files.readString(p))</code> compile? Give two fixes.</div></div>
+<details><summary>Answer</summary><div class="ans"><p><code>Files.readString</code> throws the <b>checked</b> <code>IOException</code>, but <code>Function.apply</code> declares none. Fixes: (1) wrap in the lambda: <code>p -> { try { return Files.readString(p); } catch (IOException e) { throw new UncheckedIOException(e); } }</code>; (2) a reusable <code>unchecked(...)</code> wrapper (see above); or (3) handle per element returning a <code>Result</code>/<code>Optional</code> so one bad file doesn’t abort the stream.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">What goes wrong?
+<script type="text/plain" class="code">Map<Integer, Long> memo = new HashMap<>();
+long fib(int n) {
+    if (n < 2) return n;
+    return memo.computeIfAbsent(n, k -> fib(k - 1) + fib(k - 2));
+}</script></div></div>
+<details><summary>Answer</summary><div class="ans"><p>The mapping function modifies the same map (via the recursive call) while <code>computeIfAbsent</code> is in progress: <code>HashMap</code> (Java 9+) detects this and throws <code>ConcurrentModificationException</code>. Fix:</p>
+<script type="text/plain" class="code">long fib(int n) {
+    if (n < 2) return n;
+    Long cached = memo.get(n);
+    if (cached != null) return cached;
+    long v = fib(n - 1) + fib(n - 2);
+    memo.put(n, v);
+    return v;
+}</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Using the sealed <code>Result</code> above, write <code>Result&lt;Integer&gt; parse(String s)</code> returning <code>Ok</code> or <code>Err</code>, and chain <code>.map(n -> n * 2)</code>. What is the result for <code>"21"</code> and <code>"x"</code>?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">static Result<Integer> parse(String s) {
+    try { return new Result.Ok<>(Integer.parseInt(s)); }
+    catch (NumberFormatException e) { return new Result.Err<>("not a number: " + s); }
+}
+parse("21").map(n -> n * 2);   // Ok[value=42]
+parse("x").map(n -> n * 2);    // Err[error=not a number: x]   (map is skipped)</script></div></details></div>
+
+<div class="q m"><div class="qt"><div class="body">Implement a calculator <code>int calc(String op, int a, int b)</code> without <code>switch</code>/<code>if</code>, supporting add, sub, mul, div, and failing clearly for unknown ops.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">private static final Map<String, IntBinaryOperator> OPS = Map.of(
+        "add", (a, b) -> a + b, "sub", (a, b) -> a - b,
+        "mul", (a, b) -> a * b, "div", (a, b) -> a / b);
+
+static int calc(String op, int a, int b) {
+    return Optional.ofNullable(OPS.get(op))
+                   .orElseThrow(() -> new IllegalArgumentException("unknown op " + op))
+                   .applyAsInt(a, b);
+}
+calc("mul", 4, 5);   // 20</script></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">What is lazy evaluation with <code>Supplier</code> and why is <code>logger.debug("x=" + expensive())</code> wasteful? Show two fixes.</div></div>
+<details><summary>Answer</summary><div class="ans"><p>The string concatenation and <code>expensive()</code> run <b>before</b> the logger checks the level, so cost is paid even when DEBUG is off. Fixes: parameterised logging <code>log.debug("x={}", x)</code> (only formats if enabled, but the argument expression is still evaluated), or defer the computation: <code>log.atDebug().log(() -> "x=" + expensive())</code> (SLF4J 2) / <code>if (log.isDebugEnabled())</code>. The same idea: <code>Optional.orElseGet</code>, <code>Map.computeIfAbsent</code>, <code>Stream</code> laziness.</p></div></details></div>
+</section>
+
+<section class="sec" id="s23" style="--c:#dc2626">
+<h2>23 · Capstone: mixed problems (use everything)</h2>
+<p class="goal">Solve without hints. Sample data: the employees from section 0, plus these orders.</p>
+<div class="box glance"><b class="h">⚡ At a glance</b><ul style="margin:2px 0 0 18px;padding:0"><li><b>What:</b> mixed exercises using the employee and order data.</li><li><b>Must know:</b> pick the tool: <code>groupingBy</code> for buckets, <code>flatMap</code> for nested lists, <code>reduce</code>/<code>collect</code> for totals.</li><li><b>Must know:</b> state your pipeline stage by stage before coding.</li><li><b>Pitfall:</b> a clever one-liner that nobody can read; split into named steps.</li><li><b>Version:</b> solutions use Java 17+ idioms, with 21 where noted.</li></ul></div>
+<script type="text/plain" class="code">
+record Item(String name, double price) {}
+record Order(int id, String customer, List<Item> items) {}
+List<Order> orders = List.of(
+    new Order(1, "Asha", List.of(new Item("laptop", 1200), new Item("mouse", 25))),
+    new Order(2, "Ben",  List.of(new Item("monitor", 300))),
+    new Order(3, "Asha", List.of(new Item("keyboard", 80), new Item("mouse", 25))));
+</script>
+<div class="q h"><div class="qt"><div class="body">Return the <b>top two earners per department</b> (names, highest first) as <code>Map&lt;String, List&lt;String&gt;&gt;</code>.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">Map<String, List<String>> top2 = emps.stream().collect(
+    groupingBy(Employee::dept, collectingAndThen(toList(),
+        l -> l.stream().sorted(Comparator.comparingDouble(Employee::salary).reversed())
+              .limit(2).map(Employee::name).toList())));
+// {ENG=[Divya, Asha], OPS=[Fatima, Chen], HR=[Eli]}</script>
+<p>Pattern: group, then post-process each group’s list with <code>collectingAndThen</code>. (Java 24: could use a Gatherer, but this is clear enough.)</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">Count how many employees have each skill, and find the most common skill. Also compute the average salary of employees who know <code>"Java"</code>.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">Map<String, Long> freq = emps.stream().flatMap(e -> e.skills().stream())
+        .collect(groupingBy(Function.identity(), counting()));
+// {Java=3, Spring=2, AWS=2, Kafka=1, Linux=1, Bash=1, Terraform=1, Recruiting=1}
+String best = freq.entrySet().stream().max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse("");   // Java
+double javaAvg = emps.stream().filter(e -> e.skills().contains("Java"))
+        .mapToDouble(Employee::salary).average().orElse(0);       // (125000+98000+145000)/3 = 122666.67</script></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">Give every ENG employee a 10% raise <b>without mutating</b> the originals and compute total payroll afterwards. Why shouldn’t money be a <code>double</code>?</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">record Employee(/* ... */) {
+    Employee withSalary(double s) { return new Employee(id, name, dept, s, age, skills); }   // "wither"
+}
+List<Employee> raised = emps.stream()
+        .map(e -> e.dept().equals("ENG") ? e.withSalary(e.salary() * 1.10) : e).toList();
+double payroll = raised.stream().mapToDouble(Employee::salary).sum();
+// ENG 368,000 -> 404,800 ; others 218,000 -> total about 622,800 (may print 622800.0000000001)</script>
+<p><code>double</code> cannot represent decimals like 0.1 exactly, causing drift. Use <code>BigDecimal</code> (with <code>RoundingMode</code>) and <code>reduce(BigDecimal.ZERO, BigDecimal::add)</code>.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">Find the bugs:
+<script type="text/plain" class="code">Map<String, Employee> byDept = emps.parallelStream().collect(toMap(Employee::dept, e -> e));
+Employee boss = emps.stream().filter(e -> e.age() > 60).findFirst().get();
+List<String> names = new ArrayList<>();
+emps.stream().map(e -> { names.add(e.name()); return e; }).count();</script></div></div>
+<details><summary>Answer</summary><div class="ans"><p>1) <code>toMap</code> without a merge function throws <code>IllegalStateException</code> (duplicate key ENG); also <code>parallelStream</code> is pointless for 6 rows. 2) <code>findFirst().get()</code> on an empty Optional (nobody over 60) throws <code>NoSuchElementException</code>: use <code>orElseThrow(...)</code> with a message or <code>orElse</code>. 3) Side effect inside <code>map</code>, and <code>count()</code> on a sized source may skip <code>map</code> entirely (Java 9+) so <code>names</code> stays <b>empty</b>. Use <code>map(Employee::name).toList()</code>.</p></div></details></div>
+
+<div class="q h"><div class="qt"><div class="body">With the orders data: (a) total spend per customer, (b) set of distinct items bought per customer, (c) the single most expensive item overall.</div></div>
+<details><summary>Answer</summary><div class="ans">
+<script type="text/plain" class="code">Map<String, Double> spend = orders.stream().collect(groupingBy(Order::customer,
+        summingDouble(o -> o.items().stream().mapToDouble(Item::price).sum())));
+// {Asha=1330.0, Ben=300.0}
+
+Map<String, Set<String>> bought = orders.stream().collect(groupingBy(Order::customer,
+        flatMapping(o -> o.items().stream().map(Item::name), toSet())));
+// {Asha=[laptop, mouse, keyboard], Ben=[monitor]}   (set order unspecified)
+
+Optional<Item> priciest = orders.stream().flatMap(o -> o.items().stream())
+        .max(Comparator.comparingDouble(Item::price));          // laptop 1200.0</script></div></details></div>
+</section>
+
+<section class="sec" id="cheat" style="--c:#0f766e">
+<h2>Cheat sheet: pick the right tool</h2>
+<table><tr><th>I want to…</th><th>Use</th></tr>
+<tr><td>keep some, transform some</td><td><code>filter</code>, <code>map</code></td></tr>
+<tr><td>flatten lists / Optionals</td><td><code>flatMap(x -> x.stream())</code>, <code>Optional::stream</code></td></tr>
+<tr><td>group / count / sum by key</td><td><code>groupingBy(key, counting() | summingX | mapping(...))</code></td></tr>
+<tr><td>split true/false</td><td><code>partitioningBy</code></td></tr>
+<tr><td>list → map</td><td><code>toMap(k, v, merge)</code> (always think about duplicates)</td></tr>
+<tr><td>sum / average / stats</td><td><code>mapToInt/Double</code> + <code>sum, average, summaryStatistics</code></td></tr>
+<tr><td>first match / any match</td><td><code>findFirst</code>, <code>anyMatch</code></td></tr>
+<tr><td>sort</td><td><code>Comparator.comparing(...).thenComparing(...).reversed()</code></td></tr>
+<tr><td>null-safe chain</td><td><code>Optional.ofNullable(x).map(...).orElse(...)</code></td></tr>
+<tr><td>counter / multimap</td><td><code>Map.merge(k, 1, Integer::sum)</code> / <code>computeIfAbsent(k, x -> new ArrayList&lt;&gt;()).add(v)</code></td></tr>
+<tr><td>run things in parallel (I/O)</td><td><code>CompletableFuture</code> + executor, or virtual threads (21)</td></tr>
+<tr><td>DTOs and domain unions</td><td><code>record</code>, <code>sealed interface</code> + pattern <code>switch</code></td></tr>
+<tr><td>batch / sliding window</td><td><code>Gatherers.windowFixed / windowSliding</code> (24)</td></tr></table>
+<h3>Ten golden rules</h3>
+<ol>
+<li>Pure lambdas: no mutation of outer state.</li><li>Keep lambdas to 1–3 lines; extract methods otherwise.</li>
+<li>Terminal op decides when work happens; streams are single-use.</li><li><code>orElseGet</code>, not <code>orElse(expensive())</code>.</li>
+<li>Optional is a return type, never a field or parameter.</li><li><code>toMap</code>: always consider duplicate keys.</li>
+<li>Use primitive streams for numbers; <code>BigDecimal</code> for money.</li><li>Parallel streams: only CPU-bound, big, stateless data.</li>
+<li>Let the DB filter and aggregate large data.</li><li>Prefer records + sealed types + pattern switch to model data.</li></ol>
+<div class="box key"><b class="h">🎯 Finished?</b>Check your score in the bar at the top. Below 80%? Re-open the unticked questions after a day. At 90%+ you can review functional Java in a pull request and write it fluently.</div>
+</section>
+</main>
+<script>
+const KEY='jfp-done-v1';
+let done=new Set(JSON.parse(localStorage.getItem(KEY)||'[]'));
+function hl(src){
+  const esc=src.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const kw='abstract|assert|boolean|break|byte|case|catch|char|class|const|continue|default|do|double|else|enum|extends|final|finally|float|for|if|implements|import|instanceof|int|interface|long|new|null|package|permits|private|protected|public|record|return|sealed|short|static|super|switch|this|throw|throws|try|var|void|when|while|yield|true|false|non-sealed|module';
+  const re=new RegExp('(\\/\\/.*|\\/\\*[\\s\\S]*?\\*\\/)|("""[\\s\\S]*?"""|"(?:\\\\.|[^"\\\\])*")|(@\\w+)|\\b('+kw+')\\b|\\b([A-Z]\\w*)\\b|\\b(\\d[\\d_.]*[LDfd]?)\\b','g');
+  return esc.replace(re,(m,c,s,a,k,t,n)=>c?'<span class="c">'+c+'</span>':s?'<span class="s">'+s+'</span>':a?'<span class="a">'+a+'</span>':k?'<span class="k">'+k+'</span>':t?'<span class="t">'+t+'</span>':'<span class="n">'+n+'</span>');
+}
+document.querySelectorAll('script.code').forEach(s=>{
+  const pre=document.createElement('pre');pre.className='code';
+  const code=document.createElement('code');
+  code.innerHTML=hl(s.textContent.replace(/^\n/,'').replace(/\s+$/,''));
+  pre.appendChild(code);s.replaceWith(pre);
+});
+const nav=document.getElementById('side');
+let n=0;
+document.querySelectorAll('section.sec').forEach(sec=>{
+  const qs=sec.querySelectorAll('.q');
+  const h2=sec.querySelector('h2');
+  const a=document.createElement('a');a.href='#'+sec.id;a.style.setProperty('--c',getComputedStyle(sec).getPropertyValue('--c'));
+  a.innerHTML='<span>'+h2.textContent.replace(/\(.*\)/,'').trim()+'</span><small></small>';
+  nav.appendChild(a);
+  sec._a=a;
+  if(qs.length){const cnt=document.createElement('span');cnt.className='cnt';h2.appendChild(cnt);sec._cnt=cnt;}
+  qs.forEach(q=>{
+    n++;q.dataset.n=n;
+    const lvl=q.classList.contains('e')?'easy':q.classList.contains('m')?'medium':'hard';
+    const t=q.querySelector('.qt');
+    const badge=document.createElement('span');badge.className='qn';badge.textContent='Q'+n;
+    const lv=document.createElement('span');lv.className='lv';lv.textContent=lvl;
+    const lab=document.createElement('label');
+    const cb=document.createElement('input');cb.type='checkbox';cb.checked=done.has(n);
+    lab.appendChild(cb);lab.append(' got it');
+    cb.onchange=()=>{const k=+q.dataset.n;cb.checked?done.add(k):done.delete(k);localStorage.setItem(KEY,JSON.stringify([...done]));upd();};
+    t.prepend(badge);t.insertBefore(lv,t.querySelector('.body').nextSibling);t.appendChild(lab);
+  });
+});
+function upd(){
+  const total=document.querySelectorAll('.q').length;
+  document.querySelectorAll('.q').forEach(q=>{q.classList.toggle('done',done.has(+q.dataset.n));q.querySelector('input').checked=done.has(+q.dataset.n);});
+  document.querySelectorAll('section.sec').forEach(sec=>{
+    const qs=[...sec.querySelectorAll('.q')];if(!qs.length)return;
+    const d=qs.filter(q=>done.has(+q.dataset.n)).length;
+    sec._cnt.textContent=d+' / '+qs.length+' done';sec._a.querySelector('small').textContent=d+'/'+qs.length;
+  });
+  document.getElementById('pt').textContent=done.size+' / '+total+' ('+Math.round(100*done.size/total)+'%)';
+  document.getElementById('pf').style.width=(100*done.size/total)+'%';
+}
+function toggleAll(o){document.querySelectorAll('.q details').forEach(d=>d.open=o);}
+function resetP(){if(confirm('Reset all progress?')){done.clear();localStorage.removeItem(KEY);upd();}}
+window.addEventListener('beforeprint',()=>toggleAll(true));
+upd();
+</script>
+</body></html>
