@@ -2,12 +2,14 @@ import type { QuizQuestion } from './types';
 
 export const r = String.raw;
 
+type Extra = Partial<Pick<QuizQuestion, 'context' | 'note' | 'explain' | 'remember'>>;
+
 export function q(
   id: string,
   section: string,
   prompt: string,
   answers: string[],
-  extra: { context?: string; note?: string } = {},
+  extra: Extra = {},
 ): QuizQuestion {
   return { id, section, prompt, answers, ...extra };
 }
@@ -19,7 +21,7 @@ export function mc(
   prompt: string,
   correct: string,
   wrong: string[],
-  extra: { context?: string; note?: string } = {},
+  extra: Extra = {},
 ): QuizQuestion {
   return { id, section, prompt, answers: [correct], choices: [correct, ...wrong], ...extra };
 }
