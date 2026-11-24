@@ -1,6 +1,7 @@
 import type { Quiz, QuizQuestion } from './types';
 import { mc, r, rankQuestions } from './helpers';
 import { bigoPriority } from './bigo-priority';
+import { bigoExplanations } from './bigo-explanations';
 
 const authored: QuizQuestion[] = [
   // Reading constraints
@@ -728,5 +729,8 @@ export const bigoQuiz: Quiz = {
     href: '/resources/ds-algorithms-cheat-sheet.html',
   },
   /** Ordered by importance: random rounds of N take the first N. */
-  questions: rankQuestions(authored, bigoPriority),
+  questions: rankQuestions(
+    authored.map((item) => ({ ...item, ...bigoExplanations[item.id] })),
+    bigoPriority,
+  ),
 };
