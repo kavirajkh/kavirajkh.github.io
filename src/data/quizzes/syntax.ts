@@ -1,7 +1,8 @@
 import type { Quiz, QuizQuestion } from './types';
-import { q, r } from './helpers';
+import { q, r, rankQuestions } from './helpers';
 import { leetcodeQuestions } from './syntax-leetcode';
 import { syntaxPriority } from './syntax-priority';
+import { syntaxExplanations } from './syntax-explanations';
 
 const authored: QuizQuestion[] = [
   // Arrays
@@ -558,14 +559,6 @@ List<Integer> list = new ArrayList<>();`,
   ...leetcodeQuestions,
 ];
 
-const byId = new Map(authored.map((item) => [item.id, item]));
-const ranked = syntaxPriority.map((id) => {
-  const item = byId.get(id);
-  if (!item) throw new Error(`Unknown id in syntaxPriority: ${id}`);
-  return item;
-});
-const rankedIds = new Set(syntaxPriority);
-
 export const syntaxQuiz: Quiz = {
   slug: 'syntax',
   title: 'Java Syntax Recall',
@@ -576,5 +569,8 @@ export const syntaxQuiz: Quiz = {
     href: '/resources/ds-algorithms-cheat-sheet.html#syntax',
   },
   /** Ordered by importance: random rounds of N take the first N. */
-  questions: [...ranked, ...authored.filter((item) => !rankedIds.has(item.id))],
+  questions: rankQuestions(
+    authored.map((item) => ({ ...item, ...syntaxExplanations[item.id] })),
+    syntaxPriority,
+  ),
 };

@@ -63,8 +63,8 @@ const data = JSON.stringify({ slug: quiz.slug, questions: quiz.questions }).repl
             </button>
           </div>
           <p class="quiz-hint">
-            Random rounds draw from the most important syntax first: 10 is the must-knows, 25 adds
-            the next tier, and so on. Progress is saved only in this browser.
+            Random rounds draw from the most important questions first: 10 is the must-knows, 25
+            adds the next tier, and so on. Progress is saved only in this browser.
           </p>
           <p class="quiz-hint">
             Reference: <a href={quiz.source.href}>{quiz.source.label}</a> ·
@@ -83,15 +83,25 @@ const data = JSON.stringify({ slug: quiz.slug, questions: quiz.questions }).repl
             </div>
             <p id="quiz-prompt" class="quiz-prompt"></p>
             <pre id="quiz-context" class="quiz-code quiz-code--context" hidden><code /></pre>
-            <label class="quiz-label" for="quiz-answer">Your Java</label>
-            <textarea
-              id="quiz-answer"
-              class="quiz-input"
-              rows="3"
-              spellcheck="false"
-              autocomplete="off"
-              autocapitalize="off"
-              autocorrect="off"></textarea>
+            <div id="quiz-code-ui">
+              <label class="quiz-label" for="quiz-answer">Your Java</label>
+              <textarea
+                id="quiz-answer"
+                class="quiz-input"
+                rows="3"
+                spellcheck="false"
+                autocomplete="off"
+                autocapitalize="off"
+                autocorrect="off"></textarea>
+            </div>
+            <div
+              id="quiz-choices"
+              class="quiz-choices"
+              role="group"
+              aria-label="Answer choices"
+              hidden
+            >
+            </div>
             <div class="quiz-actions">
               <button type="button" class="btn btn--primary" id="quiz-check">Check</button>
               <button type="button" class="btn btn--secondary" id="quiz-show">Show answer</button>
@@ -99,7 +109,7 @@ const data = JSON.stringify({ slug: quiz.slug, questions: quiz.questions }).repl
                 >Next question</button
               >
             </div>
-            <p class="quiz-hint">Ctrl or Cmd + Enter checks, then moves on.</p>
+            <p class="quiz-hint" id="quiz-keys-hint">Ctrl or Cmd + Enter checks, then moves on.</p>
             <div id="quiz-result" class="quiz-result" role="status" aria-live="polite"></div>
             <p class="quiz-hint">
               <button type="button" class="quiz-link" id="quiz-quit">End round</button>
@@ -175,6 +185,48 @@ const data = JSON.stringify({ slug: quiz.slug, questions: quiz.questions }).repl
   .quiz-actions .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  .quiz-choices {
+    display: grid;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .quiz-choice {
+    display: block;
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-bg-inset);
+    color: var(--color-text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .quiz-choice:hover:not(:disabled) {
+    border-color: var(--color-accent);
+  }
+
+  .quiz-choice:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .quiz-choice:disabled {
+    cursor: default;
+  }
+
+  .quiz-choice.is-correct {
+    border-color: var(--color-success);
+    border-width: 2px;
+  }
+
+  .quiz-choice.is-wrong {
+    border-color: var(--quiz-bad);
+    border-width: 2px;
   }
 
   .quiz-hint {
@@ -313,6 +365,27 @@ const data = JSON.stringify({ slug: quiz.slug, questions: quiz.questions }).repl
     letter-spacing: 0.06em;
     color: var(--color-text-muted);
     margin-block: var(--space-xs);
+  }
+
+  .quiz-rich p,
+  .quiz-rich li {
+    font-size: var(--fs-sm);
+    margin-bottom: var(--space-xs);
+  }
+
+  .quiz-rich ul {
+    padding-left: 1.25rem;
+    margin-bottom: var(--space-sm);
+    list-style: disc;
+  }
+
+  .quiz-rich code {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    padding: 0.05em 0.35em;
+    border-radius: var(--radius-sm, 4px);
+    background: var(--color-bg-inset);
+    border: 1px solid var(--color-border);
   }
 
   .quiz-result__note {

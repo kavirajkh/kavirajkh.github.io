@@ -6,6 +6,9 @@ type Question = {
   prompt: string;
   context?: string;
   answers: string[];
+  choices?: string[];
+  explain?: string;
+  remember?: string;
   note?: string;
 };
 
@@ -61,6 +64,9 @@ function init() {
   const promptEl = el('quiz-prompt');
   const contextEl = el('quiz-context');
   const answerBox = el<HTMLTextAreaElement>('quiz-answer');
+  const codeUi = el('quiz-code-ui');
+  const choicesEl = el('quiz-choices');
+  const keysHint = el('quiz-keys-hint');
   const checkBtn = el<HTMLButtonElement>('quiz-check');
   const showBtn = el<HTMLButtonElement>('quiz-show');
   const resultEl = el('quiz-result');
@@ -129,11 +135,52 @@ function init() {
     }
     answerBox.value = '';
     answerBox.disabled = false;
-    checkBtn.hidden = false;
-    showBtn.hidden = false;
+    const isChoice = Boolean(q.choices?.length);
+    codeUi.hidden = isChoice;
+    choicesEl.hidden = !isChoice;
+    keysHint.textContent = isChoice
+      ? 'Press 1 to 4 to answer, Enter for the next question.'
+      : 'Ctrl or Cmd + Enter checks, then moves on.';
+    checkBtn.hidden = isChoice;
+    showBtn.hidden = isChoice;
     nextBtn.hidden = true;
     clearResult();
-    answerBox.focus();
+    choicesEl.replaceChildren();
+    if (isChoice) renderChoices(q);
+    else answerBox.focus();
+  }
+
+  function renderChoices(q: Question) {
+    shuffle(q.choices ?? []).forEach((text, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'quiz-choice';
+      b.textContent = `${i + 1}. ${text}`;
+      b.dataset.value = text;
+      b.addEventListener('click', () => onChoose(q, b));
+      choicesEl.appendChild(b);
+    });
+  }
+
+  function onChoose(q: Question, picked: HTMLButtonElement) {
+    if (resolved) return;
+    const correct = picked.dataset.value === q.answers[0];
+    choicesEl.querySelectorAll<HTMLButtonElement>('.quiz-choice').forEach((b) => {
+      b.disabled = true;
+      if (b.dataset.value === q.answers[0]) b.classList.add('is-correct');
+    });
+    if (!correct) picked.classList.add('is-wrong');
+    resultMessage(correct ? 'correct' : 'wrong', correct ? 'Correct' : 'Not quite');
+    if (!correct) {
+      const label = document.createElement('p');
+      label.className = 'quiz-result__label';
+      label.textContent = 'Correct answer';
+      const ans = document.createElement('p');
+      ans.textContent = q.answers[0];
+      resultEl.append(label, ans);
+    }
+    addNote(q);
+    finishQuestion(correct);
   }
 
   function record(id: string, correct: boolean) {
@@ -182,7 +229,54 @@ function init() {
     addNote(q);
   }
 
+  // Renders `backtick` spans as <code> using text nodes only, so content is never parsed as HTML.
+  function inline(parent: HTMLElement, text: string) {
+    text.split('`').forEach((part, i) => {
+      if (!part) return;
+      if (i % 2 === 1) {
+        const c = document.createElement('code');
+        c.textContent = part;
+        parent.appendChild(c);
+      } else {
+        parent.appendChild(document.createTextNode(part));
+      }
+    });
+  }
+
+  function richBlock(text: string): HTMLElement {
+    const box = document.createElement('div');
+    box.className = 'quiz-rich';
+    let list: HTMLUListElement | null = null;
+    text.split('\n').forEach((line) => {
+      if (!line.trim()) return;
+      if (line.startsWith('- ')) {
+        if (!list) {
+          list = document.createElement('ul');
+          box.appendChild(list);
+        }
+        const li = document.createElement('li');
+        inline(li, line.slice(2));
+        list.appendChild(li);
+      } else {
+        list = null;
+        const p = document.createElement('p');
+        inline(p, line);
+        box.appendChild(p);
+      }
+    });
+    return box;
+  }
+
+  function addSection(label: string, text: string) {
+    const h = document.createElement('p');
+    h.className = 'quiz-result__label';
+    h.textContent = label;
+    resultEl.append(h, richBlock(text));
+  }
+
   function addNote(q: Question) {
+    if (q.explain) addSection('How it works', q.explain);
+    if (q.remember) addSection('How to remember it', q.remember);
     if (!q.note) return;
     const n = document.createElement('p');
     n.className = 'quiz-result__note';
@@ -271,12 +365,19 @@ function init() {
       const li = document.createElement('li');
       const p = document.createElement('p');
       p.textContent = q.prompt;
-      const pre = document.createElement('pre');
-      pre.className = 'quiz-code';
-      const code = document.createElement('code');
-      code.textContent = q.answers[0];
-      pre.appendChild(code);
-      li.append(p, pre);
+      if (q.choices) {
+        const ans = document.createElement('p');
+        ans.className = 'quiz-result__note';
+        ans.textContent = `Answer: ${q.answers[0]}`;
+        li.append(p, ans);
+      } else {
+        const pre = document.createElement('pre');
+        pre.className = 'quiz-code';
+        const code = document.createElement('code');
+        code.textContent = q.answers[0];
+        pre.appendChild(code);
+        li.append(p, pre);
+      }
       missedList.appendChild(li);
     });
     el('quiz-missed-wrap').hidden = missed.length === 0;
@@ -303,6 +404,16 @@ function init() {
       if (resolved) onNext();
       else onCheck();
     }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (playScreen.hidden || choicesEl.hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (resolved) {
+      if (e.key === 'Enter' && e.target !== nextBtn) onNext();
+      return;
+    }
+    const n = Number(e.key);
+    const btn = choicesEl.querySelectorAll<HTMLButtonElement>('.quiz-choice')[n - 1];
+    if (n >= 1 && btn) btn.click();
   });
   el('quiz-reset').addEventListener('click', () => {
     if (!window.confirm('Clear your saved quiz progress on this device?')) return;
