@@ -18,6 +18,10 @@ Ask Claude to review/edit code as usual — just start/stop the dev server yours
 
 Skills live in `.claude/skills/` and are checked into git (the rest of `.claude/`, such as `settings.local.json`, stays ignored). **Whenever a skill is created or edited, stage and commit the change along with the work that prompted it**, using the `commit-message-format` skill. Never leave a skill edit uncommitted.
 
+## Research write-ups
+
+The portfolio publishes research docs (POCs, benchmarks, guides) at `/research/`. They are data driven: `src/data/research.ts` (registry) plus one HTML body per doc in `src/data/research/<slug>.html`. **Use the `add-research-doc` skill whenever adding or editing one.** It holds the workflow, the HTML building blocks, the confidentiality gate (the site is public, the author is a contractor) and `context-template.md`, the context file the user fills in to hand over a new piece of research. Never hand-write a new page per doc.
+
 ## Commands
 
 - `npm run dev` — start local dev server

@@ -6,6 +6,7 @@ const navItems = [
   { href: '/about/', label: 'About' },
   { href: '/experience/', label: 'Experience' },
   { href: '/projects/', label: 'Projects' },
+  { href: '/research/', label: 'Research' },
   { href: '/skills/', label: 'Skills' },
   { href: '/peer-feedback/', label: 'Peer Feedback' },
   { href: '/contact/', label: 'Contact' },
@@ -130,6 +131,14 @@ const currentPath = Astro.url.pathname;
     color: var(--color-text-secondary);
     padding-block: var(--space-2xs);
     border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+
+  /* Eight links need tighter spacing between the mobile breakpoint and wide desktops. */
+  @media (min-width: 721px) and (max-width: 1180px) {
+    .site-header__nav ul {
+      gap: var(--space-md);
+    }
   }
 
   .site-header__nav a:hover,

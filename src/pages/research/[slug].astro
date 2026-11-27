@@ -1,0 +1,542 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import { researchDocs } from '../../data/research';
+
+export function getStaticPaths() {
+  return researchDocs.map((doc) => ({ params: { slug: doc.slug }, props: { doc } }));
+}
+
+const { doc } = Astro.props;
+
+// Each write-up is an HTML fragment made of <section class="step" id="..." data-toc="..."> blocks.
+const bodies = import.meta.glob('../../data/research/*.html', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+const body = bodies[`../../data/research/${doc.slug}.html`];
+if (!body) throw new Error(`Missing research body: src/data/research/${doc.slug}.html`);
+
+// Sidebar steps come from the sections themselves, so adding a section updates the contents.
+const steps = [
+  ...body.matchAll(/<section class="step" id="([\w-]+)"([^>]*)>([\s\S]*?)<\/section>/g),
+].map((m) => {
+  const toc = m[2].match(/data-toc="([^"]*)"/)?.[1];
+  const heading = m[3]
+    .match(/<h2>([\s\S]*?)<\/h2>/)?.[1]
+    .replace(/<[^>]+>/g, '')
+    .trim();
+  const num = m[3].match(/<span class="num">([^<]*)<\/span>/)?.[1];
+  return { id: m[1], label: toc ?? heading ?? m[1], num };
+});
+
+const updated = new Date(`${doc.updated}T00:00:00Z`).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<BaseLayout title={doc.title} description={doc.summary} path={`/research/${doc.slug}/`}>
+  <SiteHeader />
+  <main id="main">
+    <section class="section rdoc-hero">
+      <div class="container">
+        <a class="rdoc-back" href="/research/">← All research</a>
+        <p class="section-kicker">{doc.kind} · Updated {updated}</p>
+        <h1 class="section-heading">{doc.title}</h1>
+        <p class="section-intro">{doc.lead}</p>
+        <ul class="rdoc-chips" aria-label="Topics">
+          {doc.tags.map((tag) => <li>{tag}</li>)}
+        </ul>
+        {
+          doc.repo && (
+            <p>
+              <a class="btn btn--secondary" href={doc.repo.href} rel="noopener">
+                {doc.repo.label} →
+              </a>
+            </p>
+          )
+        }
+      </div>
+    </section>
+
+    <div class="container rdoc-layout">
+      <nav class="rdoc-toc" aria-label="Contents">
+        <strong>Contents</strong>
+        {
+          steps.map((s) => (
+            <a href={`#${s.id}`}>
+              {s.num && <span class="n">{s.num}</span>}
+              {s.label}
+            </a>
+          ))
+        }
+      </nav>
+      <article class="rdoc" set:html={body} />
+    </div>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<script>
+  // Copy buttons on code blocks
+  document.querySelectorAll<HTMLButtonElement>('.rdoc .copy').forEach((button) => {
+    button.addEventListener('click', () => {
+      const code = button.parentElement?.querySelector('code')?.innerText ?? '';
+      navigator.clipboard.writeText(code).then(() => {
+        button.textContent = 'Copied!';
+        setTimeout(() => (button.textContent = 'Copy'), 1400);
+      });
+    });
+  });
+
+  // Highlight the current section in the contents list
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('.rdoc-toc a')];
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          links.forEach((link) =>
+            link.classList.toggle('on', link.getAttribute('href') === `#${entry.target.id}`),
+          );
+        }
+      });
+    },
+    { rootMargin: '-20% 0px -70% 0px' },
+  );
+  document.querySelectorAll('.rdoc section.step').forEach((section) => observer.observe(section));
+</script>
+
+<style is:global>
+  /* Page chrome */
+  .rdoc-hero {
+    padding-bottom: var(--space-lg);
+  }
+  .rdoc-back {
+    display: block;
+    width: fit-content;
+    margin-bottom: var(--space-md);
+    font-size: var(--fs-sm);
+    color: var(--color-text-secondary);
+  }
+  .rdoc-chips {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    padding: 0;
+    margin: var(--space-md) 0 0;
+  }
+  .rdoc-chips li {
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    padding: 3px 12px;
+    border-radius: 999px;
+    background: var(--color-accent-subtle);
+    color: var(--color-accent);
+  }
+  .rdoc-layout {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: var(--space-xl);
+    padding-bottom: var(--space-2xl);
+  }
+  .rdoc-toc {
+    position: sticky;
+    top: 88px;
+    align-self: start;
+    font-size: var(--fs-sm);
+  }
+  .rdoc-toc strong {
+    display: block;
+    margin-bottom: var(--space-xs);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: var(--fs-xs);
+  }
+  .rdoc-toc a {
+    display: flex;
+    gap: var(--space-xs);
+    align-items: center;
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-secondary);
+    text-decoration: none;
+  }
+  .rdoc-toc a:hover,
+  .rdoc-toc a.on {
+    background: var(--color-accent-subtle);
+    color: var(--color-accent);
+  }
+  .rdoc-toc .n {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--color-border-strong);
+    color: var(--color-text);
+    display: grid;
+    place-items: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .rdoc-toc a.on .n {
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+  }
+  @media (max-width: 860px) {
+    .rdoc-layout {
+      grid-template-columns: 1fr;
+      gap: var(--space-md);
+    }
+    .rdoc-toc {
+      position: static;
+    }
+  }
+
+  /* Write-up body: maps the doc's own tokens onto the site's, so dark mode follows the toggle */
+  .rdoc {
+    --surface: var(--color-bg-inset);
+    --ink: var(--color-text);
+    --muted: var(--color-text-secondary);
+    --line: var(--color-border-strong);
+    --accent: var(--color-accent);
+    --accent-soft: var(--color-accent-subtle);
+    --good: #1a7f4b;
+    --good-soft: rgba(26, 127, 75, 0.1);
+    --warn: #9a6700;
+    --warn-soft: rgba(154, 103, 0, 0.12);
+    --bad: #c62828;
+    --bad-soft: rgba(198, 40, 40, 0.1);
+    --code-bg: #0f172a;
+    --code-ink: #e2e8f0;
+    --d-fill: var(--color-card);
+    --d-stroke: var(--color-text-muted);
+    --d-ink: var(--color-text);
+    min-width: 0;
+    font-size: var(--fs-base);
+    line-height: 1.65;
+    color: var(--color-text);
+  }
+  :root[data-theme='dark'] .rdoc {
+    --good: #4cc38a;
+    --good-soft: rgba(76, 195, 138, 0.12);
+    --warn: #e3b341;
+    --warn-soft: rgba(227, 179, 65, 0.12);
+    --bad: #ff7b72;
+    --bad-soft: rgba(255, 123, 114, 0.12);
+    --code-bg: #010409;
+    --code-ink: #e6edf3;
+  }
+  .rdoc section.step {
+    margin: 0 0 var(--space-xl);
+    scroll-margin-top: 88px;
+  }
+  .rdoc .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .rdoc .badge .num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--color-accent-contrast);
+    display: grid;
+    place-items: center;
+    letter-spacing: 0;
+  }
+  .rdoc h2 {
+    font-size: var(--fs-xl);
+    margin: 6px 0 12px;
+    line-height: var(--lh-tight);
+  }
+  .rdoc h3 {
+    font-size: var(--fs-lg);
+    margin: 28px 0 8px;
+  }
+  .rdoc p,
+  .rdoc li {
+    max-width: 75ch;
+  }
+  .rdoc a {
+    color: var(--accent);
+  }
+  .rdoc code {
+    font: 0.88em var(--font-mono);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 1px 6px;
+    border-radius: 5px;
+    overflow-wrap: anywhere;
+  }
+  .rdoc .code {
+    position: relative;
+    margin: 14px 0;
+  }
+  .rdoc .code .label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    background: #1e293b;
+    padding: 5px 14px;
+    border-radius: 10px 10px 0 0;
+    font-family: var(--font-mono);
+  }
+  .rdoc .code pre {
+    margin: 0;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 16px;
+    overflow: auto;
+    border-radius: 0 0 10px 10px;
+    font: 0.86rem/1.6 var(--font-mono);
+  }
+  .rdoc .code.nolabel pre {
+    border-radius: 10px;
+  }
+  .rdoc .code pre code {
+    background: none;
+    border: 0;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    overflow-wrap: normal;
+  }
+  .rdoc .copy {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    background: #334155;
+    color: #e2e8f0;
+    border: 0;
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+  .rdoc .code.nolabel .copy {
+    top: 8px;
+  }
+  .rdoc .copy:hover {
+    background: #475569;
+  }
+  .rdoc .k {
+    color: #7dd3fc;
+  }
+  .rdoc .s {
+    color: #86efac;
+  }
+  .rdoc .c {
+    color: #94a3b8;
+    font-style: italic;
+  }
+  .rdoc .f {
+    color: #fcd34d;
+  }
+  .rdoc .callout {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin: 18px 0;
+    border: 1px solid;
+    max-width: 78ch;
+  }
+  .rdoc .callout .i {
+    flex: none;
+    font-weight: 800;
+  }
+  .rdoc .callout.tip {
+    background: var(--good-soft);
+    border-color: var(--good);
+  }
+  .rdoc .callout.warn {
+    background: var(--warn-soft);
+    border-color: var(--warn);
+  }
+  .rdoc .callout.note {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+  .rdoc .callout > div > :first-child {
+    margin-top: 0;
+  }
+  .rdoc .callout > div > :last-child {
+    margin-bottom: 0;
+  }
+  .rdoc figure {
+    margin: 22px 0;
+    padding: 18px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .rdoc figure svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .rdoc figcaption {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    text-align: center;
+  }
+  .rdoc table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 14px 0;
+    font-size: 0.93rem;
+    display: block;
+    overflow-x: auto;
+  }
+  .rdoc th,
+  .rdoc td {
+    border: 1px solid var(--line);
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .rdoc th {
+    background: var(--surface);
+  }
+  .rdoc .checklist {
+    list-style: none;
+    padding: 0;
+  }
+  .rdoc .checklist li {
+    padding: 6px 0 6px 30px;
+    position: relative;
+  }
+  .rdoc .checklist li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--good);
+    border-radius: 4px;
+  }
+  .rdoc .grid2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .rdoc .card {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    background: var(--surface);
+  }
+  .rdoc .card h4 {
+    margin: 0 0 6px;
+  }
+  .rdoc .card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.93rem;
+  }
+  .rdoc .chat {
+    margin: 16px 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    max-width: 78ch;
+  }
+  .rdoc .chat .u,
+  .rdoc .chat .a {
+    padding: 12px 16px;
+  }
+  .rdoc .chat .u {
+    background: var(--accent-soft);
+  }
+  .rdoc .chat .a {
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    font-size: 0.93rem;
+  }
+  .rdoc .chat small {
+    display: block;
+    color: var(--muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    margin-bottom: 2px;
+  }
+  .rdoc details {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin: 10px 0;
+    background: var(--surface);
+  }
+  .rdoc summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  /* Diagram theming (inline SVG uses these classes) */
+  .rdoc svg text {
+    fill: var(--d-ink);
+    font: 13px var(--font-sans);
+  }
+  .rdoc svg .sub {
+    fill: var(--muted);
+    font-size: 11.5px;
+  }
+  .rdoc svg .box {
+    fill: var(--d-fill);
+    stroke: var(--d-stroke);
+    stroke-width: 1.5;
+  }
+  .rdoc svg .hi {
+    fill: var(--accent-soft);
+    stroke: var(--accent);
+    stroke-width: 1.5;
+  }
+  .rdoc svg .ok {
+    fill: var(--good-soft);
+    stroke: var(--good);
+    stroke-width: 1.5;
+  }
+  .rdoc svg .wn {
+    fill: var(--warn-soft);
+    stroke: var(--warn);
+    stroke-width: 1.5;
+  }
+  .rdoc svg .ln {
+    stroke: var(--d-stroke);
+    stroke-width: 1.5;
+    fill: none;
+  }
+  .rdoc svg .ac {
+    stroke: var(--accent);
+    stroke-width: 2;
+    fill: none;
+  }
+  .rdoc svg .dash {
+    stroke-dasharray: 5 4;
+  }
+  .rdoc svg .life {
+    stroke: var(--line);
+    stroke-width: 1.5;
+    stroke-dasharray: 4 4;
+  }
+  .rdoc svg .b {
+    font-weight: 700;
+  }
+</style>

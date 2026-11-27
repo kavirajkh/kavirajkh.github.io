@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import { researchDocs } from '../../data/research';
+
+const title = 'Research';
+const description =
+  'Proofs of concept, benchmarks and step-by-step guides from my recent engineering research, written up so others can reproduce them.';
+
+const fmt = (iso: string) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+---
+
+<BaseLayout title={title} description={description} path="/research/">
+  <SiteHeader />
+  <main id="main">
+    <section class="section">
+      <div class="container">
+        <p class="section-kicker">Notes from the lab</p>
+        <h1 class="section-heading">Research</h1>
+        <p class="section-intro">
+          Proofs of concept, benchmarks and how-to guides from hands-on research. Each write-up
+          states the question, the setup, what was measured or built, and what I would do next, so
+          it can be reproduced.
+        </p>
+
+        <div class="grid grid--2">
+          {
+            researchDocs.map((doc) => (
+              <article class="card research-item">
+                <div class="research-item__meta">
+                  <span class="tag">{doc.kind}</span>
+                  <time datetime={doc.updated}>Updated {fmt(doc.updated)}</time>
+                </div>
+                <h2>{doc.title}</h2>
+                <p>{doc.summary}</p>
+                <ul class="research-item__tags" aria-label="Topics">
+                  {doc.tags.map((tag) => (
+                    <li>{tag}</li>
+                  ))}
+                </ul>
+                <a class="btn btn--primary" href={`/research/${doc.slug}/`}>
+                  Read the write-up →
+                </a>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>
+
+<style>
+  .research-item__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    font-size: var(--fs-xs);
+    color: var(--color-text-muted);
+  }
+
+  .research-item h2 {
+    font-size: var(--fs-lg);
+    margin-block: var(--space-sm) var(--space-xs);
+    line-height: var(--lh-tight);
+  }
+
+  .research-item p {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .research-item__tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    padding: 0;
+    margin: 0 0 var(--space-md);
+  }
+
+  .research-item__tags li {
+    font-size: var(--fs-xs);
+    padding: 2px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border-strong);
+    color: var(--color-text-secondary);
+  }
+</style>

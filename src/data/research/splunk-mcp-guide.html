@@ -1,0 +1,483 @@
+<!-- ============ 0 ============ -->
+<section class="step" id="overview" data-toc="The big picture">
+  <span class="badge"><span class="num">0</span> Start here</span>
+  <h2>The big picture</h2>
+  <p><strong>MCP</strong> (Model Context Protocol) is an open standard that lets an AI app call <em>tools</em> that you provide. Claude cannot reach into your Splunk on its own. So you write a small program, an <strong>MCP server</strong>, that offers a few Splunk-shaped tools. Claude Code decides when to call them.</p>
+
+  <figure>
+    <svg viewBox="0 0 900 230" role="img" aria-label="You talk to Claude Code, which talks to your MCP server over stdio, which calls the Splunk REST API over HTTPS.">
+      <defs>
+        <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker>
+      </defs>
+      <rect class="box" x="10" y="70" width="130" height="90" rx="12"/>
+      <text x="75" y="108" text-anchor="middle" class="b">You</text>
+      <text x="75" y="128" text-anchor="middle" class="sub">asks in English</text>
+
+      <rect class="hi" x="215" y="70" width="170" height="90" rx="12"/>
+      <text x="300" y="104" text-anchor="middle" class="b">Claude Code</text>
+      <text x="300" y="124" text-anchor="middle" class="sub">MCP client</text>
+      <text x="300" y="141" text-anchor="middle" class="sub">picks the tools</text>
+
+      <rect class="ok" x="460" y="70" width="190" height="90" rx="12"/>
+      <text x="555" y="104" text-anchor="middle" class="b">Your MCP server</text>
+      <text x="555" y="124" text-anchor="middle" class="sub">Python + FastMCP</text>
+      <text x="555" y="141" text-anchor="middle" class="sub">what you build here</text>
+
+      <rect class="wn" x="735" y="70" width="150" height="90" rx="12"/>
+      <text x="810" y="104" text-anchor="middle" class="b">Splunk</text>
+      <text x="810" y="124" text-anchor="middle" class="sub">REST API :8089</text>
+      <text x="810" y="141" text-anchor="middle" class="sub">your log data</text>
+
+      <path class="ac" d="M140 115H213" marker-end="url(#a1)"/>
+      <path class="ac" d="M385 115H458" marker-start="url(#a1)" marker-end="url(#a1)"/>
+      <path class="ac" d="M650 115H733" marker-start="url(#a1)" marker-end="url(#a1)"/>
+
+      <text x="385" y="50" text-anchor="middle" class="sub">stdio (stdin / stdout)</text>
+      <text x="385" y="66" text-anchor="middle" class="sub">JSON-RPC messages</text>
+      <text x="692" y="50" text-anchor="middle" class="sub">HTTPS + Bearer token</text>
+      <text x="692" y="66" text-anchor="middle" class="sub">search jobs, indexes</text>
+      <text x="300" y="195" text-anchor="middle" class="sub">starts your server as a child process</text>
+      <path class="ln dash" d="M300 163V180"/>
+    </svg>
+    <figcaption>Figure 1. Claude Code launches your server locally; the server is the only thing that talks to Splunk.</figcaption>
+  </figure>
+
+  <h3>What your server will offer</h3>
+  <div class="grid2">
+    <div class="card"><h4><code>ping</code></h4><p>Is the server alive? Never touches Splunk.</p></div>
+    <div class="card"><h4><code>list_indexes</code></h4><p>Which indexes can this token search?</p></div>
+    <div class="card"><h4><code>search_splunk</code></h4><p>Starts a search and returns a job ID.</p></div>
+    <div class="card"><h4><code>get_search_results</code></h4><p>Waits for the job and returns the rows.</p></div>
+  </div>
+
+  <h3>Why does a search take two calls?</h3>
+  <p>Splunk runs searches as asynchronous <em>jobs</em>. The server mirrors this: one tool starts the job, another collects results. This keeps each call short and avoids time-outs on slow queries.</p>
+
+  <figure>
+    <svg viewBox="0 0 900 420" role="img" aria-label="Sequence: Claude calls list_indexes, then search_splunk which returns a sid, then get_search_results which polls Splunk until done and returns rows.">
+      <defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs>
+      <rect class="hi" x="60" y="10" width="140" height="36" rx="8"/><text x="130" y="33" text-anchor="middle" class="b">Claude</text>
+      <rect class="ok" x="380" y="10" width="140" height="36" rx="8"/><text x="450" y="33" text-anchor="middle" class="b">MCP server</text>
+      <rect class="wn" x="700" y="10" width="140" height="36" rx="8"/><text x="770" y="33" text-anchor="middle" class="b">Splunk</text>
+      <path class="life" d="M130 46V410M450 46V410M770 46V410"/>
+
+      <path class="ac" d="M130 78H448" marker-end="url(#a2)"/><text x="140" y="72" class="sub">1. list_indexes()</text>
+      <path class="ac" d="M452 98H768" marker-end="url(#a2)"/><text x="462" y="92" class="sub">GET /services/data/indexes</text>
+      <path class="ln dash" d="M768 118H452" marker-end="url(#a2)"/><text x="462" y="134" class="sub">index names</text>
+      <path class="ln dash" d="M448 148H132" marker-end="url(#a2)"/><text x="140" y="164" class="sub">web_logs, app_logs …</text>
+
+      <path class="ac" d="M130 196H448" marker-end="url(#a2)"/><text x="140" y="190" class="sub">2. search_splunk("index=web_logs status=500")</text>
+      <path class="ac" d="M452 216H768" marker-end="url(#a2)"/><text x="462" y="210" class="sub">POST /services/search/jobs</text>
+      <path class="ln dash" d="M768 236H452" marker-end="url(#a2)"/><text x="462" y="252" class="sub">sid = "1699…"</text>
+      <path class="ln dash" d="M448 266H132" marker-end="url(#a2)"/><text x="140" y="282" class="sub">sid</text>
+
+      <path class="ac" d="M130 312H448" marker-end="url(#a2)"/><text x="140" y="306" class="sub">3. get_search_results(sid)</text>
+      <rect x="440" y="322" width="330" height="48" rx="8" fill="none" stroke="var(--d-stroke)" stroke-dasharray="4 4"/>
+      <text x="455" y="340" class="sub">loop until DONE: GET /services/search/jobs/{sid}</text>
+      <text x="455" y="358" class="sub">then GET …/results → rows</text>
+      <path class="ln dash" d="M448 394H132" marker-end="url(#a2)"/><text x="140" y="388" class="sub">rows</text>
+    </svg>
+    <figcaption>Figure 2. The typical flow: discover → dispatch → fetch.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 1 ============ -->
+<section class="step" id="prereqs" data-toc="Prerequisites">
+  <span class="badge"><span class="num">1</span> Step 1</span>
+  <h2>Install the prerequisites</h2>
+  <table>
+    <tr><th>Tool</th><th>Check</th><th>Install</th></tr>
+    <tr><td>Python 3.10+</td><td><code>python3 --version</code></td><td><a href="https://www.python.org/downloads/">python.org/downloads</a></td></tr>
+    <tr><td><code>uv</code>, a fast Python package manager</td><td><code>uv --version</code></td><td><code>brew install uv</code> or <code>curl -LsSf https://astral.sh/uv/install.sh | sh</code></td></tr>
+    <tr><td>Claude Code</td><td><code>claude --version</code></td><td><code>npm install -g @anthropic-ai/claude-code</code></td></tr>
+    <tr><td>A Splunk instance with the REST API reachable (port <code>8089</code>)</td><td>open <code>https://&lt;host&gt;:8089</code></td><td>Splunk Enterprise, Splunk Cloud, or a free local Splunk Docker image</td></tr>
+  </table>
+  <div class="callout note"><span class="i">i</span><div><strong>Which port?</strong> Splunk's web UI usually lives on <code>8000</code>, but the REST API your server calls is on the <em>management port</em>, <code>8089</code>. Mixing these up is the #1 beginner mistake.</div></div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section class="step" id="token" data-toc="Splunk token">
+  <span class="badge"><span class="num">2</span> Step 2</span>
+  <h2>Create a Splunk API token</h2>
+  <p>The server logs in with a <strong>bearer token</strong>, so your password never appears in any config file.</p>
+
+  <figure>
+    <svg viewBox="0 0 900 150" role="img" aria-label="Flow: Settings, Tokens, New Token, fill the form, copy token once.">
+      <defs><marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs>
+      <rect class="box" x="10" y="35" width="150" height="70" rx="10"/><text x="85" y="66" text-anchor="middle" class="b">Settings</text><text x="85" y="86" text-anchor="middle" class="sub">in Splunk Web</text>
+      <rect class="box" x="195" y="35" width="150" height="70" rx="10"/><text x="270" y="66" text-anchor="middle" class="b">Tokens</text><text x="270" y="86" text-anchor="middle" class="sub">Authentication</text>
+      <rect class="box" x="380" y="35" width="150" height="70" rx="10"/><text x="455" y="66" text-anchor="middle" class="b">New Token</text><text x="455" y="86" text-anchor="middle" class="sub">user + audience</text>
+      <rect class="wn" x="565" y="35" width="150" height="70" rx="10"/><text x="640" y="66" text-anchor="middle" class="b">Leave “Not</text><text x="640" y="84" text-anchor="middle" class="b">Before” empty</text>
+      <rect class="ok" x="750" y="35" width="140" height="70" rx="10"/><text x="820" y="66" text-anchor="middle" class="b">Copy token</text><text x="820" y="86" text-anchor="middle" class="sub">shown only once</text>
+      <path class="ac" d="M160 70H193M345 70H378M530 70H563M715 70H748" marker-end="url(#a3)"/>
+    </svg>
+    <figcaption>Figure 3. Creating the token.</figcaption>
+  </figure>
+
+  <ol>
+    <li>Go to <strong>Settings → Tokens → New Token</strong>.</li>
+    <li>Choose a <strong>least-privilege</strong> user that can read only the indexes Claude should see, and set an audience such as <code>claude-mcp</code>.</li>
+    <li>Leave <strong>Not Before</strong> empty. A future date makes the token invalid until then, so it fails with <code>401</code>.</li>
+    <li>Click <strong>Create</strong> and copy the token from the <strong>one-time view</strong>.</li>
+  </ol>
+
+  <p>Put it in environment variables for this terminal session:</p>
+  <div class="code"><div class="label">terminal</div><button class="copy">Copy</button><pre><code>export SPLUNK_URL="https://splunk.example.com:8089"
+export SPLUNK_TOKEN="&lt;paste-token-here&gt;"</code></pre></div>
+
+  <p>Check that the token works before going any further:</p>
+  <div class="code"><div class="label">terminal</div><button class="copy">Copy</button><pre><code>curl -s -H "Authorization: Bearer $SPLUNK_TOKEN" \
+"$SPLUNK_URL/services/authentication/current-context?output_mode=json" | head -c 300</code></pre></div>
+  <div class="callout tip"><span class="i">✓</span><div>You should see JSON containing your username. A <code>401</code> means the token is wrong or expired; a connection error means the URL or port is wrong.</div></div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section class="step" id="project" data-toc="Create project">
+  <span class="badge"><span class="num">3</span> Step 3</span>
+  <h2>Create the project</h2>
+  <div class="code"><div class="label">terminal</div><button class="copy">Copy</button><pre><code>mkdir splunk-mcp &amp;&amp; cd splunk-mcp
+uv init --bare
+uv add fastmcp httpx
+printf ".env\n.venv/\n__pycache__/\n" &gt; .gitignore</code></pre></div>
+  <p><code>fastmcp</code> is the framework that speaks MCP for you; <code>httpx</code> is an async HTTP client for calling Splunk. The last line makes sure secrets are never committed.</p>
+
+  <figure>
+    <svg viewBox="0 0 600 190" role="img" aria-label="Project tree: splunk-mcp with pyproject.toml, server.py, .gitignore.">
+      <rect class="box" x="10" y="10" width="580" height="170" rx="12"/>
+      <text x="30" y="40" class="b">📁 splunk-mcp/</text>
+      <text x="55" y="68">📄 pyproject.toml</text><text x="300" y="68" class="sub">dependencies (created by uv)</text>
+      <text x="55" y="94" class="b">🐍 server.py</text><text x="300" y="94" class="sub">the MCP server (Step 4)</text>
+      <text x="55" y="120">🙈 .gitignore</text><text x="300" y="120" class="sub">keeps secrets out of Git</text>
+      <text x="55" y="146">🔑 .env (optional)</text><text x="300" y="146" class="sub">local secrets, never committed</text>
+    </svg>
+    <figcaption>Figure 4. The project layout.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 4 ============ -->
+<section class="step" id="code" data-toc="Write the server">
+  <span class="badge"><span class="num">4</span> Step 4</span>
+  <h2>Write the server</h2>
+  <p>With FastMCP, a normal Python function becomes an MCP tool. Three things in your code are what Claude actually sees:</p>
+
+  <figure>
+    <svg viewBox="0 0 900 260" role="img" aria-label="How a Python function maps to an MCP tool: name, type hints become schema, docstring becomes description.">
+      <defs><marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs>
+      <rect class="box" x="10" y="20" width="420" height="220" rx="12"/>
+      <text x="30" y="48" class="sub">server.py</text>
+      <text x="30" y="82" style="font-family:ui-monospace,Menlo,monospace">@mcp.tool()</text>
+      <text x="30" y="112" style="font-family:ui-monospace,Menlo,monospace" class="b">async def search_splunk(</text>
+      <text x="50" y="136" style="font-family:ui-monospace,Menlo,monospace">query: str,</text>
+      <text x="50" y="160" style="font-family:ui-monospace,Menlo,monospace">earliest: str = "-24h",</text>
+      <text x="30" y="184" style="font-family:ui-monospace,Menlo,monospace">) -&gt; str:</text>
+      <text x="50" y="212" style="font-family:ui-monospace,Menlo,monospace" class="sub">"""Start a Splunk search…"""</text>
+
+      <rect class="hi" x="560" y="20" width="330" height="220" rx="12"/>
+      <text x="580" y="48" class="sub">What Claude receives</text>
+      <text x="580" y="86" class="b">name</text><text x="650" y="86">search_splunk</text>
+      <text x="580" y="126" class="b">inputs</text><text x="650" y="126">query (required, string)</text>
+      <text x="650" y="148">earliest (optional, "-24h")</text>
+      <text x="580" y="188" class="b">description</text><text x="680" y="188">"Start a Splunk search…"</text>
+
+      <path class="ac" d="M432 112C490 112 500 86 558 86" marker-end="url(#a4)"/>
+      <path class="ac" d="M432 148C490 148 500 136 558 136" marker-end="url(#a4)"/>
+      <path class="ac" d="M432 212C490 212 500 188 558 188" marker-end="url(#a4)"/>
+      <text x="495" y="78" class="sub" text-anchor="middle">function name</text>
+      <text x="495" y="166" class="sub" text-anchor="middle">type hints</text>
+      <text x="495" y="232" class="sub" text-anchor="middle">docstring</text>
+    </svg>
+    <figcaption>Figure 5. Good names, type hints and docstrings are how you "prompt" Claude about your tools.</figcaption>
+  </figure>
+
+  <p>Create <code>server.py</code>:</p>
+  <div class="code"><div class="label">server.py</div><button class="copy">Copy</button><pre><code>"""A minimal Splunk MCP server built with FastMCP."""
+
+import asyncio
+import os
+import re
+
+import httpx
+from fastmcp import FastMCP
+
+SPLUNK_URL = os.environ.get("SPLUNK_URL", "https://splunk.example.com:8089")
+SPLUNK_TOKEN = os.environ["SPLUNK_TOKEN"]  # fail fast if the token is missing
+
+# Reject `index=*`: it scans every index and is slow and expensive.
+WILDCARD_INDEX = re.compile(r"\bindex\s*=\s*\*")
+
+mcp = FastMCP(
+  name="Splunk",
+  instructions=(
+      "Call list_indexes first. Always search a concrete index (no index=*). "
+      "search_splunk returns a job id; pass it to get_search_results."
+  ),
+)
+
+
+def client() -&gt; httpx.AsyncClient:
+  return httpx.AsyncClient(
+      base_url=SPLUNK_URL,
+      headers={"Authorization": f"Bearer {SPLUNK_TOKEN}"},
+      timeout=30,
+  )
+
+
+@mcp.tool()
+def ping() -&gt; str:
+  """Check that the MCP server itself is alive (does not call Splunk)."""
+  return "pong"
+
+
+@mcp.tool()
+async def list_indexes() -&gt; str:
+  """List the Splunk indexes this token can search."""
+  async with client() as c:
+      r = await c.get("/services/data/indexes", params={"output_mode": "json", "count": 0})
+      r.raise_for_status()
+  return "\n".join(e["name"] for e in r.json()["entry"])
+
+
+@mcp.tool()
+async def search_splunk(query: str, earliest: str = "-24h", latest: str = "now") -&gt; str:
+  """Start a Splunk search and return its job id (SID).
+
+  The query must name an index, e.g. `index=web_logs status=500`.
+  """
+  if WILDCARD_INDEX.search(query):
+      raise ValueError("Wildcard index searches (index=*) are not allowed.")
+  if not query.lstrip().startswith(("search", "|")):
+      query = f"search {query}"
+  async with client() as c:
+      r = await c.post(
+          "/services/search/jobs",
+          data={
+              "search": query,
+              "earliest_time": earliest,
+              "latest_time": latest,
+              "output_mode": "json",
+          },
+      )
+      r.raise_for_status()
+  return r.json()["sid"]
+
+
+@mcp.tool()
+async def get_search_results(sid: str, max_results: int = 20) -&gt; str:
+  """Wait for a search job to finish, then return its rows as JSON lines."""
+  async with client() as c:
+      for _ in range(60):  # poll for up to ~2 minutes
+          r = await c.get(f"/services/search/jobs/{sid}", params={"output_mode": "json"})
+          r.raise_for_status()
+          if r.json()["entry"][0]["content"]["dispatchState"] in {"DONE", "FAILED"}:
+              break
+          await asyncio.sleep(2)
+      r = await c.get(
+          f"/services/search/jobs/{sid}/results",
+          params={"output_mode": "json", "count": max_results},
+      )
+      r.raise_for_status()
+  return "\n".join(str(row) for row in r.json()["results"])
+
+
+def main() -&gt; None:
+  mcp.run(transport="stdio")
+
+
+if __name__ == "__main__":
+  main()</code></pre></div>
+
+  <h3>Design choices worth understanding</h3>
+  <table>
+    <tr><th>Choice</th><th>Why</th></tr>
+    <tr><td><code>instructions=</code> on the server</td><td>Sent to Claude on connect, so it learns the workflow (list indexes, then search) without you repeating it each time.</td></tr>
+    <tr><td>Block <code>index=*</code></td><td>All-index searches are slow and may touch data Claude should not see. Put guardrails in the server, not only in a prompt.</td></tr>
+    <tr><td>Two tools for one search</td><td>Matches Splunk's async job model and avoids one long blocking call.</td></tr>
+    <tr><td>Read-only operations</td><td>The server cannot modify Splunk data. Add write tools later, deliberately.</td></tr>
+    <tr><td>Token from the environment</td><td>Secrets stay out of source control.</td></tr>
+  </table>
+
+  <div class="callout warn"><span class="i">!</span><div><strong>Never <code>print()</code> in a stdio server.</strong> With stdio, stdout <em>is</em> the protocol channel. Stray output corrupts messages and the connection drops. Log to stderr or a file.</div></div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section class="step" id="test" data-toc="Test it">
+  <span class="badge"><span class="num">5</span> Step 5</span>
+  <h2>Test it without Claude</h2>
+  <p>Debug the server on its own first. The <strong>MCP Inspector</strong> is a browser UI that calls your tools directly.</p>
+  <div class="code"><div class="label">terminal</div><button class="copy">Copy</button><pre><code>npx @modelcontextprotocol/inspector uv run server.py</code></pre></div>
+  <ol>
+    <li>Open the URL it prints and click <strong>Connect</strong>.</li>
+    <li>Open the <strong>Tools</strong> tab. You should see all four tools.</li>
+    <li>Run <code>ping</code> and expect <code>pong</code>, then run <code>list_indexes</code>.</li>
+  </ol>
+  <div class="callout tip"><span class="i">✓</span><div>If the Inspector works, the server is healthy, and any later problem is in the Claude Code configuration.</div></div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section class="step" id="connect" data-toc="Connect to Claude">
+  <span class="badge"><span class="num">6</span> Step 6</span>
+  <h2>Connect it to Claude Code</h2>
+  <p>You tell Claude Code <em>how to start</em> your server. It launches the command, performs the MCP handshake, and lists the tools.</p>
+
+  <figure>
+    <svg viewBox="0 0 900 250" role="img" aria-label="Claude Code reads config, spawns the server process with env vars, handshake, lists tools.">
+      <defs><marker id="a5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs>
+      <rect class="box" x="10" y="20" width="200" height="90" rx="12"/>
+      <text x="110" y="52" text-anchor="middle" class="b">MCP config</text>
+      <text x="110" y="72" text-anchor="middle" class="sub">.mcp.json or</text>
+      <text x="110" y="88" text-anchor="middle" class="sub">claude mcp add</text>
+
+      <rect class="hi" x="350" y="20" width="200" height="90" rx="12"/>
+      <text x="450" y="52" text-anchor="middle" class="b">Claude Code</text>
+      <text x="450" y="72" text-anchor="middle" class="sub">1. reads config</text>
+      <text x="450" y="88" text-anchor="middle" class="sub">2. spawns process</text>
+
+      <rect class="ok" x="690" y="20" width="200" height="90" rx="12"/>
+      <text x="790" y="52" text-anchor="middle" class="b">uv run server.py</text>
+      <text x="790" y="72" text-anchor="middle" class="sub">env: SPLUNK_URL,</text>
+      <text x="790" y="88" text-anchor="middle" class="sub">SPLUNK_TOKEN</text>
+
+      <path class="ac" d="M210 65H348" marker-end="url(#a5)"/>
+      <path class="ac" d="M550 50H688" marker-end="url(#a5)"/>
+      <path class="ac" d="M688 82H552" marker-end="url(#a5)"/>
+      <text x="620" y="42" text-anchor="middle" class="sub">start command</text>
+      <text x="620" y="102" text-anchor="middle" class="sub">tool list</text>
+
+      <rect class="wn" x="250" y="150" width="400" height="80" rx="12"/>
+      <text x="450" y="182" text-anchor="middle" class="b">You see them with /mcp</text>
+      <text x="450" y="204" text-anchor="middle" class="sub">ping · list_indexes · search_splunk · get_search_results</text>
+      <path class="ln dash" d="M450 112V148" marker-end="url(#a5)"/>
+    </svg>
+    <figcaption>Figure 6. What happens when Claude Code starts.</figcaption>
+  </figure>
+
+  <h3>Option A: one command (recommended)</h3>
+  <div class="code"><div class="label">terminal, run from the project folder</div><button class="copy">Copy</button><pre><code>claude mcp add splunk \
+--env SPLUNK_URL="$SPLUNK_URL" \
+--env SPLUNK_TOKEN="$SPLUNK_TOKEN" \
+-- uv --directory "$(pwd)" run server.py</code></pre></div>
+  <p>Everything after <code>--</code> is the command Claude Code runs to start your server. Pick where the config lives with <code>--scope</code>:</p>
+  <table>
+    <tr><th>Scope</th><th>Stored in</th><th>Who gets it</th></tr>
+    <tr><td><code>local</code> (default)</td><td>your user config, keyed to this project</td><td>just you, this project</td></tr>
+    <tr><td><code>project</code></td><td><code>.mcp.json</code> in the repo</td><td>everyone who clones the repo</td></tr>
+    <tr><td><code>user</code></td><td>your user config</td><td>just you, every project</td></tr>
+  </table>
+
+  <h3>Option B: a <code>.mcp.json</code> file</h3>
+  <p>Create it in the project root. Claude Code finds it automatically and asks you to approve it the first time.</p>
+  <div class="code"><div class="label">.mcp.json</div><button class="copy">Copy</button><pre><code>{
+"mcpServers": {
+  "splunk": {
+    "type": "stdio",
+    "command": "uv",
+    "args": ["--directory", "/absolute/path/to/splunk-mcp", "run", "server.py"],
+    "env": {
+      "SPLUNK_URL": "${SPLUNK_URL}",
+      "SPLUNK_TOKEN": "${SPLUNK_TOKEN}"
+    }
+  }
+}
+}</code></pre></div>
+  <div class="callout tip"><span class="i">✓</span><div><code>${VAR}</code> is expanded from your shell environment, so the token is <strong>not</strong> written into a file you might commit.</div></div>
+
+  <h3>Verify</h3>
+  <div class="code"><div class="label">terminal</div><button class="copy">Copy</button><pre><code>claude mcp list      # splunk: ... ✓ Connected</code></pre></div>
+  <p>Inside Claude Code, run <code>/mcp</code> to see the server and its four tools.</p>
+</section>
+
+<!-- ============ 7 ============ -->
+<section class="step" id="use" data-toc="Use it">
+  <span class="badge"><span class="num">7</span> Step 7</span>
+  <h2>Use it</h2>
+  <p>Run <code>claude</code> and ask in plain English. Claude chooses the tools and chains them for you. You are asked to approve each tool call the first time.</p>
+
+  <div class="chat">
+    <div class="u"><small>You</small>What Splunk indexes do I have?</div>
+    <div class="a"><small>Claude · calls <code>list_indexes</code></small>You can search <code>web_logs</code>, <code>app_logs</code> and <code>audit</code>.</div>
+  </div>
+  <div class="chat">
+    <div class="u"><small>You</small>In web_logs, show the top 10 URLs returning status 500 in the last 4 hours.</div>
+    <div class="a"><small>Claude · calls <code>search_splunk</code> → <code>get_search_results</code></small>Ran <code>index=web_logs status=500 | top limit=10 uri_path</code> over <code>-4h</code>. The checkout API accounts for 71% of errors…</div>
+  </div>
+  <div class="chat">
+    <div class="u"><small>You</small>Compare error counts per service between the last hour and the same hour yesterday.</div>
+    <div class="a"><small>Claude · runs two searches in parallel</small>Errors are up 3.2× on <code>payments</code> vs. yesterday; other services are flat.</div>
+  </div>
+  <p><em>(Responses above are illustrative.)</em></p>
+</section>
+
+<!-- ============ 8 ============ -->
+<section class="step" id="more" data-toc="Going further">
+  <span class="badge"><span class="num">8</span> Next</span>
+  <h2>Going further</h2>
+  <p>Patterns used by production-grade Splunk MCP servers, ready to add once the basics work.</p>
+  <div class="grid2">
+    <div class="card"><h4>Multiple environments</h4><p>Read <code>SPLUNK_TOKEN_PROD</code>, <code>SPLUNK_TOKEN_STAGING</code>… and add an <code>instance</code> argument to each tool.</p></div>
+    <div class="card"><h4>Typed configuration</h4><p>Use <code>pydantic-settings</code> for validation, <code>.env</code> loading and CLI flags like <code>--verbose</code>.</p></div>
+    <div class="card"><h4>Tool allow-list</h4><p>Let operators enable only some tools, e.g. <code>SPLUNK_ENABLED_TOOLS=list_indexes,search_splunk</code>.</p></div>
+    <div class="card"><h4>Read-only hints</h4><p><code>@mcp.tool(annotations={"readOnlyHint": True})</code> tells clients a tool is safe.</p></div>
+    <div class="card"><h4>Retries with backoff</h4><p>Use <code>tenacity</code>; retry only on 500/502/503/504 and honour <code>Retry-After</code>.</p></div>
+    <div class="card"><h4>Result limits</h4><p>Cap rows and strip internal fields (<code>_bkt</code>, <code>_cd</code>…) to save tokens.</p></div>
+    <div class="card"><h4>HTTP transport</h4><p><code>mcp.run(transport="http", host="127.0.0.1", port=8000)</code> to share one server. Keep it local or behind an authenticating gateway.</p></div>
+    <div class="card"><h4>Query templates</h4><p>Store vetted, parameterised SPL (e.g. error analysis by service) as JSON and expose it as a tool.</p></div>
+  </div>
+
+  <h3>Example: multiple Splunk environments</h3>
+  <div class="code"><div class="label">server.py (excerpt)</div><button class="copy">Copy</button><pre><code>INSTANCES = {
+  name.removeprefix("SPLUNK_TOKEN_").lower(): token
+  for name, token in os.environ.items()
+  if name.startswith("SPLUNK_TOKEN_")
+}
+# then add `instance: Literal["prod", "staging"]` to each tool</code></pre></div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section class="step" id="security" data-toc="Security">
+  <span class="badge"><span class="num">9</span> Important</span>
+  <h2>Security checklist</h2>
+  <ul class="checklist">
+    <li>Use a <strong>dedicated, least-privilege</strong> Splunk user and token for the server.</li>
+    <li>Give the token an <strong>expiry</strong> and rotate it.</li>
+    <li>Keep tokens in environment variables or a secret manager. Never commit <code>.env</code>.</li>
+    <li>Keep tools <strong>read-only</strong> unless you truly need writes.</li>
+    <li>Block expensive patterns (<code>index=*</code>, leading-wildcard-only searches) inside the server.</li>
+    <li>Remember that <strong>log content is sent to the model</strong>. Logs can contain personal or confidential data, so check your organisation's data-handling rules and limit the indexes the token can read.</li>
+    <li>Review tool-call approvals in Claude Code instead of blanket-allowing everything.</li>
+  </ul>
+</section>
+
+<!-- ============ 10 ============ -->
+<section class="step" id="trouble" data-toc="Troubleshooting">
+  <span class="badge"><span class="num">10</span> Help</span>
+  <h2>Troubleshooting</h2>
+  <p>Start with <code>claude mcp list</code>. Then find your symptom:</p>
+  <details open><summary>“Failed to connect” in <code>claude mcp list</code></summary>
+    <p>Your start command is crashing. Copy the exact command after <code>--</code> and run it in a terminal to see the real error.</p></details>
+  <details><summary><code>KeyError: 'SPLUNK_TOKEN'</code></summary>
+    <p>The environment variable did not reach the server. Add <code>--env SPLUNK_TOKEN=…</code> or fix the <code>env</code> block in <code>.mcp.json</code>. Confirm your shell exported it first.</p></details>
+  <details><summary><code>401 Unauthorized</code></summary>
+    <p>Wrong token, expired token, or a future <em>Not Before</em> date. Recreate the token and copy the one-time value.</p></details>
+  <details><summary><code>403 Forbidden</code></summary>
+    <p>The token's user lacks the search capability or index access. Adjust the user's role in Splunk.</p></details>
+  <details><summary><code>SSL: CERTIFICATE_VERIFY_FAILED</code></summary>
+    <p>Self-signed or private-CA certificate. Trust your CA with <code>httpx.AsyncClient(verify="/path/to/ca.pem")</code>. Avoid <code>verify=False</code> outside local testing.</p></details>
+  <details><summary>Connection refused / time-out</summary>
+    <p>Wrong host or port, or a firewall/VPN. Use the management port <code>8089</code>, not the web port <code>8000</code>.</p></details>
+  <details><summary>Search returns zero rows</summary>
+    <p>Check the time range and the index name. Field <em>names</em> are case-sensitive, field <em>values</em> are not. Try a wider <code>earliest</code>.</p></details>
+  <details><summary>Tools are missing after I changed the config</summary>
+    <p>Restart Claude Code, or run <code>/mcp</code> and reconnect the server.</p></details>
+  <details><summary>Connection drops right after starting</summary>
+    <p>Something wrote to stdout. In stdio mode, never <code>print()</code>; log to stderr or a file.</p></details>
+
+  <h3>Further reading</h3>
+  <ul>
+    <li><a href="https://modelcontextprotocol.io">Model Context Protocol</a></li>
+    <li><a href="https://gofastmcp.com">FastMCP documentation</a></li>
+    <li><a href="https://docs.claude.com/en/docs/claude-code/mcp">Claude Code MCP docs</a></li>
+    <li><a href="https://docs.splunk.com/Documentation/Splunk/latest/RESTREF/RESTprolog">Splunk REST API reference</a></li>
+  </ul>
+</section>
+
+
