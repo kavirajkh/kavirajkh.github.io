@@ -54,7 +54,12 @@ details{margin-top:6px}summary{cursor:pointer;color:var(--c);font-weight:600;fon
 .pill{display:inline-block;border-radius:20px;padding:0 9px;font-size:12px;font-weight:700;color:#fff;background:var(--c,#64748b)}
 @media(max-width:900px){nav#side{display:none}main{margin-left:0;padding:12px}}
 @media print{nav#side,#bar{display:none}main{margin:0}section.sec{break-inside:auto;box-shadow:none}pre.code{white-space:pre-wrap}}
-</style></head><body>
+html{scroll-behavior:smooth}
+.fabs a{position:fixed;right:14px;z-index:20;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600;text-decoration:none;box-shadow:0 2px 8px #0002}
+.fabs a:hover{border-color:#2b7fd4;color:#2b7fd4}
+.fabs .back{bottom:52px}.fabs .top{bottom:14px}
+@media print{.fabs{display:none}}
+</style></head><body><div id="pagetop"></div>
 <nav id="side"><h3>📘 Contents</h3></nav>
 <main>
 <header class="hero">
@@ -1701,4 +1706,5 @@ function resetP(){if(confirm('Reset all progress?')){done.clear();localStorage.r
 window.addEventListener('beforeprint',()=>toggleAll(true));
 upd();
 </script>
+<div class="fabs"><a class="back" href="/resources/" title="Back to the resources page">&larr; Back to resources</a><a class="top" href="#pagetop">Top</a></div>
 </body></html>
