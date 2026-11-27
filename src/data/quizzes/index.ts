@@ -5,6 +5,8 @@ import { javafpQuiz } from './javafp';
 import { patternsQuiz } from './patterns';
 import { criticalQuiz } from './critical';
 import { conversionsQuiz } from './conversions';
+import { springQuiz } from './spring';
+import { kafkaQuiz } from './kafka';
 
 export const quizzes: Quiz[] = [
   patternsQuiz,
@@ -13,4 +15,6 @@ export const quizzes: Quiz[] = [
   conversionsQuiz,
   bigoQuiz,
   javafpQuiz,
+  springQuiz,
+  kafkaQuiz,
 ];
