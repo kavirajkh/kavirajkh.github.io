@@ -24,6 +24,16 @@ export type ResearchDoc = {
 /** Newest first. */
 export const researchDocs: ResearchDoc[] = [
   {
+    slug: 'github-markdown-comments-extension',
+    title: 'Build a Browser Extension for Comments on GitHub Markdown, Stored in Discussions',
+    summary:
+      'A step-by-step guide to building a browser extension that adds anchored, threaded comments to GitHub markdown pages with no backend, by storing every comment as a GitHub Discussion.',
+    lead: 'Why Discussions work as the comment store, then the steps: register a GitHub App, sign in with the device flow, anchor comments to selected text, highlight them again, reply and resolve.',
+    kind: 'Guide',
+    tags: ['Browser extension', 'Manifest V3', 'GitHub GraphQL', 'GitHub App', 'No backend'],
+    updated: '2026-11-28',
+  },
+  {
     slug: 'pgroonga-full-text-search',
     title:
       'Full-Text Search in PostgreSQL with PGroonga: Setup, Fuzzy Search and Write-Load Performance',
