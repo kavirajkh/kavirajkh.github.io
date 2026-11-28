@@ -24,6 +24,17 @@ export type ResearchDoc = {
 /** Newest first. */
 export const researchDocs: ResearchDoc[] = [
   {
+    slug: 'pgroonga-full-text-search',
+    title:
+      'Full-Text Search in PostgreSQL with PGroonga: Setup, Fuzzy Search and Write-Load Performance',
+    summary:
+      'Work in progress. How fuzzy and weighted full-text search works in PostgreSQL with PGroonga, how it compares with OpenSearch, and what write-load testing has shown so far.',
+    lead: 'Setup, SQL for plain, weighted and fuzzy search, a feature comparison with OpenSearch, and the write-load results so far. The POC is still in progress and this page will be updated.',
+    kind: 'POC',
+    tags: ['In progress', 'PostgreSQL 15', 'PGroonga 4.0', 'Fuzzy search', 'Load test'],
+    updated: '2026-11-27',
+  },
+  {
     slug: 'splunk-mcp-guide',
     title: 'Build a Splunk MCP Server and Connect It to Claude Code',
     summary:

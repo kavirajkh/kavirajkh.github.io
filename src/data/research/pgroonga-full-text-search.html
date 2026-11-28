@@ -1,0 +1,529 @@
+<!-- ============ 0 ============ -->
+<section class="step" id="summary" data-toc="Summary">
+  <span class="badge"><span class="num">0</span> Start here</span>
+  <h2>The question and the short answer</h2>
+  <p>Our application already stores its data in PostgreSQL. We needed typo-tolerant, weighted full-text search on a few text columns, and the obvious route was a separate search cluster such as OpenSearch. The alternative was <strong>PGroonga</strong>, a PostgreSQL extension that puts the Groonga full-text engine behind a normal <code>CREATE INDEX</code>. This write-up covers how we set it up, how fuzzy and weighted search behave, and what happened when we load-tested it on a write-heavy table.</p>
+
+  <div class="callout warn"><span class="i">!</span><div><strong>Work in progress.</strong> This POC is not finished. This page records what has been measured so far and will be updated once the POC is complete. Findings marked as a hypothesis are not yet confirmed.</div></div>
+
+  <div class="callout tip"><span class="i">i</span><div><strong>Where it stands.</strong> For moderate data volumes and moderate search traffic, PGroonga is a strong fit: no new infrastructure, newly written rows are searchable inside the same transaction, and fuzzy plus weighted ranking work with plain SQL. The open issue is on the <em>write</em> path. Adding a PGroonga index slowed concurrent inserts in our performance test environment. Hardware and WAL tuning did not remove the slowdown, and our leading hypothesis is lock contention inside the index. We have only tested up to about 250 requests per second, so higher write rates remain unproven.</div></div>
+
+  <table>
+    <tr><th>Topic</th><th>What we found</th></tr>
+    <tr><td>Functional fit</td><td>Plain, fuzzy and weighted search all work with SQL operators and a generated-column schema (sections 3 and 4).</td></tr>
+    <tr><td>Versus OpenSearch</td><td>Matches on free text, fuzzy, ranking and bulk load. Does not match on semantic search or horizontal scale (section 2).</td></tr>
+    <tr><td>Write performance</td><td>Adding the index caused a tail-latency regression (P95 of roughly 750 to 950 ms at about 185 RPS, against about 80 ms at P90). Hardware and WAL tuning did not remove it (sections 5 to 7).</td></tr>
+    <tr><td>Leading hypothesis</td><td>Concurrent writers queue on a self-conflicting page lock inside the PGroonga index. Not yet confirmed (section 7).</td></tr>
+    <tr><td>Fuzzy search under load</td><td>Preliminary: plain and weighted search stayed fast, while fuzzy search degraded sharply at 200 to 300 RPS (section 8).</td></tr>
+    <tr><td>Not yet tested</td><td>Anything near our target write throughput, which is well above the highest rate we tried.</td></tr>
+  </table>
+</section>
+
+<!-- ============ 1 ============ -->
+<section class="step" id="context" data-toc="Why PGroonga">
+  <span class="badge"><span class="num">1</span> Context</span>
+  <h2>Why PGroonga, and where it sits</h2>
+  <p>PGroonga is an open-source PostgreSQL <em>index access method</em>, in the same family as <code>btree</code>, <code>gin</code> and <code>gist</code>. Instead of Postgres's own page format, it wraps <a href="https://groonga.org/" target="_blank" rel="noopener">Groonga</a>, a standalone full-text and column-store engine, and exposes it through <code>CREATE INDEX ... USING pgroonga</code>.</p>
+
+  <figure>
+    <svg viewBox="0 0 900 250" role="img" aria-label="A JSONB payload column feeds generated text and word-array columns, which are covered by PGroonga indexes, which are queried with the &amp;@~ operator and scored with pgroonga_score.">
+      <defs><marker id="p1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs>
+      <rect class="box" x="10" y="60" width="170" height="110" rx="12"/>
+      <text x="95" y="98" text-anchor="middle" class="b">documents table</text>
+      <text x="95" y="120" text-anchor="middle" class="sub">payload JSONB</text>
+      <text x="95" y="138" text-anchor="middle" class="sub">title + content</text>
+
+      <rect class="hi" x="240" y="60" width="190" height="110" rx="12"/>
+      <text x="335" y="92" text-anchor="middle" class="b">Generated columns</text>
+      <text x="335" y="114" text-anchor="middle" class="sub">title_text, content_text</text>
+      <text x="335" y="132" text-anchor="middle" class="sub">title_words, content_words</text>
+      <text x="335" y="150" text-anchor="middle" class="sub">computed once on write</text>
+
+      <rect class="ok" x="490" y="60" width="190" height="110" rx="12"/>
+      <text x="585" y="92" text-anchor="middle" class="b">PGroonga indexes</text>
+      <text x="585" y="114" text-anchor="middle" class="sub">Groonga inverted index</text>
+      <text x="585" y="132" text-anchor="middle" class="sub">updated in the same</text>
+      <text x="585" y="150" text-anchor="middle" class="sub">transaction as the row</text>
+
+      <rect class="wn" x="740" y="60" width="150" height="110" rx="12"/>
+      <text x="815" y="92" text-anchor="middle" class="b">Query</text>
+      <text x="815" y="114" text-anchor="middle" class="sub">&amp;@~ operator</text>
+      <text x="815" y="132" text-anchor="middle" class="sub">pgroonga_condition()</text>
+      <text x="815" y="150" text-anchor="middle" class="sub">pgroonga_score()</text>
+
+      <path class="ac" d="M180 115H238M430 115H488M680 115H738" marker-end="url(#p1)"/>
+      <text x="450" y="215" text-anchor="middle" class="sub">Search runs inside PostgreSQL: no second system to deploy, sync or monitor.</text>
+    </svg>
+    <figcaption>Figure 1. The PGroonga setup used in this research.</figcaption>
+  </figure>
+
+  <h3>When each option fits</h3>
+  <div class="grid2">
+    <div class="card"><h4>Choose PGroonga when</h4>
+      <ul>
+        <li>The data already lives in PostgreSQL and you do not want a second system.</li>
+        <li>New or updated rows must be searchable immediately, in the same transaction.</li>
+        <li>You want to avoid the cost and operations of a search cluster.</li>
+        <li>The dataset and query volume are moderate.</li>
+        <li>Documents have a few text-heavy fields, not many large attributes.</li>
+      </ul>
+    </div>
+    <div class="card"><h4>Choose OpenSearch when</h4>
+      <ul>
+        <li>Search is a core product feature needing custom relevance tuning.</li>
+        <li>You need horizontal scale, or expect to outgrow one PostgreSQL instance.</li>
+        <li>You need custom analyzers, scoring models, or vector and semantic search.</li>
+        <li>The corpus is very large or fast growing.</li>
+        <li>You need high search QPS independent of the transactional database.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section class="step" id="comparison" data-toc="vs OpenSearch">
+  <span class="badge"><span class="num">2</span> Comparison</span>
+  <h2>PGroonga versus OpenSearch, feature by feature</h2>
+  <p>We evaluated both against the same checklist. The OpenSearch side was assessed on a managed deployment, the PGroonga side on PostgreSQL.</p>
+
+  <table>
+    <tr><th>Capability</th><th>OpenSearch</th><th>PGroonga</th></tr>
+    <tr><td>Free-text search</td><td>Yes. Term-level and full-text queries.</td><td>Yes. The <code>&amp;@~</code> operator gives indexed keyword matching.</td></tr>
+    <tr><td>Fuzzy (typo tolerant) search</td><td>Yes. A fuzziness parameter on the query.</td><td>Yes. <code>fuzzy_max_distance_ratio</code> inside <code>pgroonga_condition()</code>.</td></tr>
+    <tr><td>Bulk load</td><td>Yes. The <code>_bulk</code> API with NDJSON batches, from an ETL step.</td><td>Yes. <code>CREATE INDEX</code> scans the table and indexes every existing row.</td></tr>
+    <tr><td>Time until a new write is searchable</td><td>After a refresh, 1 s by default. Longer (such as 30 s) is advised for heavy write loads.</td><td>Immediate, inside the writing transaction.</td></tr>
+    <tr><td>Ranking and scoring</td><td>Yes. <code>function_score</code> with BM25, scripts and decay functions.</td><td>Yes. <code>pgroonga_score()</code> plus your own weighting in SQL.</td></tr>
+    <tr><td>Semantic and intent search</td><td>Yes. Vector and semantic search.</td><td>No, not natively in PostgreSQL at the time of writing.</td></tr>
+    <tr><td>Horizontal scale-out</td><td>Yes. Sharded across nodes.</td><td>No. Bound by one primary instance.</td></tr>
+    <tr><td>Extra infrastructure</td><td>A cluster to run, secure, size and monitor.</td><td>None beyond the database.</td></tr>
+  </table>
+
+  <details>
+    <summary>How OpenSearch ranking compares in practice</summary>
+    <p>OpenSearch customises ranking with a <code>function_score</code> query. The example below boosts documents by a like-to-dislike ratio and a recency decay on top of the BM25 text score. In PGroonga the same idea is a hand-written SQL expression (section 4), which is simpler but less flexible.</p>
+    <div class="code"><div class="label">OpenSearch query</div><button class="copy">Copy</button><pre><code>GET documents/_search
+{
+  "query": {
+    "function_score": {
+      "query": { "multi_match": { "query": "accessory", "fields": ["title", "content"] } },
+      "functions": [
+        { "script_score": { "script": { "source":
+            "double l = doc['like_count'].size() > 0 ? doc['like_count'].value : 0;
+             double d = doc['dislike_count'].size() > 0 ? doc['dislike_count'].value : 0;
+             return Math.log((l + 1.0) / (d + 1.0) + 1.0);" } } },
+        { "gauss": { "created_at": { "origin": "now", "scale": "30d", "decay": 0.7 } } }
+      ],
+      "score_mode": "sum",
+      "boost_mode": "multiply"
+    }
+  },
+  "size": 5
+}</code></pre></div>
+  </details>
+</section>
+
+<!-- ============ 3 ============ -->
+<section class="step" id="setup" data-toc="Setup">
+  <span class="badge"><span class="num">3</span> Step 1</span>
+  <h2>Set up PGroonga and the schema</h2>
+  <p>Everything below ran on PostgreSQL 15 with PGroonga 4.0 (the load tests used PostgreSQL 15.18 and PGroonga 4.0.5). PGroonga must be available on the database server before the extension can be created.</p>
+
+  <h3>Install and enable</h3>
+  <div class="code"><div class="label">terminal (macOS, local test)</div><button class="copy">Copy</button><pre><code>brew install pgroonga
+
+psql -h localhost -p 5432 -U app_user -d search_db</code></pre></div>
+  <div class="code"><div class="label">psql</div><button class="copy">Copy</button><pre><code>CREATE EXTENSION IF NOT EXISTS pgroonga;
+
+-- confirm it is installed
+SELECT extname, extversion FROM pg_extension WHERE extname = 'pgroonga';
+
+-- make sure the planner considers index scans
+SET enable_indexscan = on;</code></pre></div>
+
+  <h3>Create the table with generated search columns</h3>
+  <p>The searchable text lives in a <code>JSONB</code> column. We add four <em>stored generated columns</em> so the lowercasing and word splitting happen once, at write time, and every query reads precomputed values.</p>
+  <div class="code"><div class="label">sql</div><button class="copy">Copy</button><pre><code>CREATE TABLE documents (
+    doc_id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    payload          JSONB NOT NULL,
+    created_on       TIMESTAMP DEFAULT NOW(),
+    group_key        VARCHAR(50),
+
+    -- normalised text for exact and full-text search
+    title_text   TEXT GENERATED ALWAYS AS (lower(payload-&gt;&gt;'title'))   STORED,
+    content_text TEXT GENERATED ALWAYS AS (lower(payload-&gt;&gt;'content')) STORED,
+
+    -- tokenised word arrays for fuzzy and loose matching
+    title_words   TEXT[] GENERATED ALWAYS AS (string_to_array(lower(payload-&gt;&gt;'title'),   ' ')) STORED,
+    content_words TEXT[] GENERATED ALWAYS AS (string_to_array(lower(payload-&gt;&gt;'content'), ' ')) STORED
+);
+
+-- example payload
+-- {"title": "Getting Started with Search",
+--  "content": "A short overview of how full-text search works and when to use it ..."}</code></pre></div>
+
+  <h3>Create the PGroonga indexes</h3>
+  <div class="code"><div class="label">sql</div><button class="copy">Copy</button><pre><code>-- full-text indexes on the normalised text
+CREATE INDEX pgrn_documents_title_idx
+    ON documents USING pgroonga (title_text pgroonga_text_full_text_search_ops_v2);
+
+CREATE INDEX pgrn_documents_content_idx
+    ON documents USING pgroonga (content_text pgroonga_text_full_text_search_ops_v2);
+
+-- word-array indexes intended for fuzzy and partial matching
+CREATE INDEX pgrn_documents_title_words_idx
+    ON documents USING pgroonga (title_words pgroonga_text_array_full_text_search_ops);
+
+CREATE INDEX pgrn_documents_content_words_idx
+    ON documents USING pgroonga (content_words pgroonga_text_array_full_text_search_ops);
+
+-- ordinary indexes for non-search access paths
+CREATE INDEX idx_documents_group_key  ON documents (group_key);
+CREATE INDEX idx_documents_created_on ON documents (created_on);
+CREATE INDEX idx_documents_payload    ON documents USING gin (payload);</code></pre></div>
+
+  <table>
+    <tr><th>Column</th><th>Operator class</th><th>Intended use</th></tr>
+    <tr><td><code>title_text</code></td><td><code>pgroonga_text_full_text_search_ops_v2</code></td><td>Exact word, phrase and AND/OR keyword search on titles.</td></tr>
+    <tr><td><code>content_text</code></td><td><code>pgroonga_text_full_text_search_ops_v2</code></td><td>The same, on content.</td></tr>
+    <tr><td><code>title_words</code></td><td><code>pgroonga_text_array_full_text_search_ops</code></td><td>Typo-tolerant and partial matching on title words.</td></tr>
+    <tr><td><code>content_words</code></td><td><code>pgroonga_text_array_full_text_search_ops</code></td><td>The same, on content words.</td></tr>
+  </table>
+
+  <div class="callout warn"><span class="i">!</span><div><strong>Check that your indexes are actually used.</strong> In our direct <code>psql</code> testing, the word-array indexes were never matched by the fuzzy queries the application used, at any ratio from 0.0 to 0.9. Only the full-text indexes on the raw text columns were used. An unused index is pure write overhead (see section 7), so confirm each index with <code>EXPLAIN</code> before keeping it.</div></div>
+
+</section>
+
+<!-- ============ 4 ============ -->
+<section class="step" id="queries" data-toc="Queries">
+  <span class="badge"><span class="num">4</span> Step 2</span>
+  <h2>Plain, weighted and fuzzy queries</h2>
+
+  <h3>Plain text search with a relevance score</h3>
+  <p>The <code>&amp;@~</code> operator runs an indexed keyword match. <code>pgroonga_score(tableoid, ctid)</code> returns the engine's relevance score for each matched row. It needs <code>tableoid</code> and <code>ctid</code> so PGroonga can find the exact row in its index.</p>
+  <div class="code"><div class="label">sql</div><button class="copy">Copy</button><pre><code>SELECT doc_id, payload,
+       pgroonga_score(tableoid, ctid) AS score
+FROM documents
+WHERE title_text   &amp;@~ 'discount'
+   OR content_text &amp;@~ 'discount'
+ORDER BY score DESC;</code></pre></div>
+
+  <h3>Weighted search</h3>
+  <p>A title match is worth three times a content match. The weights are added into one score.</p>
+  <div class="code"><div class="label">sql</div><button class="copy">Copy</button><pre><code>SELECT doc_id, payload,
+       (CASE WHEN title_text   &amp;@~ pgroonga_condition('discount') THEN 3 ELSE 0 END) +
+       (CASE WHEN content_text &amp;@~ pgroonga_condition('discount') THEN 1 ELSE 0 END) AS weighted_score
+FROM documents
+WHERE title_text   &amp;@~ pgroonga_condition('discount')
+   OR content_text &amp;@~ pgroonga_condition('discount')
+ORDER BY weighted_score DESC;</code></pre></div>
+
+  <h3>Fuzzy (typo tolerant) search</h3>
+  <p>Add <code>fuzzy_max_distance_ratio</code> to <code>pgroonga_condition()</code>. It is the largest allowed edit distance divided by the word length, where edit distance is the Levenshtein count of single-character inserts, deletes and substitutions.</p>
+  <div class="code"><div class="label">sql</div><button class="copy">Copy</button><pre><code>-- 'diskountz' still finds 'discount'
+SELECT doc_id,
+       payload-&gt;&gt;'title'   AS title,
+       payload-&gt;&gt;'content' AS content,
+       pgroonga_score(tableoid, ctid) AS similarity_score
+FROM documents
+WHERE title_words   &amp;@~ pgroonga_condition('diskountz', fuzzy_max_distance_ratio =&gt; 0.3)
+   OR content_words &amp;@~ pgroonga_condition('diskountz', fuzzy_max_distance_ratio =&gt; 0.3)
+ORDER BY similarity_score DESC
+LIMIT 10;</code></pre></div>
+
+  <h3>Fuzzy and weighted together</h3>
+  <div class="code"><div class="label">sql</div><button class="copy">Copy</button><pre><code>SELECT doc_id, payload,
+       (CASE WHEN title_words   &amp;@~ pgroonga_condition('diskountz', fuzzy_max_distance_ratio =&gt; 0.3) THEN 3 ELSE 0 END) +
+       (CASE WHEN content_words &amp;@~ pgroonga_condition('diskountz', fuzzy_max_distance_ratio =&gt; 0.3) THEN 1 ELSE 0 END) AS weighted_score
+FROM documents
+WHERE title_words   &amp;@~ pgroonga_condition('diskountz', fuzzy_max_distance_ratio =&gt; 0.3)
+   OR content_words &amp;@~ pgroonga_condition('diskountz', fuzzy_max_distance_ratio =&gt; 0.3)
+ORDER BY weighted_score DESC;</code></pre></div>
+
+  <h3>Worked example: why "diskountz" matches "discount"</h3>
+  <table>
+    <tr><th>Position</th><th>Query letter</th><th>Indexed letter</th><th>Edit</th></tr>
+    <tr><td>1 to 3</td><td>d, i, s</td><td>d, i, s</td><td>match</td></tr>
+    <tr><td>4</td><td>k</td><td>c</td><td>substitution</td></tr>
+    <tr><td>5 to 8</td><td>o, u, n, t</td><td>o, u, n, t</td><td>match</td></tr>
+    <tr><td>9</td><td>z</td><td>(none)</td><td>deletion</td></tr>
+  </table>
+  <p>That is 2 edits over a 9-letter query, a ratio of about 0.22. It is at or below the 0.3 limit, so the row matches. A ratio of 0.0 means exact match only.</p>
+
+  <h3>The POC REST API</h3>
+  <p>The POC wraps the native queries in a small Spring Boot service. Each search takes <code>q</code>, <code>fuzzy</code> (ratio, default 0.3, and 0.4 for similarity) and <code>limit</code> (default 10). Paths are shown without the service prefix.</p>
+  <table>
+    <tr><th>Endpoint</th><th>Purpose</th></tr>
+    <tr><td><code>GET /documents/search?q=&amp;fuzzy=&amp;limit=</code></td><td>Simple fuzzy search</td></tr>
+    <tr><td><code>GET /documents/search/weighted?q=&amp;fuzzy=&amp;limit=</code></td><td>Title weighted 3, content weighted 1</td></tr>
+    <tr><td><code>GET /documents/search/similarity?q=&amp;fuzzy=&amp;limit=</code></td><td>Ranked by <code>pgroonga_score()</code></td></tr>
+    <tr><td><code>GET /documents/search/title</code> and <code>/content</code></td><td>Search one field</td></tr>
+    <tr><td><code>GET /documents/search/group/{key}?q=&amp;fuzzy=</code></td><td>Search within one group key</td></tr>
+  </table>
+</section>
+
+<!-- ============ 5 ============ -->
+<section class="step" id="method" data-toc="Test method">
+  <span class="badge"><span class="num">5</span> Performance</span>
+  <h2>How we load tested it</h2>
+  <p>Before shipping, we put PGroonga on an existing, transactional notes table and asked four questions.</p>
+  <ol>
+    <li>Does adding PGroonga indexes and search traffic slow <em>unrelated</em> APIs that share the database and service resources?</li>
+    <li>Do service and database resources (CPU, memory, threads) stay within bounds?</li>
+    <li>Does the index slow <em>existing</em> create, update and delete calls on the indexed table?</li>
+    <li>Do the new search endpoints hold up as load rises?</li>
+  </ol>
+
+  <h3>Setup</h3>
+  <table>
+    <tr><th>Item</th><th>Value</th></tr>
+    <tr><td>Environment</td><td>Dedicated performance test environment</td></tr>
+    <tr><td>Database</td><td>PostgreSQL 15.18 with PGroonga 4.0.5</td></tr>
+    <tr><td>Indexed column</td><td>One <code>content</code> text column, with <code>pgroonga_text_full_text_search_ops_v2</code></td></tr>
+    <tr><td>Added endpoints</td><td>Plain or fuzzy search (fuzzy only when a ratio is passed) and weighted search (the two matching sets scored 3x and 1x, merged)</td></tr>
+    <tr><td>Existing endpoints</td><td>Create, update, get and delete, unchanged. They pay the index maintenance cost on every write.</td></tr>
+    <tr><td>Database sizes tried</td><td>4 vCPU / 32 GB, then 16 vCPU / 128 GB memory-optimised instances (a smaller earlier scale-up did not help either)</td></tr>
+    <tr><td>Load shape</td><td>POST-only write load, about 185 to 255 requests per second, 10-minute runs (about 111,000 requests each)</td></tr>
+  </table>
+
+  <h3>Two test tracks</h3>
+  <div class="grid2">
+    <div class="card"><h4>Track A: search load</h4><p>Ramp concurrent traffic against plain, fuzzy and weighted search while baseline CRUD runs on the same table. Measures the blast radius on unrelated APIs.</p></div>
+    <div class="card"><h4>Track B: write isolation</h4><p>Change one variable at a time against POST-only traffic. Measures whether the index <em>alone</em>, with no search queries, slows writes. This produced most of the findings.</p></div>
+  </div>
+
+  <h3>Configurations tried</h3>
+  <table>
+    <tr><th>#</th><th>Change</th><th>What happened</th></tr>
+    <tr><td>1</td><td>Connection pool settings held constant</td><td>Standing configuration for the whole period. Never A/B tested on its own.</td></tr>
+    <tr><td>2</td><td>WAL tuning, round 1: <code>min_wal_size</code> 80 MB to 1 GB, <code>max_wal_size</code> 1 GB to 4 GB, <code>effective_io_concurrency</code> 8 to 200, <code>commit_delay</code> 0 to 5</td><td>Fewer checkpoints, but WAL volume still forced them. <code>commit_delay</code> is in microseconds, so 5 is effectively a no-op.</td></tr>
+    <tr><td>3</td><td><code>checkpoint_timeout</code> 5 min to 15 min</td><td>Did not stop WAL-volume-forced checkpoints from firing far more often than the timer.</td></tr>
+    <tr><td>4</td><td>Add the PGroonga index, no search traffic</td><td><strong>The main regression source</strong>, at every scale tested.</td></tr>
+    <tr><td>5</td><td>Remove a per-write <code>COUNT</code> query (index kept)</td><td>Made things worse. Ruled out as a cause.</td></tr>
+    <tr><td>6</td><td>Minimum idle connections in the pool raised (index kept)</td><td>Fixed the regression at 100 RPS. Did not fix it at 200 RPS.</td></tr>
+    <tr><td>7</td><td>Database on 16 vCPU / 128 GB</td><td>App tier healthy, but the write regression persisted in the database.</td></tr>
+    <tr><td>8</td><td>WAL tuning, round 2: <code>max_wal_size</code> 4 GB to 8 GB</td><td>Forced checkpoints dropped to zero. API latency did not improve.</td></tr>
+  </table>
+</section>
+
+<!-- ============ 6 ============ -->
+<section class="step" id="results" data-toc="Write results">
+  <span class="badge"><span class="num">6</span> Results</span>
+  <h2>What the write tests showed</h2>
+
+  <h3>The application tier was not the bottleneck</h3>
+  <p>During the first large-instance run, the application pods stayed mostly idle: 5 to 20 percent maximum JVM CPU, modest heap use, and flat non-heap memory. The service was waiting on the database.</p>
+
+  <h3>A sharp, infrequent tail</h3>
+  <p>This is the first large-instance run. The 4 GB versus 8 GB comparison further down uses separate runs at the same load, so the 4 GB figures there differ slightly from this run.</p>
+  <table>
+    <tr><th>Metric (create-note endpoint)</th><th>Value</th></tr>
+    <tr><td>Requests</td><td>111,617</td></tr>
+    <tr><td>Average</td><td>142.42 ms</td></tr>
+    <tr><td>P90</td><td>80.27 ms</td></tr>
+    <tr><td>P95</td><td>753.72 ms</td></tr>
+    <tr><td>Max</td><td>7,239 ms</td></tr>
+    <tr><td>Average RPS (P95 RPS)</td><td>185.7 (244.0)</td></tr>
+  </table>
+  <p>P90 was near a healthy baseline while P95 jumped almost tenfold. About 2.6 percent of requests (2,867 of 111,617) took longer than 2 seconds. A uniform slowdown would raise P90 too, so this shape points to <strong>periodic stalls</strong>, not constant overhead.</p>
+
+  <h3>WAL amplification</h3>
+  <p>The table was only about 98 MB on disk, yet the run generated roughly 30 GB of write-ahead log.</p>
+  <table>
+    <tr><th>Quantity</th><th>Value</th></tr>
+    <tr><td>Table size after the run</td><td>about 98 MB</td></tr>
+    <tr><td>Peak WAL rate</td><td>48 to 64 MB/s</td></tr>
+    <tr><td>WAL segments at peak</td><td>about 1,910 x 16 MB, near 30 GB</td></tr>
+    <tr><td>WAL per inserted row</td><td>about 270 KB</td></tr>
+  </table>
+  <p>A heap insert with a couple of B-tree indexes usually writes a few hundred bytes to a few KB of WAL. This is a 100 to 1,000 times amplification. This is consistent with <em>full-page image writes</em> against PGroonga's index pages: after each checkpoint, the first touch of a page logs the whole page, and large index pages are expensive. We have not confirmed this directly.</p>
+
+  <h3>Forced checkpoints, and why they were not the cause</h3>
+  <p>PostgreSQL triggers a checkpoint when either the timer (<code>checkpoint_timeout</code>) or WAL volume (<code>max_wal_size</code>) is reached first. At 4 GB the arithmetic was:</p>
+  <div class="code"><div class="label">checkpoint spacing</div><pre><code>4096 MB / 48 MB/s  =  about 85 s
+4096 MB / 64 MB/s  =  about 64 s
+(the timer alone would allow 900 s)</code></pre></div>
+  <p>Checkpoints were firing five to fourteen times more often than the timer, so they were forced by WAL volume. We doubled <code>max_wal_size</code> to 8 GB.</p>
+
+  <table>
+    <tr><th>Run</th><th>Window</th><th>Timed checkpoints</th><th>Forced checkpoints</th><th><code>buffers_backend</code></th></tr>
+    <tr><td>8 GB, run 1</td><td>about 35 min</td><td>2</td><td><strong>0</strong></td><td>43,948</td></tr>
+    <tr><td>8 GB, run 2</td><td>about 17 min</td><td>1</td><td><strong>0</strong></td><td>42,533</td></tr>
+  </table>
+  <p>Forced checkpoints disappeared. Cache hit ratio stayed near 98.7 percent, WAL segments were recycled as fast as created, and write and replay lag stayed flat. By every classic PostgreSQL health metric the database was clean. But end-user latency did not improve:</p>
+
+  <table>
+    <tr><th>Metric</th><th>max_wal_size 4 GB</th><th>max_wal_size 8 GB</th><th>Change</th></tr>
+    <tr><td>Average (ms)</td><td>164.07</td><td>180.04</td><td>9.7% worse</td></tr>
+    <tr><td>P90 (ms)</td><td>504.01</td><td>477.63</td><td>5.2% better (within noise)</td></tr>
+    <tr><td>P95 (ms)</td><td>883.50</td><td>953.63</td><td>7.9% worse</td></tr>
+    <tr><td>Max (ms)</td><td>5,852</td><td>8,768</td><td>49.8% worse</td></tr>
+    <tr><td>Average RPS</td><td>185.8</td><td>182.8</td><td>flat</td></tr>
+    <tr><td>Requests</td><td>111,480</td><td>109,329</td><td>flat</td></tr>
+  </table>
+
+  <figure>
+    <svg viewBox="0 0 900 330" role="img" aria-label="Grouped bar chart of average, P90 and P95 latency in milliseconds for max_wal_size 4 GB and 8 GB. Average 164 and 180, P90 504 and 478, P95 884 and 954.">
+      <rect class="hi" x="560" y="12" width="14" height="14" rx="3"/><text x="580" y="24" class="sub">max_wal_size 4 GB</text>
+      <rect class="wn" x="720" y="12" width="14" height="14" rx="3"/><text x="740" y="24" class="sub">8 GB</text>
+
+      <text x="10" y="74" class="b">Average</text>
+      <rect class="hi" x="90" y="52" width="115" height="22" rx="3"/><text x="212" y="68" class="sub">164 ms</text>
+      <rect class="wn" x="90" y="78" width="126" height="22" rx="3"/><text x="223" y="94" class="sub">180 ms</text>
+
+      <text x="10" y="184" class="b">P90</text>
+      <rect class="hi" x="90" y="162" width="353" height="22" rx="3"/><text x="450" y="178" class="sub">504 ms</text>
+      <rect class="wn" x="90" y="188" width="334" height="22" rx="3"/><text x="431" y="204" class="sub">478 ms</text>
+
+      <text x="10" y="294" class="b">P95</text>
+      <rect class="hi" x="90" y="272" width="618" height="22" rx="3"/><text x="715" y="288" class="sub">884 ms</text>
+      <rect class="wn" x="90" y="298" width="668" height="22" rx="3"/><text x="765" y="314" class="sub">954 ms</text>
+
+      <path class="ln" d="M90 40V324"/>
+    </svg>
+    <figcaption>Figure 2. API latency at about 185 RPS with a 4 GB and an 8 GB WAL limit. Same code, same load. Bars are scaled at 0.7 px per millisecond.</figcaption>
+  </figure>
+
+  <div class="callout tip"><span class="i">i</span><div><strong>The key negative result.</strong> Checkpoint pressure was real and is now fully fixed, but it was never the main cause of the user-facing slowdown. Something unaffected by WAL sizing was.</div></div>
+
+  <h3>A secondary signal: backends flushing their own buffers</h3>
+  <p><code>buffers_backend</code> stayed near 42,500 to 44,000 across both 8 GB runs. These are dirty buffers that a query backend flushed itself because the background writer could not keep up, which happens on the insert's critical path. It may add to the tail. The background-writer settings (<code>bgwriter_delay</code>, <code>bgwriter_lru_maxpages</code>, <code>bgwriter_lru_multiplier</code>) are untested.</p>
+</section>
+
+<!-- ============ 7 ============ -->
+<section class="step" id="contention" data-toc="Lock contention">
+  <span class="badge"><span class="num">7</span> Hypothesis</span>
+  <h2>Leading hypothesis: index-write lock contention</h2>
+
+  <h3>The evidence</h3>
+  <p>Sampling <code>pg_locks</code> for requests that were <em>not yet granted</em> showed the same pattern in every run, at both WAL settings:</p>
+  <div class="code"><div class="label">pg_locks</div><pre><code>locktype = 'page'
+mode     = 'ShareUpdateExclusiveLock'</code></pre></div>
+  <p><code>ShareUpdateExclusiveLock</code> conflicts with itself, so only one transaction can hold it on a page at a time. Every other writer that needs the same page queues behind it.</p>
+  <table>
+    <tr><th>Run</th><th>Pattern of queued waiters</th><th>Range seen</th></tr>
+    <tr><td>8 GB, run 1 (capture ended before load stopped)</td><td>Steady climb</td><td>99, 168, 165, 184</td></tr>
+    <tr><td>8 GB, run 2 (full capture)</td><td>Oscillating bursts</td><td>2, 26, 65, 125, 164</td></tr>
+  </table>
+
+  <h3>Contention follows index growth</h3>
+  <p>We sampled the index size every 60 seconds. It stayed flat for the first few minutes, then grew linearly at about 15 to 16 MB per minute for the rest of the write window, and stopped growing the moment writes stopped. Lock waits appeared <em>only</em> during the growth phase. Two independent signals starting and stopping together suggests they describe the same event: concurrent writers contending for the index's internal pages while it is being extended.</p>
+
+  <h3>Why tuning could not fix it</h3>
+  <div class="grid2">
+    <div class="card"><h4>Checkpoint frequency</h4><p>A generic PostgreSQL concern. It hits any indexed table under enough write volume and responds to <code>postgresql.conf</code> settings. Fixed here, with no latency change.</p></div>
+    <div class="card"><h4>PGroonga page locking</h4><p>Specific to how this access method serialises structural updates to its own storage. No generic write-path setting is known to touch it, which would explain why <code>max_wal_size</code> did nothing.</p></div>
+  </div>
+
+  <h3>Findings</h3>
+  <ul>
+    <li><strong>Index maintenance is the dominant write cost.</strong> Part was checkpoint driven (fixed). A separate part is index-write serialisation (open).</li>
+    <li><strong>The regression is non-linear.</strong> 100 RPS with the index was fine and 200 RPS was not, which fits a contention effect that appears past a concurrency threshold.</li>
+    <li><strong>Vertical scaling did not fix it.</strong> Two scale-ups changed nothing, and the app tier was never the limit. More CPU or memory does not help when the constraint is one writer per page lock.</li>
+    <li><strong>Every extra index adds write cost.</strong> If the hypothesis holds, each extra PGroonga index is another structure writers can queue on, so drop any that queries do not use.</li>
+  </ul>
+
+  <div class="callout warn"><span class="i">!</span><div><strong>Not confirmed yet.</strong> The test database role could not read other sessions' query text (<code>&lt;insufficient privilege&gt;</code>), so we did not directly confirm that the queued sessions were the insert path. Only the notes table was being written during these runs, so it is a safe inference, but it is an inference. Granting <code>pg_read_all_stats</code> to the test role fixes this cheaply.</div></div>
+</section>
+
+<!-- ============ 8 ============ -->
+<section class="step" id="search-load" data-toc="Search under load">
+  <span class="badge"><span class="num">8</span> Preliminary</span>
+  <h2>Search endpoints under their own load</h2>
+  <p>Separately from the write path, Track A looked at the search endpoints themselves. Treat these as preliminary: they come from the supporting track, with less instrumentation than the write tests.</p>
+  <table>
+    <tr><th>Endpoint</th><th>Behaviour under load</th></tr>
+    <tr><td>Plain (exact) search</td><td>Stayed in single-digit to low double-digit milliseconds.</td></tr>
+    <tr><td>Weighted search</td><td>The same. Stayed fast.</td></tr>
+    <tr><td>Fuzzy search</td><td>P95 rose from about 186 ms at 2 RPS to over 40,000 ms at 200 to 300 RPS.</td></tr>
+    <tr><td>Other CRUD endpoints, while fuzzy search ran</td><td>P95 pushed into the 5,000 to 19,000 ms range.</td></tr>
+  </table>
+  <p>Fuzzy search does not scale on its own and has a blast radius on unrelated endpoints. It needs separate scaling or rate limiting, whatever happens on the write path.</p>
+</section>
+
+<!-- ============ 9 ============ -->
+<section class="step" id="ops" data-toc="Operations">
+  <span class="badge"><span class="num">9</span> Operations</span>
+  <h2>Operational notes</h2>
+  <table>
+    <tr><th>Topic</th><th>Note</th></tr>
+    <tr><td>Unused indexes</td><td>Audit with <code>EXPLAIN</code> and drop any PGroonga index the queries never use (section 3).</td></tr>
+    <tr><td>PostgreSQL 17 and later</td><td>The checkpoint counters moved from <code>pg_stat_bgwriter</code> to <code>pg_stat_checkpointer</code> (<code>num_timed</code>, <code>num_requested</code>). Adjust the queries below.</td></tr>
+    <tr><td>PGroonga versions</td><td>Locking behaviour and tuning options may differ across releases. Treat the lock finding as a hypothesis to re-check on your version.</td></tr>
+  </table>
+</section>
+
+<!-- ============ 10 ============ -->
+<section class="step" id="limits" data-toc="Limits">
+  <span class="badge"><span class="num">10</span> Caveats</span>
+  <h2>What this does not prove</h2>
+  <ul class="checklist">
+    <li><strong>Tested to about 250 RPS only.</strong> Our target write throughput is well above that. Lock contention grows with concurrent writers, so expect it to worsen, not improve, toward the target. Nothing here shows PGroonga can reach it.</li>
+    <li><strong>One indexed table.</strong> Other schemas, row sizes and index sets may behave differently.</li>
+    <li><strong>One dataset shape, one PGroonga version</strong> (4.0.5) and one PostgreSQL version (15.18).</li>
+    <li><strong>No formal latency target (SLA) was set.</strong> The comparison point was the pre-index baseline.</li>
+    <li><strong>No head-to-head benchmark.</strong> The OpenSearch comparison is a feature checklist, not a measured comparison.</li>
+    <li><strong>Index build time</strong> was not measured.</li>
+  </ul>
+</section>
+
+<!-- ============ 11 ============ -->
+<section class="step" id="recommendation" data-toc="Where it stands">
+  <span class="badge"><span class="num">11</span> Conclusion</span>
+  <h2>Where this stands and what is next</h2>
+  <p><strong>Established so far:</strong> PGroonga delivers plain, weighted and fuzzy search inside PostgreSQL with plain SQL, and newly written rows are searchable immediately. <strong>Still open:</strong> adding the index slowed concurrent inserts in our tests, and we have not yet shown that it can sustain our target write rate. We are not making a final recommendation until that is resolved.</p>
+  <p>Remaining work, in priority order:</p>
+  <ol>
+    <li><strong>Ramp load toward the real target</strong> (for example in four or five steps) to see whether contention grows gradually or collapses past a threshold. This is the biggest open risk.</li>
+    <li><strong>Confirm which queries are queued</strong> by granting <code>pg_read_all_stats</code> to the test role and re-running.</li>
+    <li><strong>Correlate lock-wait bursts with application latency spikes</strong> using timestamps, to move from "at the same time" to "caused by".</li>
+    <li><strong>Check PGroonga's documentation and community</strong> for index-update batching, lock granularity or deferred indexing.</li>
+    <li><strong>Try background-writer tuning</strong> given the high <code>buffers_backend</code> counts.</li>
+  </ol>
+  <div class="callout note"><span class="i">i</span><div>This is a work in progress. We will update this document once the POC is complete.</div></div>
+</section>
+
+<!-- ============ 12 ============ -->
+<section class="step" id="repro" data-toc="Reproduce it">
+  <span class="badge"><span class="num">12</span> Reference</span>
+  <h2>Reproducing the measurements</h2>
+  <p>Dashboards gave minute-level aggregates, which were too coarse to pin down checkpoints or lock waits to a test window. We sampled the database directly. A PL/pgSQL procedure ran inside the database, with no shell access or superuser rights beyond standard monitoring views.</p>
+  <div class="code"><div class="label">sql (outline)</div><button class="copy">Copy</button><pre><code>-- Each loop iteration COMMITs on its own, so a dropped client connection
+-- still leaves every earlier sample saved.
+CREATE OR REPLACE PROCEDURE capture_metrics(duration_minutes int, interval_seconds int)
+LANGUAGE plpgsql AS $$
+DECLARE end_time timestamptz := clock_timestamp() + make_interval(mins =&gt; duration_minutes);
+BEGIN
+  WHILE clock_timestamp() &lt; end_time LOOP
+    -- 1. wait events
+    --    SELECT wait_event_type, wait_event, count(*)
+    --    FROM pg_stat_activity WHERE state = 'active' GROUP BY 1, 2;
+    -- 2. queued lock requests (the most reliable contention signal)
+    --    SELECT locktype, mode, count(*) FROM pg_locks WHERE NOT granted GROUP BY 1, 2;
+    -- 3. index size
+    --    SELECT pg_relation_size('pgrn_notes_content_idx'::regclass);
+    -- 4. checkpoint counters (PostgreSQL 16 and earlier)
+    --    SELECT checkpoints_timed, checkpoints_req, buffers_backend FROM pg_stat_bgwriter;
+    COMMIT;
+    PERFORM pg_sleep(interval_seconds);
+  END LOOP;
+END $$;</code></pre></div>
+
+  <details>
+    <summary>Lessons from using this approach</summary>
+    <ul>
+      <li>Polling <code>pg_stat_activity</code> wait events every 15 seconds misses most short lock waits. <code>pg_locks WHERE NOT granted</code> is far more reliable, because a queued session stays visible for as long as it waits.</li>
+      <li><code>pg_stat_bgwriter</code> counters are cumulative since the last stats reset. Snapshot before and after each run and use the difference.</li>
+      <li>Long <code>CALL</code> sessions can lose the client connection to a proxy or idle timeout. Compare <code>max(log_time)</code> against the expected sample count to see how much was captured before calling a run failed.</li>
+    </ul>
+  </details>
+
+  <h3>References</h3>
+  <ul>
+    <li><a href="https://pgroonga.github.io/" target="_blank" rel="noopener">PGroonga documentation</a></li>
+    <li><a href="https://pgroonga.github.io/reference/pgroonga-versus-textsearch-and-pg-trgm.html" target="_blank" rel="noopener">PGroonga versus textsearch and pg_trgm</a></li>
+    <li><a href="https://groonga.org/en/blog/2023/04/13/pgroonga-3.0.0.html" target="_blank" rel="noopener">PGroonga 3.0.0 release notes</a></li>
+    <li><a href="https://docs.opensearch.org/latest/" target="_blank" rel="noopener">OpenSearch documentation</a></li>
+  </ul>
+
+  <div class="callout note"><span class="i">i</span><div>PostgreSQL, PGroonga, Groonga and OpenSearch are trademarks or projects of their respective owners. This write-up is independent research and is not affiliated with or endorsed by them. Measurements describe one environment and one point in time, and should be re-run on yours.</div></div>
+</section>
